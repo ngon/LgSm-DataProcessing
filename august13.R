@@ -33,10 +33,94 @@ ppiOther <- merge(ppiMerge, other, by="id", all=TRUE)
 which(duplicated(ppiOther$id)) # 52000
 ppiOther[810:813,] # looks like this ID was mixed up in the glucose file
                    # DOUBLE CHECK THIS
+# row 812 is the messed up one. it looks like the glucose levels for 52000
+# and 51905 were mixed up in this case. I am deleting row 812. 
 
 allData <- merge(cppData, ppiOther, by="id", all=TRUE)
 write.table(allData, "./mergedData.txt", sep="\t", row.names=FALSE, quote=FALSE)
 
-# sex, fam/sire/dam, and cage variables x and y do not match in all cases
+# remove incorrect entry for animal 52000 (row 812)
+allData <- allData[-c(812),]
+# 51329 is also duplicated. merge values and discard NAs.
+gluData51329 <- allData[595, 137:144]
+allData[594, 137:144] <- gluData51329
+allData <- allData[-c(595),]
+
+# sex, gen, fam/sire/dam, and cage variables x and y do not match in all cases
 # this is because in one dfs the variable was missing, and in the other it was not
-check <- allData[complete.cases(allData),]
+# looking at sex, it appears that this is because the animals were "pheno errors"
+# and will not be used to map QTLs. 
+
+blankValues <- which(is.na(allData$sex.x))
+
+allData[allData$id == "46003",] # remove this mouse (row 25)
+allData[allData$id == "46368",] # remove
+allData[allData$id == "46445",] # remove
+allData[allData$id == "49003",] # remove
+allData[allData$id == "49290",] # remove
+allData[allData$id == "50112",] # remove
+allData[allData$id == "50714",] # remove
+
+allData <- allData[-c(blankValues),] # removing entries above
+allData[allData$id == "50716",] # fix (row 497) - i'm doing this in excel
+
+# read in new, corrected table
+allData<- read.table("./mergedData.txt", sep="\t", header=T, na.strings="NA")
+
+# correct fam mismatches
+allData[allData$fam.y == "BrF52-55", 1:13] 
+allData[c(539,542), c(11,12)] <- allData[c(539,542), c(5,6)]
+
+# now all duplicated columns are identical! keep one and rename:
+allData <- allData[-c(8:13)]
+names(allData)[2:7] <- c("gen", "cage", "fam", "dam", "sire", "sex")
+
+# make separate coat color categories
+unique(allData$cc)
+allData[allData$cc == "AGR/L",] # 587
+allData[587, 8] <- "AGRL"
+allData[allData$cc == "ARG",]
+allData[535, 8] <- "AGR"
+allData[95,1:10]
+allData[95,8] <- "BL"
+allData[93,1:8]
+allData[93,8] <- "AGR"
+allData$cc <- droplevels(allData$cc)
+
+colors <- allData$cc
+levels(colors)[levels(colors)=="AGL"] <- "A"
+levels(colors)[levels(colors)=="AGR"] <- "A"
+levels(colors)[levels(colors)=="AGRL"] <- "A"
+levels(colors)[levels(colors)=="WL"] <- "W"
+levels(colors)[levels(colors)=="WR"] <- "W"
+levels(colors)[levels(colors)=="WRL"] <- "W"
+levels(colors)[levels(colors)=="BL"] <- "B"
+levels(colors)[levels(colors)=="BR"] <- "B"
+levels(colors)[levels(colors)=="BRL"] <- "B"
+
+allData$agouti <- colors
+
+write.table(allData, "./ailMasterData.txt", sep="\t", row.names= FALSE, quote=FALSE)
+covariates <- allData[c(1:36, 110:115, 120:123, 131:132, 134:135, 138:141)]
+covariates <- covariates[-c(45)]
+names(covariates)
+phenotypes2 <- allData[-c(2:24, 26,28,30,32,34,36,  
+                         110:115, 121:123, 131, 134, 138)]
+
+
+write.table(covariates, "./ailCovariates.txt", sep="\t", row.names= FALSE, quote=FALSE)
+write.table(phenotypes2, "./ailPhenotypes.txt", sep="\t", row.names= FALSE, quote=FALSE)
+
+# went in and switched col headers around
+phen <- read.table("./ail.txt", sep="\t", header=T)
+cov <- read.table("./ailCovariates.txt", sep="\t", header=T)
+
+phenoColNames <- names(phen)
+covColNames <- names(cov)
+
+write.table(covColNames, "./covColNames.txt", sep="\t", quote=FALSE)
+write.table(phenoColNames, "./phenColNames.txt", sep="\t", quote=FALSE)
+
+
+
+
