@@ -122,5 +122,8 @@ write.table(covColNames, "./covColNames.txt", sep="\t", quote=FALSE)
 write.table(phenoColNames, "./phenColNames.txt", sep="\t", quote=FALSE)
 
 
-
-
+## info for Ari
+ariData <- allData[c(1:4, 7,8,13,14,18,22,134,135)]
+names(ariData)
+head(ariData)
+write.table(ariData, "./AIL-hindlimb-sampleInfo.txt", sep="\t", row.names=FALSE,quote=FALSE)
