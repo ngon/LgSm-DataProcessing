@@ -9,15 +9,25 @@ pheno.names <- read.table("phenColNames.txt", skip=1, as.is=T)[,2]
 names(pheno) <- pheno.names
 
 #### Read master covariate file
-covars <- read.table("covariatesAIL.txt", sep="\t", as.is=T)
-covar.names <- read.table("covColNames.txt", skip=1, as.is=T)[,2]
+covars        <- read.table("covariatesAIL.txt", sep="\t", as.is=T)
+covar.names   <- read.table("covColNames.txt", skip=1, as.is=T)[,2]
 names(covars) <- covar.names
+#### Change the batch and ppi.box covariates to set of indicator variables for gemma 
+batches       <- unique(covars$batch)
+batches       <- batches[-1]
+for (batch in batches) {
+  covars[,paste0("is.batch", batch)]  <- as.integer(covars$batch == batch)
+}
+boxes         <- unique(covars$ppi.box[which(!is.na(covars$ppi.box))])
+boxes         <- boxes[-1]
+for (box in boxes) {
+  covars[,paste0("is.ppi.box", box)] <- as.integer(covars$ppi.box == box)
+}
 
-
-####### Test code #########
+####### Code for anova testing batch having a significant explantory power on outcome
+####### and batch 13 as being different from rest of batches in terms of outcome
 cpp8.t <- pheno$cpp8.t
 batch <- as.factor(covars$batch)
-
 anova.cpp <- anova(lm(cpp8.t~batch))
 
 batch13 <- as.factor(covars$batch == 13)
@@ -26,7 +36,7 @@ anova.cpp <- anova(lm(cpp8.t~batch13))
 #################### Run Gemma for chosen trait ##############
 group.name <- "cpp8"
 chosen.pheno <- c("cpp8.t")
-chosen.covars <- c("one", "sex") #,  paste0("box", 1:11))
+chosen.covars <- c("one", "sex")
 
 index.pheno <- sapply(chosen.pheno, function(x) { which(pheno.names == x)} )
 ## Make covariate file.
@@ -34,7 +44,7 @@ chosen.covars <- sapply(chosen.covars, function(x) { which(covar.names == x)} )
 chosen.covars <- covars[, chosen.covars]
 write.table(chosen.covars, file=paste0(group.name, ".covs"), sep="\t", quote=F, row.names=F, col.names=F)
 
-## RUN GEemma chromosome wise
+## Run gemma chromosome wise
 cmds <- c("#! /bin/bash\n#$ -cwd\n#$ -j y\n")
 for (index in 1:length(index.pheno)) {
     for (chrom in 1:19) {
@@ -42,10 +52,6 @@ for (index in 1:length(index.pheno)) {
     }
     write.table(cmds, file=paste0("scripts/", group.name, ".", chosen.pheno[index], ".sh"))
 }
-
-
-
-
 
 
 #Code to plot manhattanplot
