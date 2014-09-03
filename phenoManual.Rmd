@@ -149,14 +149,15 @@ Month is also given in character format as cpp.mo, e.g.
 ##8. Body weight
 * see phenotypes. body weight can be used as a covariate for ppi and glucose.
 
+# Check phenotypes
+## 1. Covariates - check which covariates are important. Natalia already has plots for the
+distribution of these phenotypes conditional on covariates.
+## 2. Transformation of the phenotypes based on distribution of the residuals.
+## 3. Check if generation is a confounder after accounting for the relatedness. 
 
-
-
-
-
-
-
-
-
-
-
+# Get data to fit LMM using GEMMA
+## 1. Make one master file each for phenotypes and covariates in the same order as 
+genotyped mice. If mouse not phenotyped, that is easy to fix - mark phenotype as NA. If
+Mouse not genotyped, exclude mouse from analysis.
+## 2. Estimate kinship matrix for each chromosome (excluding that chromosome).
+## 3. Run GEMMA from R for each chromosome separately.
