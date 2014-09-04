@@ -14,7 +14,7 @@ names(pheno) <- pheno.names
 
 #### Generate the phenotype data for all samples with genotypes
 pheno.allgeno <- merge(geno.samples, pheno, all.x=TRUE)
-write.table(pheno.allgeno, file="phenosAIL.allgeno.txt")
+write.table(pheno.allgeno, file="phenosAIL.allgeno.txt", quote=FALSE, sep="\t", row.names=FALSE, col.names=FALSE)
 
 #### Read master covariate file
 covars        <- read.table("covariatesAIL.txt", sep="\t", as.is=T)
@@ -38,10 +38,9 @@ cpp8.t <- pheno$cpp8.t
 batch <- as.factor(covars$batch)
 anova.cpp <- anova(lm(cpp8.t~batch))
 
-batch13 <- as.factor(covars$batch == 13)
-anova.cpp <- anova(lm(cpp8.t~batch13))
+anova.cpp <- anova(lm(cpp8.t~covars$is.batch13))
 
-#################### Run Gemma for chosen trait ##############
+#################### Make script to run Gemma for chosen trait ##############
 group.name <- "cpp8"
 chosen.pheno <- c("cpp8.t")
 chosen.covars <- c("one", "sex")
@@ -61,7 +60,7 @@ for (index in 1:length(index.pheno)) {
     write.table(cmds, file=paste0("scripts/", group.name, ".", chosen.pheno[index], ".sh"))
 }
 
-
+######## Auxillary code to generate plots ###############
 #Code to plot manhattanplot
 chrLens    <- read.table('/home/shyamg/projects/Mouse/CFW/maps/chrLengths_mm9.txt')$V2
 chrLens    <- c(0, cumsum(chrLens*1.0))
