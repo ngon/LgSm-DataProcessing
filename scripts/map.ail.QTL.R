@@ -3,10 +3,18 @@
 ###### CONSTANTS
 MAF=0.05
 
+#### Read genotype sample names
+geno.samples <- read.table("genoIDs.txt", as.is=TRUE)
+names(geno.samples) <- c("id")
+
 #### Read phenotype file
 pheno     <- read.table('phenosAIL.txt')
 pheno.names <- read.table("phenColNames.txt", skip=1, as.is=T)[,2]
 names(pheno) <- pheno.names
+
+#### Generate the phenotype data for all samples with genotypes
+pheno.allgeno <- merge(geno.samples, pheno, all.x=TRUE)
+write.table(pheno.allgeno, file="phenosAIL.allgeno.txt")
 
 #### Read master covariate file
 covars        <- read.table("covariatesAIL.txt", sep="\t", as.is=T)
