@@ -31,33 +31,36 @@ boxes         <- boxes[-1]
 for (box in boxes) {
   covars[,paste0("is.ppi.box", box)] <- as.integer(covars$ppi.box == box)
 }
+boxes         <- unique(covars$cpp.box[which(!is.na(covars$cpp.box))])
+boxes         <- boxes[-1]
+for (box in boxes) {
+  covars[,paste0("is.cpp.box", box)] <- as.integer(covars$cpp.box == box)
+}
 
 ####### Code for anova testing batch having a significant explantory power on outcome
 ####### and batch 13 as being different from rest of batches in terms of outcome
 cpp8.t <- pheno$cpp8.t
 batch <- as.factor(covars$batch)
 anova.cpp <- anova(lm(cpp8.t~batch))
-
 anova.cpp <- anova(lm(cpp8.t~covars$is.batch13))
-
+anova.cpp <- anova(lm(cpp8.t~as.factor(covars$cpp.box)))
 #################### Make script to run Gemma for chosen trait ##############
 group.name <- "cpp8"
 chosen.pheno <- c("cpp8.t")
-chosen.covars <- c("one", "sex")
-
+chosen.covars <- c("one", "sex", paste0("is.cpp.box", c(1:12)[-5]))
 index.pheno <- sapply(chosen.pheno, function(x) { which(pheno.names == x)} )
 ## Make covariate file.
-chosen.covars <- sapply(chosen.covars, function(x) { which(covar.names == x)} )
+chosen.covars <- sapply(chosen.covars, function(x) { which(names(covars) == x)} )
 chosen.covars <- covars[, chosen.covars]
-write.table(chosen.covars, file=paste0(group.name, ".covs"), sep="\t", quote=F, row.names=F, col.names=F)
+write.table(chosen.covars, file=paste0("covariates/", group.name, ".covs"), sep="\t", quote=F, row.names=F, col.names=F)
 
 ## Run gemma chromosome wise
 cmds <- c("#! /bin/bash\n#$ -cwd\n#$ -j y\n")
 for (index in 1:length(index.pheno)) {
     for (chrom in 1:19) {
-        cmds <- c(cmds, paste0("/home/shyamg/bin/gemma -g genotypes/ail.chr", chrom, ".dosage -p phenosAIL.txt -k kinship/notChr", chrom,".cXX.txt -a snpinfo/ail.chr", chrom, ".snpinfo -c ", group.name, ".covs -lmm 2 -maf", MAF, " -o ", chosen.pheno[index], ".chr", chrom, ".out -n ", index.pheno[index]))
+        cmds <- c(cmds, paste0("/home/shyamg/bin/gemma -g genotypes/ail.chr", chrom, ".dosage -p phenosAIL.allgeno.txt -k kinship/notChr", chrom,".cXX.txt -a snpinfo/ail.chr", chrom, ".snpinfo -c covariates/", group.name, ".covs -lmm 2 -maf ", MAF, " -o ", chosen.pheno[index], ".chr", chrom, ".out -n ", index.pheno[index]))
     }
-    write.table(cmds, file=paste0("scripts/", group.name, ".", chosen.pheno[index], ".sh"))
+    write.table(cmds, file=paste0("scripts/", group.name, ".", chosen.pheno[index], ".sh"), row.names=F, col.names=F, quote=F)
 }
 
 ######## Auxillary code to generate plots ###############
