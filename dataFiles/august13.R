@@ -1,40 +1,59 @@
-# Format pheno files for meeting with Shyam on 8/15/2014
-library(xlsx)
-setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing")
+## Format phenotype files (complete)
+
 list.files()
 
 ### Read data
 
+######## TO RUN WHEN DISSECTION IS COMPLETE ##############
+# physiological phenos 
+# other <- read.table("./otherPhenos.ALL.txt", sep="\t", na.strings=NA, header=TRUE)
+# other <- other[do.call(order, other),]
+########################################################
+
 # cpp data
-cppData<- read.table("./cppPhenos.txt", sep="\t", header=TRUE)
+cppData<- read.table("./dataFiles/cppPhenos.ALL.txt", 
+                     sep="\t", header=TRUE, na.strings="NA")
+# read ppi info 
+ppiInfo <- read.table(file="./dataFiles/ppi.info.ALL.csv", 
+                      sep=",", header=TRUE, na.strings="NA")
+# read ppi data
+ppiData <- read.table(file="./dataFiles/ppi.data.ALL.csv", 
+                      sep=",", header=TRUE, na.strings="NA")
 
-# physiological phenos
-other <- read.table("./otherPhenos.txt", sep="\t", na.strings=NA, header=TRUE)
-other <- other[do.call(order, other),]
+# remove blank columns
+cppData <- cppData[1:119]
+ppiInfo <- ppiInfo[1:9]
 
-
-# read ppi data and info sheet separately and merge files
-ppiInfo <- read.table(file="ppi.info.csv", sep=",", header=TRUE, na.strings="NA")
+# sort ppi files
 ppiInfo <- ppiInfo[do.call(order, ppiInfo),]
-
-ppiData <- read.table(file="ppiJul2014.csv", sep=",", header=TRUE, na.strings="NA")
 ppiData <- ppiData[do.call(order, ppiData),]
-ppiData <- ppiData[,c(1:2, 81:87)]
-names(ppiData)[1:6] <- c("id", "ppi.box", "ppi3", "ppi6", "ppi12", "avg.ppi")
 
+# pull out relevant columns from ppiData and rename some of them
+ppiData <- ppiData[,c("ID", "BOX","PPI3", "PPI6", "PPI12",
+                      "avg_ppi", "startle", "habituation",
+                      "sum.nostim")]
+names(ppiData)[1:6] <- c("id", "ppi.box", "ppi3", 
+                         "ppi6", "ppi12", "avg.ppi")
+
+# merge ppiData and ppiInfo
 ppiMerge <- merge(ppiInfo, ppiData, by="id", all=TRUE)
-which(duplicated(ppiMerge$id)) # there is one duplicated value
+
+#check for and remove duplicate values (there is 1)
+which(duplicated(ppiMerge$id)) 
 ppiMerge[1002:1005,] # 53420 - remove the second entry 
 ppiMerge <-ppiMerge[-c(1005),]
 
-# merge ppiMerged data with cpp and other pheno data
+########### saving complete ppi and cpp files for merge#####
+save(cppData, ppiMerge, file="./CPPandPPI.11sep14.RData")
 
+
+####################### TO DO WHEN DONE WITH DISSECTIONS ####
+# merge all pheno data
 ppiOther <- merge(ppiMerge, other, by="id", all=TRUE)
 which(duplicated(ppiOther$id)) # 52000
-ppiOther[810:813,] # looks like this ID was mixed up in the glucose file
-                   # DOUBLE CHECK THIS
-# row 812 is the messed up one. it looks like the glucose levels for 52000
-# and 51905 were mixed up in this case. I am deleting row 812. 
+ppiOther[810:813,] # looks like this ID was mixed up in gluc file
+
+# row 812 is the messed up one. it looks like the glucose levels for 52000 and 51905 were mixed up in this case. I am deleting row 812. 
 
 allData <- merge(cppData, ppiOther, by="id", all=TRUE)
 write.table(allData, "./mergedData.txt", sep="\t", row.names=FALSE, quote=FALSE)
@@ -46,10 +65,7 @@ gluData51329 <- allData[595, 137:144]
 allData[594, 137:144] <- gluData51329
 allData <- allData[-c(595),]
 
-# sex, gen, fam/sire/dam, and cage variables x and y do not match in all cases
-# this is because in one dfs the variable was missing, and in the other it was not
-# looking at sex, it appears that this is because the animals were "pheno errors"
-# and will not be used to map QTLs. 
+# sex, gen, fam/sire/dam, and cage variables x and y do not match in all cases this is because in one dfs the variable was missing, and in the other it was not looking at sex, it appears that this is because the animals were "pheno errors"and will not be used to map QTLs. 
 
 blankValues <- which(is.na(allData$sex.x))
 
