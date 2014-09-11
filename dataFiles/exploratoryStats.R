@@ -97,3 +97,86 @@ cppBatch <- lm(act$cpp8.t ~ as.factor(act$batch)); summary(cppBatch) # 2,10,13,1
 ippBox <- lm(act$cpp1.t ~ as.factor(act$cpp.box)); summary(ippBox) # box 3,8-10
 ippGen <- lm(act$cpp1.t ~ as.factor(act$gen)); summary(ippGen) # gen 54,56
 ippBatch <- lm(act$cpp1.t ~ as.factor(act$batch)); summary(ippBatch) # 13,14,17,21,22
+
+
+################### QUANTATIVE COVARIATES #######################
+
+## no significant correlations between quantitative covariates and any of the traits
+## below that are not already encompassed by another covariate (e.g. sex&weight)
+
+panels <-
+        list(               
+                ipp.ratio= list (pheno="cpp1.t",   cov="mf.ratio",    col="orange"),
+                cpp.ratio= list (pheno="cpp8.t",   cov="mf.ratio",    col="orange"),
+                cppdiff.ratio= list (pheno="cpp.diff.sec", cov="mf.ratio",    col="orange"),
+                act1.t.ratio= list (pheno="act1.t",   cov="mf.ratio",    col="orange"),
+                act2.t.ratio= list (pheno="act2.t",   cov="mf.ratio",    col="orange"),
+                act3.t.ratio= list (pheno="act3.t",   cov="mf.ratio",    col="orange"),
+                act4.t.ratio= list (pheno="act4.t",   cov="mf.ratio",    col="orange"),
+                act5.t.ratio= list (pheno="act5.t",   cov="mf.ratio",    col="orange"),
+                act8.t.ratio= list (pheno="act8.t",   cov="mf.ratio",    col="orange"),
+                sens.ratio= list (pheno="sens",   cov="mf.ratio",    col="orange"),
+                
+                ipp.weight= list (pheno="cpp1.t",   cov="d8.weight",    col="green"),
+                cpp.weight= list (pheno="cpp8.t",   cov="d8.weight",    col="green"),
+                cppdiff.weight= list (pheno="cpp.diff.sec", cov="d8.weight",    col="green"),
+                
+                
+                ipp.sc= list (pheno="cpp1.t",   cov="sc1.t",    col="dodgerblue"),
+                cpp.sc= list (pheno="cpp8.t",   cov="sc8.t",    col="dodgerblue"),
+                cppdiff.8sc= list (pheno="cpp.diff.sec", cov="sc8.t",    col="dodgerblue"),
+                cppdiff.1sc= list (pheno="cpp.diff.sec", cov="sc1.t",    col="dodgerblue"),
+                act1.t.sc= list (pheno="act1.t",   cov="sc1.t",    col="dodgerblue"),
+                act8.t.sc= list (pheno="act8.t",   cov="sc8.t",    col="dodgerblue")
+        )
+
+
+
+phenotypes <- unique(sapply(panels,function(x)x$pheno))
+pheno      <- act
+n     <- nrow(pheno)
+pheno <- transform(pheno,mf.ratio = mf.ratio + rnorm(n,sd = 0.5))
+
+
+
+for (panel in names(panels)) {      
+        r         <- panels[[panel]]
+        phenotype <- r$pheno
+        covariate <- r$cov
+        panel.col <- r$col
+        data        <- pheno[c(phenotype,covariate)]
+        #data <- cbind(data, pheno)
+        names(data) <- c("y","x")
+        model <- lm(y ~ x,data)
+        pve   <- summary(model)$r.squared
+        
+        filename=paste0(covariate,"_", phenotype, ".png", sep="")
+        png(file=filename, height=300,width=300)
+        
+        print(ggplot(data, aes(x=x,y=y)) +
+                      geom_point(color=panel.col)+
+                      geom_smooth(method=lm, se=TRUE) +
+                      xlab(paste0(covariate, " (PVE= ", round(100*pve, digits=2), "%)"))+
+                      ylab(paste0(phenotype))+
+                      guides(color=FALSE)+
+                      theme_bw()+
+                      theme(axis.title.x = element_text(colour="black", size=14),
+                            axis.text = element_text(colour="black", size=12),
+                            axis.title.y = element_text(colour="black", size=14),
+                            plot.title = element_text(colour="black", size=12),
+                            legend.position="none"))
+        
+        dev.off()      
+}
+
+
+
+
+
+
+
+
+
+
+
+
