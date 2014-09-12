@@ -37,9 +37,58 @@ boxplot(act$cpp.diff.sec,
         cex.axis= 0.75)
 abline(h=94.40822, col="dodgerblue", lty=3)
 
+
 # graph day 1 and day 8 side by side
 
+methcpp = cbind(act$id, act$cpp1.t, act$cpp8.t)
+methcpp = as.data.frame(methcpp)
+names(methcpp) <- c("id", "Day 1", "Day 8")
+# remove row with missing values in cpp1.t - they are coded as 0 but should be NA
+methcpp <- methcpp[-c(511),]
 
+
+methcpp = melt.data.frame(methcpp, id.vars = c(1), measure.vars=c(2,3))
+methcpp = rename(methcpp, c(variable= "Trial", value="Time"))
+methcpp = na.omit(methcpp)
+methcpp$Time = as.numeric(as.character(methcpp$Time))
+methcpp.sum = summarySE(methcpp, measurevar="Time", groupvars=c("Trial"))
+
+dodge = position_dodge(width=0.5)
+
+
+
+cppplot = ggplot(data=methcpp, aes(x=Trial, y=Time)) +
+        geom_boxplot(position=position_dodge(1), notch=TRUE, 
+                     outlier.size=2, outlier.shape=16, width=.4)+
+        ylab("Seconds spent on Meth-paired side") +
+        ggtitle("CPP for 1 mg/kg Meth \n in F50-56 AIL")+
+        scale_y_continuous(breaks=c(0,250,500,750,1000,1250,1500))+
+        coord_cartesian(ylim=c(250,1500))+
+        
+        stat_summary(data = methcpp, aes(x=Trial, y=Time), 
+                     fun.y=mean, colour="darkgreen", geom="point", 
+                     shape=16, size=3,show_guide = FALSE) +
+        
+        geom_linerange(data=methcpp.sum, aes(x=Trial, y=se),
+                       ymax=(methcpp.sum$Time + methcpp.sum$se), 
+                       ymin=(methcpp.sum$Time-methcpp.sum$se),
+                       linetype=1, size=1, colour="green")+
+        
+        geom_hline(yintercept =900, linetype=2)+
+        
+        theme_bw()+        
+        theme(plot.title= element_text(size=14), 
+              axis.title.x= element_text(size=12),
+              axis.title.y= element_text(size=12),
+              axis.text.x = element_text(size=11),
+              axis.text.y = element_text(size=11),
+              legend.position= "none")
+
+
+png(filename="./cppBoxplot.png", 
+    height=320, width=250)
+cppplot
+dev.off()
 
 
 # pheno counts - what is N with NAs removed?

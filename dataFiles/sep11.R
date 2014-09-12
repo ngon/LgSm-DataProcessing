@@ -43,9 +43,10 @@ which(duplicated(ppiMerge$id))
 ppiMerge[1002:1005,] # 53420 - remove the second entry 
 ppiMerge <-ppiMerge[-c(1005),]
 
+
 ########### saving complete ppi and cpp files for merge#####
 save(cppData, ppiMerge, file="./CPPandPPI.11sep14.RData")
-
+save(ppiMerge, file="./ppiMerge.RData")
 
 ####################### TO DO WHEN DONE WITH DISSECTIONS ####
 # merge all pheno data
@@ -78,7 +79,7 @@ allData[allData$id == "50112",] # remove
 allData[allData$id == "50714",] # remove
 
 allData <- allData[-c(blankValues),] # removing entries above
-allData[allData$id == "50716",] # fix (row 497) - i'm doing this in excel
+#allData[allData$id == "50716",] # fix (row 497) - i'm doing this in excel
 
 # read in new, corrected table
 allData<- read.table("./mergedData.txt", sep="\t", header=T, na.strings="NA")
