@@ -26,6 +26,30 @@ cpptest$p.value
 # create cpp.diff.sec
 actWcovs$cpp.diff.sec <- actWcovs$cpp8.t - actWcovs$cpp1.t
 
+# graph cpp difference in seconds
+# mean(act$cpp.diff.sec)
+# [1] 94.40882
+boxplot(act$cpp.diff.sec, 
+        main="Change in preference for Meth \n paired side (Day8 - Day1)", 
+        ylab = "Number of seconds", 
+        xlab="F50-56",
+        cex.main = 0.85,
+        cex.axis= 0.75)
+abline(h=94.40822, col="dodgerblue", lty=3)
+
+# graph day 1 and day 8 side by side
+
+
+
+
+# pheno counts - what is N with NAs removed?
+phenoList <- act[c("act1.t", "act2.t", "act3.t", "act4.t", "act5.t", 
+                   "cpp1.t", "cpp8.t", "cpp.diff.sec")]
+
+ncases <- function(x) sum(complete.cases(x))
+Nact<- colwise(ncases)(phenoList)
+
+
 #################### MALES AND FEMALES ################################
 
 # create male and female  dfs
@@ -130,13 +154,10 @@ panels <-
                 act8.t.sc= list (pheno="act8.t",   cov="sc8.t",    col="dodgerblue")
         )
 
-
-
 phenotypes <- unique(sapply(panels,function(x)x$pheno))
 pheno      <- act
 n     <- nrow(pheno)
 pheno <- transform(pheno,mf.ratio = mf.ratio + rnorm(n,sd = 0.5))
-
 
 
 for (panel in names(panels)) {      
@@ -170,12 +191,109 @@ for (panel in names(panels)) {
 }
 
 
+#############################################################
+################### PPI DATA ################################
+
+load(ppiMerge, file="./ppiMerge.RData")
+
+# pheno counts - what is N with NAs removed?
+sum(complete.cases(ppiMerge$avg.ppi)) # 1108
+
+lapply(ppiMerge, class)
+ppiMerge$gen <- as.factor(ppiMerge$gen)
+ppiMerge$ppi.box <- as.factor(ppiMerge$ppi.box)
+
+blankValues <- which(is.na(allData$sex.x))
+ppi <- ppi[-c(blankValues),] 
+
+ppi <- merge(act, ppiMerge, by="id", all.y=TRUE)
+ppi <- ppi[-c(17:120)]
+ppi <- ppi[-c(2, 4:6, 12,13)]
+
+ppi$batch <- as.factor(ppi$batch)
+names(ppi)[11:16] <- c("gen", "cage", "fam", "dam", "sire", "sex")
 
 
+################## FACTOR COVARIATE ANALYSIS ##################
+
+ppbox <- lm(ppi$avg.ppi ~ ppi$ppi.box); summary(ppbox) # box 3, box 4
+ppbatch <- lm(ppi$avg.ppi ~ ppi$batch); summary(ppbatch) # batch 4
+ppgen <- lm(ppi$avg.ppi ~ ppi$gen); summary(ppgen) # none
+ppsex <- lm(ppi$avg.ppi ~ ppi$sex); summary(ppsex) # sex (probably weight)
+
+sbox <- lm(ppi$startle ~ ppi$ppi.box); summary(sbox) # box 3, box 4
+sbatch <- lm(ppi$startle ~ ppi$batch); summary(sbatch) # batch 2, 16, 17
+sgen <- lm(ppi$startle ~ ppi$gen); summary(sgen) # none
+ssex <- lm(ppi$startle ~ ppi$sex); summary(ssex) # sex (probably weight)
+
+hbox <- lm(ppi$habituation ~ ppi$ppi.box); summary(hbox) # none
+hbatch <- lm(ppi$habituation ~ ppi$batch); summary(hbatch) # none
+hgen <- lm(ppi$habituation ~ ppi$gen); summary(hgen) # none
+hsex <- lm(ppi$habituation ~ ppi$sex); summary(hsex) # sex (probably weight)
+
+################ QUANTITATIVE COVARIATES ##########################
+
+panels <-
+        list(   ppi.wage = list(pheno="avg.ppi", cov="wean.age", col="dodgerblue"),
+                st.wage = list(pheno="startle", cov="wean.age", col="dodgerblue"),
+                hab.wage = list(pheno="habituation", cov="wean.age", col="dodgerblue"),
+                
+                ppi.mf = list(pheno="avg.ppi", cov="mf.ratio", col="orange"),
+                st.mf = list(pheno="startle", cov="mf.ratio", col="orange"),
+                hab.mf = list(pheno="habituation", cov="mf.ratio", col="orange"),
+                
+                ppi.wt = list(pheno="avg.ppi", cov="ppi.weight", col="red"),
+                st.wt = list(pheno="startle", cov="ppi.weight", col="red"),
+                hab.wt = list(pheno="habituation", cov="ppi.weight", col="red"),
+                
+                ppi.nostim = list(pheno="avg.ppi", cov="sum.nostim", col="blue"),
+                st.nostim = list(pheno="startle", cov="sum.nostim", col="blue"),
+                hab.nostim = list(pheno="habituation", cov="sum.nostim", col="blue")
+                
+        )
+
+phenotypes <- unique(sapply(panels,function(x)x$pheno))
+pheno      <- ppi
+n     <- nrow(pheno)
+pheno <- transform(pheno,mf.ratio = mf.ratio + rnorm(n,sd = 0.5))
+pheno <- transform(pheno,wean.age = wean.age + rnorm(n,sd = 0.5))
+pheno <- transform(pheno,sum.nostim = sum.nostim + rnorm(n,sd = 0.5))
+
+for (panel in names(panels)) {      
+        r         <- panels[[panel]]
+        phenotype <- r$pheno
+        covariate <- r$cov
+        panel.col <- r$col
+        data        <- pheno[c(phenotype,covariate)]
+        #data <- cbind(data, pheno)
+        names(data) <- c("y","x")
+        model <- lm(y ~ x,data)
+        pve   <- summary(model)$r.squared
+        
+        filename=paste0(covariate,"_", phenotype, ".png", sep="")
+        png(file=filename, height=300,width=300)
+        
+        print(ggplot(data, aes(x=x,y=y)) +
+                      geom_point(color=panel.col)+
+                      geom_smooth(method=lm, se=TRUE) +
+                      xlab(paste0(covariate, " (PVE= ", round(100*pve, digits=2), "%)"))+
+                      ylab(paste0(phenotype))+
+                      guides(color=FALSE)+
+                      theme_bw()+
+                      theme(axis.title.x = element_text(colour="black", size=14),
+                            axis.text = element_text(colour="black", size=12),
+                            axis.title.y = element_text(colour="black", size=14),
+                            plot.title = element_text(colour="black", size=12),
+                            legend.position="none"))
+        
+        dev.off()      
+}
+
+######### there are a lot of nostim values greater than 50 (46 = 3rd quartile).
+######### 56 values are >100 , 53 > 200, 30 >300, 20 < 400, 5 > 500 (20 are NAs)
 
 
-
-
+########## GRAPHS ############
 
 
 
