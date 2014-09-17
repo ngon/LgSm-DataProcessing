@@ -42,19 +42,16 @@ bindata$sex= as.factor(bindata$sex)
 
 ailD1act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+
         geom_errorbar(aes(ymin=Distance-se, ymax=Distance+se), width=.1) +
-        geom_line(lwd=1) +
+        geom_line(lwd=0.6) +
         geom_point() +
-        ggtitle("Day 1 Activity")+
+        #ggtitle("Day 1 Activity")+
         xlab("Time (min)") +
         ylab("Distance (cm)") +
         scale_x_continuous(breaks=c(5,10,15,20,25,30))+
         scale_y_continuous(limits=c(1000,2500))+
-        theme_bw()+
-        theme(axis.title.x = element_text(colour="black", size=14),
-              axis.text = element_text(colour="black", size=12),
-              axis.title.y = element_text(colour="black", size=14),
-              plot.title = element_text(colour="black", size=16),
-              legend.position = c(0.2, 0.25))
+        theme_tufte+
+        theme(
+              legend.position = "none")
 
 
 
@@ -82,19 +79,17 @@ bindata$sex= as.factor(bindata$sex)
 
 ailD8act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+
         geom_errorbar(aes(ymin=Distance-se, ymax=Distance+se), width=.1) +
-        geom_line(lwd=1) +
+        geom_line(lwd=0.6) +
         geom_point() +
-        ggtitle("Day 8 Activity")+
+        #ggtitle("Day 8 Activity")+
         xlab("Time (min)") +
         ylab("Distance (cm)") +
         scale_x_continuous(breaks=c(5,10,15,20,25,30))+
         scale_y_continuous(limits=c(1000,2500))+
-        theme_bw()+
-        theme(axis.title.x = element_text(colour="black", size=14),
-              axis.text = element_text(colour="black", size=12),
-              axis.title.y = element_text(colour="black", size=14),
-              plot.title = element_text(colour="black", size=16),
-              legend.position = c(0.2, 0.25))
+        theme_tufte+
+        theme(
+              legend.position = c(0.9,0.9))
+             
 
 
 test1= summarySE(act, measurevar=c("act3.1"), groupvars="sex")
@@ -121,19 +116,16 @@ bindata$sex= as.factor(bindata$sex)
 
 ailD3act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+
         geom_errorbar(aes(ymin=Distance-se, ymax=Distance+se), width=.1) +
-        geom_line(lwd=1) +
+        geom_line(lwd=0.6) +
         geom_point() +
-        ggtitle("Day 3 Activity")+
+        #ggtitle("Day 3 Activity")+
         xlab("Time (min)") +
         ylab("Distance (cm)") +
         scale_x_continuous(breaks=c(5,10,15,20,25,30))+
         scale_y_continuous(limits=c(100,450))+
-        theme_bw()+
-        theme(axis.title.x = element_text(colour="black", size=14),
-              axis.text = element_text(colour="black", size=12),
-              axis.title.y = element_text(colour="black", size=14),
-              plot.title = element_text(colour="black", size=16),
-              legend.position = c(0.2, 0.25))
+        theme_tufte+
+        theme(legend.position = "none")
+            
 
 
 
@@ -162,16 +154,12 @@ bindata$sex= as.factor(bindata$sex)
 
 ailD5act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+
         geom_errorbar(aes(ymin=Distance-se, ymax=Distance+se), width=.1) +
-        geom_line(lwd=1) +
+        geom_line(lwd=0.6) +
         geom_point() +
-        ggtitle("Day 5 Activity")+
+        #ggtitle("Day 5 Activity")+
         xlab("Time (min)") +
         ylab("Distance (cm)") +
         scale_x_continuous(breaks=c(5,10,15,20,25,30))+
         scale_y_continuous(limits=c(100,450))+
-        theme_bw()+
-        theme(axis.title.x = element_text(colour="black", size=14),
-              axis.text = element_text(colour="black", size=12),
-              axis.title.y = element_text(colour="black", size=14),
-              plot.title = element_text(colour="black", size=16),
-              legend.position = c(0.17, 0.17))
+        theme_tufte+
+        theme(legend.position = "none")

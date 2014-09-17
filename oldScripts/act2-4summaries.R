@@ -37,21 +37,18 @@ test6=rename(test6, c("act4.6"="Distance"))
 bindata= rbind(test1, test2, test3, test4, test5, test6)
 bindata$sex= as.factor(bindata$sex)
 
-ailD4act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+
+ailD4act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+ 
         geom_errorbar(aes(ymin=Distance-se, ymax=Distance+se), width=.1) +
-        geom_line(lwd=1) +
+        geom_line(lwd=0.6) +
         geom_point() +
-        ggtitle("Day 4 Activity")+
+        #ggtitle("Day 4 Activity")+
         xlab("Time (min)") +
         ylab("Distance (cm)") +
         scale_x_continuous(breaks=c(5,10,15,20,25,30))+
         scale_y_continuous(limits=c(300,550))+
-        theme_bw()+
-        theme(axis.title.x = element_text(colour="black", size=14),
-              axis.text = element_text(colour="black", size=12),
-              axis.title.y = element_text(colour="black", size=14),
-              plot.title = element_text(colour="black", size=16),
-              legend.position = c(0.2, 0.25))
+        theme_tufte+
+        theme(legend.position = "none")
+             
    
 
 
@@ -79,19 +76,16 @@ bindata$sex= as.factor(bindata$sex)
 
 ailD2act= ggplot(data=bindata, aes(x=Time, y=Distance, colour=sex))+
         geom_errorbar(aes(ymin=Distance-se, ymax=Distance+se), width=.1) +
-        geom_line(lwd=1) +
+        geom_line(lwd=0.6) +
         geom_point() +
-        ggtitle("Day 2 Activity")+
+       # ggtitle("Day 2 Activity")+
         xlab("Time (min)") +
         ylab("Distance (cm)") +
         scale_x_continuous(breaks=c(5,10,15,20,25,30))+
         scale_y_continuous(limits=c(300,500))+
-        theme_bw()+
-        theme(axis.title.x = element_text(colour="black", size=14),
-              axis.text = element_text(colour="black", size=12),
-              axis.title.y = element_text(colour="black", size=14),
-              plot.title = element_text(colour="black", size=16),
-              legend.position = c(0.17, 0.17))
+        theme_tufte+
+        theme(legend.position = "none")
+              
 
 ############# sensitization data ###############
 bin1 = act[10] - act[3]

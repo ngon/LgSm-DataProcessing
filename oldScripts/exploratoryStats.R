@@ -20,11 +20,11 @@ salLoct <- t.test(actWcovs$act3.t, actWcovs$act5.t, paired=TRUE)
 salLoct$p.value
 
 # paired t tests for cpp
-cpptest <- t.test(actWcovs$cpp8.t, actWcovs$cpp1.t, paired=TRUE)
+cpptest <- t.test(cppData$cpp8.t, cppData$cpp1.t, paired=TRUE)
 cpptest$p.value
 
 # create cpp.diff.sec
-actWcovs$cpp.diff.sec <- actWcovs$cpp8.t - actWcovs$cpp1.t
+cppData$cpp.diff.sec <- cppData$cpp8.t - cppData$cpp1.t
 
 # graph cpp difference in seconds
 # mean(act$cpp.diff.sec)
@@ -59,29 +59,29 @@ dodge = position_dodge(width=0.5)
 
 cppplot = ggplot(data=methcpp, aes(x=Trial, y=Time)) +
         geom_boxplot(position=position_dodge(1), notch=TRUE, 
-                     outlier.size=2, outlier.shape=16, width=.4)+
+                     outlier.size=1.5, outlier.shape=16, width=.4)+
         ylab("Seconds spent on Meth-paired side") +
-        ggtitle("CPP for 1 mg/kg Meth \n in F50-56 AIL")+
-        scale_y_continuous(breaks=c(0,250,500,750,1000,1250,1500))+
-        coord_cartesian(ylim=c(250,1500))+
+        #ggtitle("CPP for 1 mg/kg Meth \n in F50-56 AIL")+
+        scale_y_continuous(breaks=c(0,300,600,900,1200,1500))+
+        coord_cartesian(ylim=c(300,1500))+
         
-        stat_summary(data = methcpp, aes(x=Trial, y=Time), 
-                     fun.y=mean, colour="darkgreen", geom="point", 
-                     shape=16, size=3,show_guide = FALSE) +
+#         #stat_summary(data = methcpp, aes(x=Trial, y=Time), 
+#                      fun.y=mean, colour="darkgreen", geom="point", 
+#                      shape=16, size=3,show_guide = FALSE) +
+#         
+#         #geom_linerange(data=methcpp.sum, aes(x=Trial, y=se),
+#                        ymax=(methcpp.sum$Time + methcpp.sum$se), 
+#                        ymin=(methcpp.sum$Time-methcpp.sum$se),
+#                        linetype=1, size=1, colour="green")+
         
-        geom_linerange(data=methcpp.sum, aes(x=Trial, y=se),
-                       ymax=(methcpp.sum$Time + methcpp.sum$se), 
-                       ymin=(methcpp.sum$Time-methcpp.sum$se),
-                       linetype=1, size=1, colour="green")+
-        
-        geom_hline(yintercept =900, linetype=2)+
+        geom_hline(yintercept =900, linetype=2, col="dodgerblue")+
         
         theme_bw()+        
-        theme(plot.title= element_text(size=14), 
-              axis.title.x= element_text(size=12),
-              axis.title.y= element_text(size=12),
-              axis.text.x = element_text(size=11),
-              axis.text.y = element_text(size=11),
+        theme(plot.title= element_text(size=12), 
+              axis.title.x= element_text(size=14),
+              axis.title.y= element_text(size=14),
+              axis.text.x = element_text(size=12),
+              axis.text.y = element_text(size=12),
               legend.position= "none")
 
 
@@ -102,8 +102,8 @@ Nact<- colwise(ncases)(phenoList)
 #################### MALES AND FEMALES ################################
 
 # create male and female  dfs
-actF <- actWcovs[actWcovs$sex == "F",]
-actM <- actWcovs[actWcovs$sex == "M",]
+actF <- cppData[cppData$sex == "F",]
+actM <- cppData[cppData$sex == "M",]
 
 # t tests on male and female activity (all are p 0.02(sz) or lower)
 d1at <- t.test(actF$act1.t, actM$act1.t, paired=F)
@@ -120,7 +120,7 @@ d8at <- t.test(actF$act8.t, actM$act8.t, paired=F)
 d8at$p.value
 senMFt <- t.test(actF$sens, actM$sens, paired=F)
 senMFt$p.value
-CPPmft <- t.test(actF$cpp8.t, actM$cpp1.t, paired=F)
+CPPmft <- t.test(actF$cpp8.t, actM$cpp8.t, paired=F)
 CPPmft$p.value
 CPPmft5min <- t.test(actF$cpp8.1, actM$cpp1.1, paired=F)
 CPPmft5min$p.value
