@@ -63,6 +63,29 @@ for (index in 1:length(index.pheno)) {
     write.table(cmds, file=paste0("scripts/", group.name, ".", chosen.pheno[index], ".sh"), row.names=F, col.names=F, quote=F)
 }
 
+
+### covariates for each trait
+
+traitcovs <- vector("list", length=12)
+names(traitcovs) <- c("cpp8.t", "sens", 
+                      "act1.t", "act2.t", "act3.t", "act4.t", "act5.t", "act8.t",
+                      "avg.ppi", "startle", "glucose")
+
+traitcovs[["cpp8.t"]] <- list("gen", "sex", "cpp.box", "batch") # gen53,56, batch 2,10,13,15,21, all except box 5
+traitcovs[["sens"]] <- list("gen", "sex", "cpp.box", "batch") # gen52, box7, batch 8
+traitcovs[["act1.t"]] <- list("sex", "cpp.box", "batch") # box3-9,11,12, batch 14
+traitcovs[["act2.t"]] <- list("gen", "sex", "cpp.box", "batch") # gen52,56, box5,7,8,10,12, batch 8
+traitcovs[["act3.t"]] <- list("gen", "sex", "cpp.box", "batch") # box7,8,10,11,12
+traitcovs[["act4.t"]] <- list("sex", "cpp.box") # box7,8,11
+traitcovs[["act5.t"]] <- list("gen", "sex", "cpp.box", "batch") # box 7,8, gen 51,53-56, batch 7,13,15,20-22
+traitcovs[["act8.t"]] <- list("gen", "sex", "cpp.box", "batch") # box 3,4,6-9,11,12, gen56, batch 3,7
+traitcovs[["avg.ppi"]] <- list("ppi.box", "ppi.weight", "batch") #box 3, box4, batch4
+traitcovs[["startle"]] <- list("ppi.box", "ppi.weight", "batch") # box 3,4, batch 2,16,17
+traitcovs[["glucose"]] <- list("glu.weight", "sex")
+
+
+
+
 ######## Auxillary code to generate plots ###############
 #Code to plot manhattanplot
 chrLens    <- read.table('/home/shyamg/projects/Mouse/CFW/maps/chrLengths_mm9.txt')$V2
@@ -77,8 +100,8 @@ plotManhattan <- function(gemmaout, trait) {
   positions <- chrLens[output$chr]+output$ps
   cols <- output$chr
   odds <- which(cols%%2 == 1)
-  cols[which(cols%%2 == 0)] = 'dark red'
-  cols[odds] = 'dark blue'
+  cols[which(cols%%2 == 0)] = 'red'
+  cols[odds] = 'dodgerblue'
   plot(positions, pvals, col=cols, pch=19, cex=0.5, main=trait, ylab='-log10(p-value)', xlab='Position', axes=F, frame.plot=T)
 #  abline(h=-log10(0.05/length(pvals)), lty=2, col='orangered')
   axis(2)
