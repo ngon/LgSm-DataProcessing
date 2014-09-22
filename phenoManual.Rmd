@@ -138,7 +138,8 @@ Month is also given in character format as cpp.mo, e.g.
 * gen - generation 
 
 ##6. Coat 
-* cc - coat color (AG, W, B) with ear tag location (L, R, RL)
+* coat - coat color (A, W, B) 
+* cc - coat with with ear tag location (L, R, RL)
 * agouti - A
 * black - B
 * white - W 
