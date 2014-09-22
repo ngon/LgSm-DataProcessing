@@ -8,29 +8,23 @@ output: html_document
 Phenotypes are stored in cols and each row corresponds to a mouse id. 
 
 # Overview
-##I. Phenotype Summary
+##I. Phenotypes
       A. Conditioned place preference (CPP) and activity
             1. CPP
-                  * covariates: sex, gen, batch, cpp.mo, cpp.box
             2. Activity
-                  * covariates: sex, gen, batch, cpp.mo, cpp.box
             3. Wildness
-                  * covariates: sex, gen, batch, cpp.age
+
       B. Prepulse inhibition (PPI)
             1.PPI
-                  * covariates: ppi.weight, ppi.mo, batch, ppi.box, gen
             2.Startle
-                  * covariates: ppi.weight, ppi.mo, batch, ppi.box, gen
             3.Habituation
-                  * covariates: ppi.weight, ppi.mo, batch, ppi.box. gen
+
       C. Physiological phenotypes
             1.Fasting blood glucose
-                  * covariates: sex, glu.weight, glu.age, batch, gen
             2.Body weight
-                  * covariates: sex
             3.Tail length
-                  * covariates: sex, rip.weight
-##II. Covariates Summary
+
+##II. Covariates 
       A. Age
       B. Dates
       C. Box
@@ -41,7 +35,7 @@ Phenotypes are stored in cols and each row corresponds to a mouse id.
       H. Body Weight
 
 
-# I. Phenotypes Summary
+# I. Phenotypes 
 
 ## A. CPP and Activity
 Data is measured in six 5-min (300 sec) bins over the course of 8 days.  
@@ -105,7 +99,7 @@ PPI is given as % PPI, given by the formula:
 
 
 
-# Covariates Summary
+# Covariates 
 
 ##A. Age (days)
 * cpp.age
@@ -151,14 +145,15 @@ Month is also given in character format as cpp.mo, e.g.
 * see phenotypes. body weight can be used as a covariate for ppi and glucose.
 
 # Check phenotypes
-## 1. Covariates - check which covariates are important. Natalia already has plots for the
-distribution of these phenotypes conditional on covariates.
+## 1. Covariates - check which covariates are important. Natalia already has plots for the distribution of these phenotypes conditional on covariates.
+Covariates for behavioral phenos now listed in mapQTL script (stored as list)
+
 ## 2. Transformation of the phenotypes based on distribution of the residuals.
 ## 3. Check if generation is a confounder after accounting for the relatedness. 
 
 # Get data to fit LMM using GEMMA
 ## 1. Make one master file each for phenotypes and covariates in the same order as 
-genotyped mice. If mouse not phenotyped, that is easy to fix - mark phenotype as NA. If
-Mouse not genotyped, exclude mouse from analysis.
+genotyped mice. If mouse not phenotyped, that is easy to fix - mark phenotype as NA. If Mouse not genotyped, exclude mouse from analysis.
+
 ## 2. Estimate kinship matrix for each chromosome (excluding that chromosome).
 ## 3. Run GEMMA from R for each chromosome separately.
