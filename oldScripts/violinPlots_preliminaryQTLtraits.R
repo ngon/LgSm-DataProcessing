@@ -97,12 +97,14 @@ allmeltWild = melt.data.frame(allmelt, id.vars = c(1), measure.vars=c(13))
 allmeltWild$value = as.numeric(as.character(allmeltWild$value))
 
 
+
 ## violin plots
 library(ggplot2)
 
 act24.violin <- 
         ggplot(data=qtlmeltAct, aes(factor(variable), value)) +
         geom_violin(fill="darkslateblue", alpha=0.4) +
+       # geom_jitter(height=0,na.rm=TRUE, size=1 )
         geom_violin(data=allmeltAct, aes(factor(variable), value),
                     fill="white", alpha=0.3) +
         xlab(" ") +
@@ -116,6 +118,7 @@ act35.violin <-
         geom_violin(fill="darkslateblue", alpha=0.4) +
         geom_violin(data=allmeltAct35, aes(factor(variable), value),
                     fill="white", alpha=0.3) +
+        geom_point()
         xlab(" ") +
         ylab("distance (cm)") +
         theme(axis.text.x=element_text(size=14),
@@ -135,11 +138,13 @@ act18.violin <-
               axis.title.y=element_text(size=14))
         
         
+qtlmeltppi$transform <- log(qtlmeltppi$value/(100-qtlmeltppi$value))
+allmeltppi$transform <- log(allmeltppi$value/(100-allmeltppi$value))
 
 ppi.violin <- 
-        ggplot(data=qtlmeltppi, aes(factor(variable), value)) +
+        ggplot(data=qtlmeltppi, aes(factor(variable), transform)) +
         geom_violin(fill="darkslateblue", alpha=0.4) +
-        geom_violin(data=allmeltppi, aes(factor(variable), value),
+        geom_violin(data=allmeltppi, aes(factor(variable), transform),
                     fill="white", alpha=0.3) +
         xlab(" ") +
         ylab("percent ppi") +
@@ -207,5 +212,111 @@ glu.violin <-
 
 
 
+#### violins with points
+act24.pviolin <- 
+        ggplot(data=allmeltAct, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltAct, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("distance (cm)") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+act35.pviolin <- 
+        ggplot(data=allmeltAct35, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltAct35, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("distance (cm)") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+act2.pviolin <- 
+        ggplot(data=allmeltAct2, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltAct2, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("distance (cm)") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+
+ppi.pviolin <- 
+        ggplot(data=allmeltppi, aes(factor(variable), transform)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltppi, aes(factor(variable), transform),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("ppi") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+str.pviolin <- 
+        ggplot(data=allmeltstr, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltstr, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("startle") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+cpp.pviolin <- 
+        ggplot(data=allmeltcpp, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltcpp, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("time (seconds)") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+glucose.pviolin <- 
+        ggplot(data=allmeltglu, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltglu, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("glucose levels (mg/dL)") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
+
+
+sens.pviolin <- 
+        ggplot(data=allmeltsens, aes(factor(variable), value)) +
+        geom_violin(fill="white", alpha=0.4) +
+        geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
+        
+        geom_jitter(data=qtlmeltsens, aes(factor(variable), value),
+                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+        xlab(" ") +
+        ylab("glucose levels (mg/dL)") +
+        theme(axis.text.x=element_text(size=14),
+              axis.text.y=element_text(size=12),
+              axis.title.y=element_text(size=14))
 
 
