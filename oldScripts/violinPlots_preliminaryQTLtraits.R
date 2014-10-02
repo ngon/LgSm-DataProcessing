@@ -232,7 +232,7 @@ act35.pviolin <-
         geom_jitter(height=0,na.rm=TRUE, size=0.8, alpha=0.3) +
         
         geom_jitter(data=qtlmeltAct35, aes(factor(variable), value),
-                    height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
+                height=0, na.rm=TRUE, size=0.8, alpha=0.8)+
         xlab(" ") +
         ylab("distance (cm)") +
         theme(axis.text.x=element_text(size=14),
