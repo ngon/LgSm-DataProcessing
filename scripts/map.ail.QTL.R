@@ -61,24 +61,37 @@ covars$one <- 1
 #anova.cpp <- anova(lm(cpp8.t~covars$is.batch13))
 #anova.cpp <- anova(lm(cpp8.t~as.factor(covars$cpp.box)))
 
-### covariates for each trait
-traitcovs <- vector("list", length=12)
-names(traitcovs) <- c("cpp8.t", "sens", 
-                      "act1.t", "act2.t", "act3.t", "act4.t", "act5.t", "act8.t",
-                      "avg.ppi", "startle", "glucose", "wild")
+### covariates for each trait #### updated by Natalia
+traitcovs <- vector("list", length=6)
+names(traitcovs) <- c("cpp.diff", "cpp8.1", "ppi12", "ppi6", "ppi3", "habituation")
 
-traitcovs[["cpp8.t"]]  <- list("one", "sex", "is.gen53", "is.batch2", "is.batch10", "is.cpp.box1", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") # gen53,56, batch 2,10,13,15,21, all except box 5 - "is.gen56",  "is.batch13", "is.batch15", "is.batch21", - removed due to no genotyped samples from these batches/gens
-traitcovs[["sens"]]    <- list("one", "sex", "is.gen52", "is.cpp.box7", "is.batch8") # gen52, box7, batch 8
-traitcovs[["act1.t"]]  <- list("one", "sex", "is.cpp.box3", "is.cpp.box4", "is.cpp.box5", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12")#, "is.batch14") # box3-9,11,12, batch 14 - removed batch 14 for now due to no samples from batch 14 in genotyped samples
-traitcovs[["act2.t"]]  <- list("one", "sex", "is.gen52", "is.cpp.box5", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box12", "is.batch8") # gen52,56, box5,7,8,10,12, batch 8 - removed is.gen56 as no genotyped samples
-traitcovs[["act3.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") # box7,8,10,11,12 - shyam removed gen and batch since which gens and batches are correlated with outcome was not mentioned in comments by natalia
-traitcovs[["act4.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box11") # box7,8,11
-traitcovs[["act5.t"]]  <- list("one", "sex", "is.gen51", "is.gen53", "is.cpp.box7", "is.cpp.box8", "is.batch7") # box 7,8, gen 51,53-56, batch 7,13,15,20-22 -  "is.gen54", "is.gen55", "is.gen56", "is.batch13", "is.batch15", "is.batch20", "is.batch21", "is.batch22" - removed due to no samples from this batch / gen in genotyped data
-traitcovs[["act8.t"]]  <- list("one", "sex", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12", "is.batch3", "is.batch7") # box 3,4,6-9,11,12, gen56, batch 3,7 -  "is.gen56", removed due to no genotyped samples from gen 56
-traitcovs[["avg.ppi"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch4") #box 3, box4, batch4 - is sex excluded for a reason
-traitcovs[["startle"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch2") # box 3,4, batch 2,16,17 - is sex excluded for a reason - , "is.batch16", "is.batch17" - removed as no genotyped samples from these batches
-traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
-traitcovs[["wild"]]    <- list("one", "sex")
+traitcovs[["cpp.diff"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", 
+                                "is.cpp.box7", "is.cpp.box11", "is.cpp.box12") 
+traitcovs[["cpp8.1"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", 
+                        "is.cpp.box8", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") 
+
+traitcovs[["ppi3"]] <- list("one", "sex", "is.ppi.box3", "ppi.weight", "is.batch4")
+traitcovs[["ppi6"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4", "ppi.weight")
+traitcovs[["ppi12"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4","ppi.weight", 
+                            "is.batch3", "is.batch4", "is.batch7", "is.batch9")
+
+traitcovs[["startle"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4", 
+                               "ppi.weight", "is.batch2") 
+traitcovs[["habituation"]] <- list("one", "ppi.weight") 
+
+# 
+# traitcovs[["cpp8.t"]]  <- list("one", "sex", "is.gen53", "is.batch2", "is.batch10", "is.cpp.box1", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") # gen53,56, batch 2,10,13,15,21, all except box 5 - "is.gen56",  "is.batch13", "is.batch15", "is.batch21", - removed due to no genotyped samples from these batches/gens
+# traitcovs[["sens"]]    <- list("one", "sex", "is.gen52", "is.cpp.box7", "is.batch8") # gen52, box7, batch 8
+# traitcovs[["act1.t"]]  <- list("one", "sex", "is.cpp.box3", "is.cpp.box4", "is.cpp.box5", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12")#, "is.batch14") # box3-9,11,12, batch 14 - removed batch 14 for now due to no samples from batch 14 in genotyped samples
+# traitcovs[["act2.t"]]  <- list("one", "sex", "is.gen52", "is.cpp.box5", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box12", "is.batch8") # gen52,56, box5,7,8,10,12, batch 8 - removed is.gen56 as no genotyped samples
+# traitcovs[["act3.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") # box7,8,10,11,12 - shyam removed gen and batch since which gens and batches are correlated with outcome was not mentioned in comments by natalia
+# traitcovs[["act4.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box11") # box7,8,11
+# traitcovs[["act5.t"]]  <- list("one", "sex", "is.gen51", "is.gen53", "is.cpp.box7", "is.cpp.box8", "is.batch7") # box 7,8, gen 51,53-56, batch 7,13,15,20-22 -  "is.gen54", "is.gen55", "is.gen56", "is.batch13", "is.batch15", "is.batch20", "is.batch21", "is.batch22" - removed due to no samples from this batch / gen in genotyped data
+# traitcovs[["act8.t"]]  <- list("one", "sex", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12", "is.batch3", "is.batch7") # box 3,4,6-9,11,12, gen56, batch 3,7 -  "is.gen56", removed due to no genotyped samples from gen 56
+# traitcovs[["avg.ppi"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch4") #box 3, box4, batch4 - is sex excluded for a reason
+# traitcovs[["startle"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch2") # box 3,4, batch 2,16,17 - is sex excluded for a reason - , "is.batch16", "is.batch17" - removed as no genotyped samples from these batches
+# traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
+# traitcovs[["wild"]]    <- list("one", "sex")
 
 #################### Make script to run Gemma for chosen trait ##############
 for (trait in names(traitcovs)) {
