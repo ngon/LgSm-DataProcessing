@@ -29,7 +29,7 @@ cppData$cpp.diff.sec <- cppData$cpp8.t - cppData$cpp1.t
 # graph cpp difference in seconds
 # mean(act$cpp.diff.sec)
 # [1] 94.40882
-boxplot(act$cpp.diff.sec, 
+boxplot(cppData$cpp.diff.sec, 
         main="Change in preference for Meth \n paired side (Day8 - Day1)", 
         ylab = "Number of seconds", 
         xlab="F50-56",
@@ -61,7 +61,7 @@ cppplot = ggplot(data=methcpp, aes(x=Trial, y=Time)) +
         geom_boxplot(position=position_dodge(1), notch=TRUE, 
                      outlier.size=1.5, outlier.shape=16, width=.4)+
         ylab("Seconds spent on Meth-paired side") +
-        #ggtitle("CPP for 1 mg/kg Meth \n in F50-56 AIL")+
+        ggtitle("CPP for 1 mg/kg Meth \n in F50-56 AIL")+
         scale_y_continuous(breaks=c(0,300,600,900,1200,1500))+
         coord_cartesian(ylim=c(300,1500))+
         

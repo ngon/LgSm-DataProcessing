@@ -160,3 +160,34 @@ dev.off()
 png(file="./sex_wildness.png")
 plot(wildness$resid, ylab="wildness")
 dev.off()
+
+
+
+
+### 3. correlated phenotypes
+
+data <- alldata
+
+# activity variables
+cor(x=data$act3.t, y=data$act5.t, use="complete.obs") # 0.6790541
+cor(x=data$act2.t, y=data$act4.t, use="complete.obs") # 0.7074286
+cor(x=data$act1.t, y=data$act8.t, use="complete.obs") # 0.5773208
+
+# ppi variables
+cor(x=data$ppi3, y=data$ppi6, use="complete.obs") # 0.8136662
+cor(x=data$ppi3, y=data$ppi12, use="complete.obs") # 0.7239817
+cor(x=data$ppi6, y=data$ppi12, use="complete.obs") # 0.8607613
+
+# side changes
+cor(x=data$sc1.t, y=data$cpp1.t, use="complete.obs") # 0.02591765
+cor(x=data$sc1.t, y=data$act1.t, use="complete.obs") # 0.5224671
+cor(x=data$sc1.t, y=data$sc8.t, use="complete.obs") # 0.4955883
+cor(x=data$sc8.t, y=data$cpp8.t, use="complete.obs") # -0.001635964
+cor(x=data$sc8.t, y=data$cpp1.t, use="complete.obs") # 0.04513343
+cor(x=data$sc1.t, y=data$cpp8.t, use="complete.obs") #  0.05256139
+
+cor(x=data$cpp1.t, y=data$cpp8.t, use="complete.obs") # 0.2030607
+
+
+
+
