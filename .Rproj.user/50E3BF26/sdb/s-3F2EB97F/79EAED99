@@ -1,0 +1,17 @@
+{
+    "contents" : "setwd(\"C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles\")\n\nphenoFile <- read.table(\"phenotypes.txt\", sep=\"\\t\", header=T)\nnames(phenoFile)\n      \ncovariateFile <- read.table(\"covariates.txt\", sep=\"\\t\", header=T)\ncov.names<- names(covariateFile)\n\nwrite.table(file=\"cov.names.txt\", sep=\"\\t\", cov.names)\n\nwrite.table(file=\"cov.noHeader.txt\", sep=\"\\t\", col.names=F, covariateFile)",
+    "created" : 1422305938788.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "3463512023",
+    "id" : "79EAED99",
+    "lastKnownWriteTime" : 7022344664425255783,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
