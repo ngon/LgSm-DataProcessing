@@ -80,7 +80,8 @@ sum(testdups)
 
 # combine ail and breeder peds
 fullped <- rbind(ped, testped)
-write.table(file="./ailpedigree.csv", sep=",", fullped)
+write.table(file="./ailpedigree.csv", sep=",", row.names=FALSE, fullped)
+write.table(file="./ailped.F49to56.csv", sep=",", row.names=FALSE, fullped[7435:10173,])
 
 # look for duplicate ids
 # dups <- duplicated(fullped$id)
