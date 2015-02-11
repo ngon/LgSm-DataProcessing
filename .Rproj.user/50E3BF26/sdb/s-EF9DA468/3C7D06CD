@@ -1,0 +1,17 @@
+{
+    "contents" : "data<- read.table(\"./dataFiles//allData.txt\", sep=\"\\t\", header=T)\nnewCovs <- cbind(covariates, data$comerr1, data$comerr8)\nnames(newCovs)[47] <- \"comerr1\"\nnames(newCovs)[48] <- \"comerr8\"\ncovnames <- names(newCovs)\n\nwrite.table(file=\"covnames.txt\", sep=\"\\t\", row.names=FALSE, covnames)\n\nwrite.table(file=\"cov.noHeader.txt\", sep=\"\\t\", row.names=FALSE, col.names=FALSE, newCovs)\n\nwrite.table(file=\"covariates.txt\", sep=\"\\t\", row.names=FALSE, newCovs)\n",
+    "created" : 1423695241075.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "1389228006",
+    "id" : "3C7D06CD",
+    "lastKnownWriteTime" : 7022344664425255783,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

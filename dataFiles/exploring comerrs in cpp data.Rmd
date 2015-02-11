@@ -32,7 +32,7 @@ duplicated(err18$id) # all false
 ```
 
 Does including these mice affect CPP?
-The answer is no. There is a slight effect if we look at time spent on the meth-paired side on day 8 only (p = 0.05). 
+The answer is no. There is a slight effect if we look at time spent on the meth-paired side on day 8 only (p = 0.05), but no effect on Day 1 or in cppdiff. 
 
 ```{r}
 FU.computer <- lm(data$cpp.diff ~ data$comerr1 + data$comerr8)
