@@ -1,0 +1,147 @@
+---
+title: "Do comerrs during CPP affect phenotypes on each day?"
+author: "Natalia"
+date: "Wednesday, February 11, 2015"
+output: html_document
+---
+
+This document describes a few phenotype checks I did before mapping QTLs for the whole sample of AILs. 
+
+Sometimes while measuring activity/CPP, the testing apparatus would inexplicably spit out an error. In this case the raw data file comes back with values in the 'COMERR' columns for each sample which tell you how many seconds the error occured for.
+
+If an error occurred during testing for a mouse, then there will be a nonzero number in one or more of the 'comerr' columns in the phenotypes.txt file. comerr column names contain a number pertaining to the day the error occurred (e.g. comerr1 for measurements taken on the first day of the test). Note that mice that were measured with error on EITHER day 1 OR day 8 will have innacurate CPP data. 
+
+
+```{r, echo=FALSE}
+# Read in pheno/cov data from the LgSm-DataProcessing folder.
+setwd(dir = "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/")
+data <- read.table(file="./dataFiles/allData.txt", header=T, sep="\t")
+
+```
+
+How many mice suffered computer errors while measuring CPP? 
+
+```{r, echo=TRUE}
+err1 <- data[!data$comerr1 == 0,] # 22 mice with missing cpp1.t/act1.t data
+err8 <- data[!data$comerr8 == 0,] # 10 mice with missing cpp8.t/act8.t data
+
+err18 <- rbind(err1,err8)
+duplicated(err18$id) # all false
+
+# 32 mice with missing cpp.diff data
+```
+
+Does including these mice affect CPP?
+The answer is no. There is a slight effect if we look at time spent on the meth-paired side on day 8 only (p = 0.05). 
+
+```{r}
+FU.computer <- lm(data$cpp.diff ~ data$comerr1 + data$comerr8)
+summary(FU.computer)
+
+FU.again <- lm(data$cpp8.t ~ data$comerr8)
+summary(FU.again)
+
+FU.FU.FU <- lm(data$cpp1.t ~ data$comerr1)
+summary(FU.FU.FU)
+
+```
+
+Does including these mice affect activity on day 1 or 8?
+Yes, but only for day 1 activity. Day 8 is not affected. 
+
+```{r}
+acterr1 <- lm(data$act1.t ~ data$comerr1)
+summary(acterr1) # p = 0.01
+
+acterr8 <- lm(data$act8.t ~ data$comerr8)
+summary(acterr8)
+```
+
+How many errors occurred while measuring meth activity?
+
+```{r, echo=FALSE}
+err2 <- data[!data$comerr2 == 0,] # 13 mice with missing act2.t data
+err4 <- data[!data$comerr4 == 0,] # 7 mice with missing act4.t data
+
+err24 <- rbind(err2,err4)
+duplicated(err24$id) # all false
+
+# 20 mice with missing sensitization (D4-D2) data
+```
+
+Does including these affect meth activity on day 2 and 4? No. 
+
+```{r}
+stupidComputer <- lm(data$act2.t ~ data$comerr2)
+summary(stupidComputer)
+
+# versamaxSucks <- lm(data$act4.t ~ data$comerr4)
+# summary(versamaxSucks)
+# values for mice with a comerr for day4 have already been replaced with NA
+
+fuckyouHal <- lm(data$sens ~ data$comerr2)
+summary(fuckyouHal)
+```
+
+How many errors occurred while measuring saline activity? 
+No because mice with errors were already removed by the analysis (values for activity on a day that a comerr occured were replaced with NAs).
+
+```{r, echo=FALSE}
+err3 <- data[!data$comerr3 == 0,] # 10 mice with missing act3.t data
+err5 <- data[!data$comerr5 == 0,] # 14 mice with missing act5.t data
+
+err35 <- rbind(err3,err5)
+duplicated(err35$id) # 6 TRUE
+
+# 18 mice with missing 'change in activity' (D5-D3) data
+```
+
+Does including comerr3 and comerr5 affect saline activity? 
+No because mice with errors were already removed by the analysis (values for activity on a day that a comerr occured were replaced with NAs).
+
+```{r}
+# data points for comerr mice have already been removed
+
+#whoCaresNoDrugs <- lm(act3.t ~ comerr3, data=data)
+#summary(whoCaresNoDrugs)
+# salineNotMeth <- lm(act5.t ~ comerr5, data=data)
+# summary(salineNotMeth)
+```
+
+NOTE:
+Five F53 mice (IDs = 51295, 51297, 51303, 51304, 51307) received slightly more meth (~0.15mL) on Day 4 of the CPP assay. This is because I typically fill up
+the needles with solution for each mouse in advance. While waiting for the animals to habituate or for the current testing session to end, I fill the needles with 0.1-0.15 mL of meth or saline solution beyond what the mouse would have gotten on the previous day (in other words, I use the mouse's weight on the previous day to estimate how much volume is needed). After I weigh the mouse, I adjust the volume to 1 mg/kg. In the case of these mice, I forgot to adjust the volume after weighing them, so they probably received a little extra meth. 
+
+To test whether or not this had an affect on day4 locomotor activity or CPP, I created ceated a binary covariate column,'rm.act4'. I marked 1 if the animal was given the wrong amount of meth and 0 if not.
+
+
+Does slightly mo' meth create mo' problems with the data?
+Nope.
+
+```{r}
+moreMethMouse <- lm(act4.t ~ rm.act4, data=data)
+summary(moreMethMouse) # no effect
+
+moMeth.moPref <- lm(cpp8.t ~ rm.act4, data=data)
+summary(moMeth.moPref) # no effect
+
+moMeth.moLeft <- lm(cpp.diff ~ rm.act4, data=data)
+summary(moMeth.moLeft) # no effect
+```
+
+Is there a difference between these mice and the rest of the mice in their batch?
+No. 
+
+```{r}
+# data[data$id == "51297", ] # mice are in batch 11
+moMethMice <- data[data$batch == "11",] # n=53
+
+moMeth4 <- lm(act4.t ~ rm.act4, data=moMethMice)
+summary(moMeth4)
+
+moMeth.cpp <- lm(cpp.diff ~ rm.act4, data=moMethMice)
+summary(moMeth.cpp)
+
+moMeth8 <- lm(cpp8.t ~ rm.act4, data=moMethMice)
+summary(moMeth8)
+```
