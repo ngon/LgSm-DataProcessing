@@ -1,0 +1,17 @@
+{
+    "contents" : "setwd(\"C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/pedigree\")\nped=read.table(\"ailpedigree.csv\", sep=\",\", header=TRUE)\n\n# What line is the first mouse from F45 in?\nped[ped$id == \"39369.1\",]\nped[6700:6715,]\n\n# Trim ped to include only F45-56\npedtrim <- ped[6706:10173,]\n# remember to add --no-pheno when running ped\n\nwrite.table(file=\"ailped.45to56.ped\", sep=\"\\t\", \n            row.names=FALSE, col.names=FALSE, pedtrim)\n\n",
+    "created" : 1423765770107.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "567468419",
+    "id" : "8EADDF9C",
+    "lastKnownWriteTime" : 7022344664425255783,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
