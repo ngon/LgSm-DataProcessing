@@ -1,3 +1,4 @@
+## trim ped to include only F45-56.
 setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/pedigree")
 ped=read.table("ailpedigree.csv", sep=",", header=TRUE)
 
@@ -13,14 +14,9 @@ write.table(file="ailped.45to56.ped", sep="\t",
             row.names=FALSE, col.names=FALSE, pedtrim)
 
 
-__________________________________
 
-phenos <- read.table("allData.txt", sep="\t", header=T)
-phenos[phenos$dam == "50267",]
-
-___________________________________
-
-## preparing files for pedchecking in Mark Abney's idcf software
+############### IDCOEF ##########################
+## prepare files for ped checking in Mark Abney's idcf software
 
 setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/pedigree")
 
@@ -111,6 +107,64 @@ head(check)
 check <- check[1:3]
 head(check)
 write.table(check, file="ailped.integer.txt", sep=" ", row.names=F, col.names=F)
+
+ids<- read.table(file="studyfileidcf.txt", sep=" ")
+head(ids)
+
+
+### ran idcoef again and it says that 1139 and 1140 must have both parents specified. In the AI Line Info_3 file, the sire of these siblings is listed as '?'. The dam's ID is 135. In the F2 line info file she's listed as "Mated To 190*/?" so these mice are probably half siblings. Addl evidence for this (maybe, depending on how the Cheverud lab does weanings): 1139 and 1140 were weaned one day apart.
+
+
+
+### also, one parent of 543350 and 543300 (siblings) - 520950 - is not in the ped. this is because she was born late and given a placeholder id (670001.1) in the breeder code that was never changed to her real id, 52059. 
+
+check[check[1] == "543300",]
+check[check[1] == "6700010",]
+check$V1[8725] <- 520950
+
+
+
+
+
+
+
+
+
+
+############ 
+
+# clean workspace
+# rm(testmice, ped2, ped, ids, doesmatch, dof2smatch, nomatch, pedf2, pedigree)
+
+ped=read.table("ailpedigree.csv", sep=",", header=TRUE, as.is=TRUE)
+ped34=read.table("pedigreeF34.csv", sep=" ", header=TRUE)
+
+levels(ped34$sex)[levels(ped34$sex)=="M"] <- 1
+levels(ped34$sex)[levels(ped34$sex)=="F"] <- 2
+
+fam = rep(1, 5647)
+ped34 <- cbind(fam, ped34)
+ped34 <- cbind(ped34[1:2], ped34[5:6], ped34[3])
+head(ped34)
+
+# change F0 founders to id "0"
+ped34[1,2] <- 0
+ped34[2,2] <- 0 
+ped34[3, 3:4] <- 0
+ped34[4, 3:4] <- 0
+
+# pedigree for plink from F0 to F56
+ped <- ped[-c(1:234),]
+ped <- rbind(ped34[1:238,], ped)
+head(ped)
+write.table(ped, file="fullpedforPlink.nonintegers.txt", sep=" ", row.names=F, col.names=F)
+
+ped2=read.table("fullpedforPlink.nonintegers.txt", sep=" ", header=F, as.is=T)
+names(ped2)<- names(ped)
+
+# now make all ids in the full ped integers by replacing id, dam and sire from line 4949 to the end of the data frame with values from 'check' 
+
+ped2[4949:10177, 2:4]<-check[4949:10177, 1:3]
 
 
 
