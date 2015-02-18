@@ -1,10 +1,20 @@
 # process phenotype for Natalia #
 
+###### GO TO DIRECTORY
+setwd("/group/palmer-lab/AIL/LgSm-DataProcessing")
+
 ###### CONSTANTS
 MAF=0.05
 
 #### Read genotype sample names
-geno.samples <- read.table("genotyped.samples.txt", as.is=TRUE)
+#### Change sample names -
+#### 54109_11 changed to 54109 (double ear tag)
+#### 51717-19 changed to 51717 (double ear tag)
+#### 51348 changed to 51349 (inferred from pedigree checks) - possible typo - double check using sex(genotypes on X).
+geno.samples <- read.table("/group/palmer-lab/AIL/GBS/dosage/genotyped.samples.txt", as.is=TRUE)
+geno.samples[which(geno.samples$V1 == "54109_11"), 1] <- "54109"
+geno.samples[which(geno.samples$V1 == "51717-19"), 1] <- "51717"
+geno.samples[which(geno.samples$V1 == "51348"), 1]    <- "51349"
 names(geno.samples) <- c("id")
 
 #### Read phenotype file
@@ -18,7 +28,7 @@ write.table(pheno.allgeno, file="phenos.allgeno.txt", quote=FALSE, sep="\t", row
 
 #### Read master covariate file
 covars        <- read.table("cov.noHeader.txt", sep="\t", as.is=T)
-covar.names   <- read.table("cov.names.txt", skip=1, as.is=T)[,2]
+covar.names   <- read.table("cov.names.txt", skip=1, as.is=T)$V1
 names(covars) <- covar.names
 
 #### Change the sex covariate to an indicator variable
@@ -64,8 +74,8 @@ covars$one <- 1
 ### covariates for each trait #### updated by Natalia 2/6/15
 traitcovs <- vector("list", length=17)
 
-names(traitcovs) <- c("cpp.diff", "cpp8.1", "cpp8.t", "sens",
-                      "act1.t", "act2.t", "act4.t", "wild", "ppi3", "ppi6", "ppi12",
+names(traitcovs) <- c("cpp.diff", "act2.t", "act4.t", "wild", "ppi6", "ppi12", 
+                      "cpp8.1", "cpp8.t", "sens", "act1.t", "ppi3",
                       "startle", "habituation", "act3.t", "act5.t", "act8.t","glucose")
                       
                       
@@ -106,32 +116,14 @@ traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
 
 
 #################### Make script to run Gemma for chosen trait ##############
+cmds <- c()
 for (trait in names(traitcovs)) {
     index.pheno     <- which(pheno.names == trait)
     chosen.covars   <- covars[, unlist(traitcovs[[trait]])]
-    write.table(chosen.covars, file=paste0("covariates/", trait, ".covs"), sep="\t", quote=F, row.names=F, col.names=F)
-    cmds <- ("#! /bin/bash\n#$ -cwd\n#$ -j y\n")
+    write.table(chosen.covars, file=paste0("/group/palmer-lab/AIL/qtlmapping/covariates/", trait, ".covs"), sep="\t", quote=F, row.names=F, col.names=F)
     for (chrom in 1:19) {
-        cmds <- c(cmds, paste0("/home/shyamg/bin/gemma -g genotypes/ail.chr", chrom, ".filtered.dosage -p phenos.allgeno.txt -k kinship/notChr", chrom,".cXX.txt -a snpinfo/ail.chr", chrom, ".snpinfo -c covariates/", trait, ".covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr", chrom, " -n ", index.pheno))
+        cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom, ".filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot", chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/chr", chrom, ".filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/", trait, ".covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr", chrom, " -n ", index.pheno))
     }
-    write.table(cmds, file=paste0("scripts/gemma.", trait, ".sh"), row.names=F, col.names=F, quote=F)
 }
-
-#group.name <- "cpp8"
-#chosen.pheno <- c("cpp8.t")
-#chosen.covars <- c("one", "sex", paste0("is.cpp.box", c(1:12)[-5]))
-#index.pheno <- sapply(chosen.pheno, function(x) { which(pheno.names == x)} )
-## Make covariate file.
-#chosen.covars <- sapply(chosen.covars, function(x) { which(names(covars) == x)} )
-#chosen.covars <- covars[, chosen.covars]
-#write.table(chosen.covars, file=paste0("covariates/", group.name, ".covs"), sep="\t", quote=F, row.names=F, col.names=F)
-
-## Run gemma chromosome wise
-#cmds <- c("#! /bin/bash\n#$ -cwd\n#$ -j y\n")
-#for (index in 1:length(index.pheno)) {
-#    for (chrom in 1:19) {
-#        cmds <- c(cmds, paste0("/home/shyamg/bin/gemma -g genotypes/ail.chr", chrom, ".dosage -p phenosAIL.allgeno.txt -k kinship/notChr", chrom,".cXX.txt -a snpinfo/ail.chr", chrom, ".snpinfo -c covariates/", group.name, ".covs -lmm 2 #-maf ", MAF, " -o ", chosen.pheno[index], ".chr", chrom, ".out -n ", index.pheno[index]))
-#    }
-#    write.table(cmds, file=paste0("scripts/", group.name, ".", chosen.pheno[index], ".sh"), row.names=F, col.names=F, quote=F)
-#}
+write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.cmds"), row.names=F, col.names=F, quote=F)
 
