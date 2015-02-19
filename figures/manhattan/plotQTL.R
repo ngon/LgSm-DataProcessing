@@ -32,6 +32,7 @@ traits <- c(#"cpp.diff",
 titles <- c(#"Change in preference for meth paired side", 
             #"Time spent on meth paired side on day 8 (5 min)", 
             "Time spent on meth paired side on day 8 (30 min)", 
+            #"Locomotor response to novelty (Day 1 activity)",
             "Day 2 activity (1 mg/kg meth)", 
             #"Day 4 activity (1 mg/kg meth)", 
             "Day 5 activity (saline)",
@@ -48,7 +49,7 @@ titles <- c(#"Change in preference for meth paired side",
 outfiles <- paste0(traits, ".manhattan.png")
 
 
-for (index in 1:3) {
+for (index in 1:1) {
         print(paste("Starting trait", traits[index]))
         plotManhattan(traits[index], outfile=outfiles[index], title=titles[index])
         print(paste("Done with trait", traits[index]))
