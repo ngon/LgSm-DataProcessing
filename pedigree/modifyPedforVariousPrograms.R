@@ -112,7 +112,7 @@ ids<- read.table(file="studyfileidcf.txt", sep=" ")
 head(ids)
 
 
-### ran idcoef again and it says that 1139 and 1140 must have both parents specified. In the AI Line Info_3 file, the sire of these siblings is listed as '?'. The dam's ID is 135. In the F2 line info file she's listed as "Mated To 190*/?" so these mice are probably half siblings. Addl evidence for this (maybe, depending on how the Cheverud lab does weanings): 1139 and 1140 were weaned one day apart.
+### ran idcoef again and it says that 1139 and 1140 must have both parents specified. In the AI Line Info_3 file, the sire of these siblings is listed as '?'. The dam's ID is 135. In the F2 line info file she's listed as "Mated To 190*/?" so these mice may be half siblings. Addl evidence for this (maybe, depending on how the Cheverud lab does weanings): 1139 and 1140 were weaned one day apart.
 
 
 
@@ -166,6 +166,51 @@ names(ped2)<- names(ped)
 
 ped2[4949:10177, 2:4]<-check[4949:10177, 1:3]
 
+write.table(ped2, file="fullpedforPlink.integers.txt", sep=" ", row.names=F, col.names=F)
+
+
+############## get idcoefs from QTLRel ######################
+
+############ prepare pedigree files #################
+
+# 0 is reserved for missing values
+# change founder ids to -9999 and -9998 for sire and dam
+ped2[1,2] <- -9999
+ped2[2,2] <- -9998
+ped2[3, 3:4] <- c(-9999,-9998)
+ped2[4, 3:4] <- c(-9999, -9998)
+
+# need a pedigree with id, sire, dam, sex (1m/2f)
+ped2$fam <- NULL
+ped <- ped2
+
+# ped with "parents not in prev generation" errors uncorrected
+write.table(ped, file="qtlRel.ped.txt", sep=" ", row.names=F, col.names=F)
+
+
+###### corrections for unknown parents ##############
+# i.e. parents of mice below are not listed in prev gens
+# setting parents of 51914 and 52016 to 0,0
+ped[4004, 2:3]<- 0 
+ped[4005, 2:3]<- 0
+
+# setting mother of 50924 to 0
+ped[3867, 3]<- 0
+
+# setting parents of 41095 (the alleged offspring of B6) to 0,0
+ped[3212, 2:3]<- 0
+
+# setting father of 1139 and 1140 to 0
+ped[293:294, 2]<-0
+
+# ped where unknown parents are set to 0 
+write.table(ped, file="qtlRel.ped.txt", sep=" ", row.names=F, col.names=F)
+
+################## id file ########################
+
+# ids of mice for which to calculate idcoefs
+testmice <- read.table("studyfileidcf.txt", sep="\t", header=F, as.is=T)
+names(testmice)[1]<-"id"
 
 
 
