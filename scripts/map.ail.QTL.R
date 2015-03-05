@@ -74,8 +74,8 @@ covars$one <- 1
 ### covariates for each trait #### updated by Natalia 2/6/15
 traitcovs <- vector("list", length=17)
 
-names(traitcovs) <- c("cpp.diff", "act2.t", "act4.t", "wild", "ppi6", "ppi12", 
-                      "cpp8.1", "cpp8.t", "sens", "act1.t", "ppi3",
+names(traitcovs) <- c("cpp.diff", "act2.t", "act4.t", "wild.binary", "ppi6.logit", "ppi12.logit", 
+                      "cpp8.1", "cpp8.t", "sens", "act1.t", "ppi3.logit",
                       "startle", "habituation", "act3.t", "act5.t", "act8.t","glucose")
                       
                       
@@ -95,11 +95,11 @@ traitcovs[["act2.t"]]  <- list("one", "sex", "is.gen52","is.gen56", "is.cpp.box5
 
 traitcovs[["act4.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box11") 
 
-traitcovs[["wild"]]    <- list("one", "sex")
+traitcovs[["wild.binary"]]    <- list("one", "sex")
 
-traitcovs[["ppi3"]] <- list("one", "sex", "is.ppi.box3", "ppi.weight", "is.batch4")
-traitcovs[["ppi6"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4", "ppi.weight")
-traitcovs[["ppi12"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4","ppi.weight", 
+traitcovs[["ppi3.logit"]] <- list("one", "sex", "is.ppi.box3", "ppi.weight", "is.batch4")
+traitcovs[["ppi6.logit"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4", "ppi.weight")
+traitcovs[["ppi12.logit"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4","ppi.weight", 
                             "is.batch3", "is.batch4", "is.batch7", "is.batch9")
 
 traitcovs[["startle"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch2", "is.batch16", "is.batch17") # shyam: is sex excluded for a reason - ## natalia: see comment under avg.ppi
