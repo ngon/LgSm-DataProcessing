@@ -1,0 +1,17 @@
+{
+    "contents" : "\nsetwd(\"C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/pedigree\")\n\nlibrary(\"QTLRel\")\n\nped <- read.table(\"qtlRelpedGen.csv\", sep=\",\", header=T, as.is=T)    \nids <- read.table(\"qtlReltestmiceGen.csv\", sep=\",\", header=T, as.is=T)\n\nall <- read.table(\"../dataFiles/allData.txt\", sep=\"\\t\", header=T, as.is=T)\n\n\nlevels(ped34$sex)[levels(ped34$sex)==\"M\"] <- 1\nlevels(ped34$sex)[levels(ped34$sex)==\"F\"] <- 2\n\nlevels(test$sex)[levels(test$sex)==\"1\"]<- \"F\"\nlevels(test$sex)[levels(test$sex)==\"2\"]<- \"1\"\nlevels(test$sex)[levels(test$sex)==\"F\"]<- \"2\"\n\ngen43 <- ped[ped$gen == 43,]\ngen43 <- cbind(gen43[1], gen43[3], gen43[2], gen43[4], gen43[5])\nnames(gen43)[2:3] <-c(\"sire\", \"dam\")\n\n#testped <- rbind(ped[1:6389,], gen43, ped[6574:10177,])\n\ngen48 <- ped[ped$gen == 48,]\ngen48 <- cbind(gen48[1], gen48[3], gen48[2], gen48[4], gen48[5])\nnames(gen48)[2:3] <-c(\"sire\", \"dam\")\n\ntestped2 <- rbind(testped[1:7173,], gen48, testped[7439:10177,])\n\ntestped2[testped2$sire == 46950,] # 3676 index\n# dam should be 46950, sire should be 46359 (switch them)\ntestped2[3676,2] <- 46359\ntestped2[3676,3] <- 46950\n\n\nmism <- read.table(\"sex.mismatches.qtlrel.txt\", header=F)\nmism[1]<-NULL\nnames(mism)[1:3] <- c(\"sex\", \"generation\", \"id\")\n\n# match up id in mism with sire in testped2 <- newdf\n# switch dam and sire columns in the newdf\n# match up id in newdf with testped2\n# replace sire/dams columns in testped2 with those in newdf\n\nnewdf <- testped2[testped2$sire %in% mism$id,] \n\nnewdf <- cbind(newdf[1], newdf[3], newdf[2], newdf[4], newdf[5])\nnames(newdf)[2:3] <-c(\"sire\", \"dam\")\n\npositions <- testped2$id[testped2$id %in% newdf$id]\n\nfor i in positions {\n        \n}\n\n\n\nidcfs <- cic(ped=testped2, ids=ids$id, df=5, ask=TRUE, verbose=TRUE)\nsave(list=c(\"ail.idcf\"), file=\"ail.idcf.RData\")\n\nidcfs <- cic(ped=ped, ids=ids$id, df=100, ask=FALSE, verbose=FALSE)",
+    "created" : 1425589192050.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "97965446",
+    "id" : "CDC31EA5",
+    "lastKnownWriteTime" : 7022344664425255783,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

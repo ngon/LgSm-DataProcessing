@@ -12,8 +12,8 @@ for (i in 2:56){
   file.name = paste(data.dir,"AI Line Info_",i,".csv",sep="")
   ped.tmp = read.table(file=file.name, sep=",", skip = 1,
      as.is=TRUE, na.strings="?")
-  ped.tmp = ped.tmp[,c(1,7,8,3)] ## this differs from original breeder code in that
-                                 ## cols 7 and 8 are switched to match PLINK format
+  ped.tmp = ped.tmp[,c(1,7,8,3,4)] ## this differs from original breeder code in that
+                                 ## cols 7 and 8 are switched to match PLINK format and i've added the generation column (4)
   dim(ped.tmp)
   if (i == 2){
     ped.tmp[,c(2,3)] = 0}
@@ -42,7 +42,7 @@ ped[ped[,4]=="M",4] = 1
 ped[,4] = as.numeric(ped[,4])
 
 # name cols
-colnames(ped) <- c("id", "sire", "dam", "sex")
+colnames(ped) <- c("id", "sire", "dam", "sex", "generation")
 fam <- rep(1, length(ped$id))
 ped <- cbind(fam, ped)
 
@@ -54,8 +54,8 @@ ped <- cbind(fam, ped)
 ### reformat ped info for F50-56 AILs that were tested/genotyped ###
 
 # get data
-testmice<- read.table(file="./allData.txt", sep="\t", header=T)
-testped <- cbind(testmice$id, testmice$sire, testmice$dam, testmice$sex)
+testmice<- read.table(file="../allData.txt", sep="\t", header=T)
+testped <- cbind(testmice$id, testmice$sire, testmice$dam, testmice$sex, testmice$gen)
 testped <- as.data.frame(testped)
 
 # change sex coding from M=0 and F=1 to M=1 and F=2
@@ -65,7 +65,7 @@ testped[testped[,4]=="1",4] = 2
 testped[testped[,4]=="0",4] = 1
 
 # name cols
-colnames(testped) <- c("id", "sire", "dam", "sex")
+colnames(testped) <- c("id", "sire", "dam", "sex", "generation")
 fam <- rep(1, length(testped$id))
 testped <- cbind(fam, testped)
 
@@ -80,7 +80,8 @@ sum(testdups)
 
 # combine ail and breeder peds
 fullped <- rbind(ped, testped)
-write.table(file="./ailpedigree.csv", sep=",", row.names=FALSE, fullped)
+write.table(file="./qtlRelpedGen.csv", sep=",", row.names=FALSE, col.names=TRUE, fullped)
+write.table(file="./qtlReltestmiceGen.csv", sep=",", row.names=FALSE, col.names=TRUE, testped)
 write.table(file="./ailped.F49to56.csv", sep=",", row.names=FALSE, fullped[7435:10173,])
 
 # look for duplicate ids
