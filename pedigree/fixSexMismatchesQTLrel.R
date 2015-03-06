@@ -74,10 +74,11 @@ fixthese$id <- as.character(fixthese$id)
 testped <- merge(ped, fixthese, by="id", all.y=TRUE, all.x=TRUE)
 testped <- testped[-c(8:9)]
 write.table(testped, "testped.txt", sep="\t", col.names=T, row.names=F)
-
+write.table(mouselist, "mouselist.qtlRel.txt", sep="\t", col.names=T, row.names=F)
 
 # try running cic command on fixedped
 fixedped <- read.table("testped.txt", sep="\t", header=T)
+
 
 # test cic command again 
 idcfs <- cic(ped=fixedped, ids=mouselist$id, df=5, ask=T, verbose=T)
