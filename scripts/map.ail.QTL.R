@@ -71,48 +71,63 @@ covars$one <- 1
 #anova.cpp <- anova(lm(cpp8.t~covars$is.batch13))
 #anova.cpp <- anova(lm(cpp8.t~as.factor(covars$cpp.box)))
 
-### covariates for each trait #### updated by Natalia 2/6/15
-traitcovs <- vector("list", length=17)
+### covariates for each trait 
+#### updated by Natalia 3/10/15 to map transformed ppi, wild, side changes, act3 and tail
+traitcovs <- vector("list", length=8)
 
-names(traitcovs) <- c("cpp.diff", "act2.t", "act4.t", "wild.binary", "ppi6.logit", "ppi12.logit", 
-                      "cpp8.1", "cpp8.t", "sens", "act1.t", "ppi3.logit",
-                      "startle", "habituation", "act3.t", "act5.t", "act8.t","glucose")
+names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", "act3.t",
+                      "tail", "sc1.t", "sc8.t")
+
+# all traits listed below
+#names(traitcovs) <- c("cpp.diff", "cpp8.1", "cpp8.t", "cpp1.t", "act2.t", "act3.t", "act4.t",
+#                       "act5.t", "act8.t", "act8.1", "sens", "ppi3.logit", "ppi6.logit", 
+#                       "ppi12.logit", "habituation", "startle", "wild.binary", "glucose", 
+#                       "tail", "sc1.t", "sc8.t")                    
                       
                       
-traitcovs[["cpp.diff"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", 
-                                "is.cpp.box7", "is.cpp.box11", "is.cpp.box12") 
+# traitcovs[["cpp.diff"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", 
+#                                 "is.cpp.box7", "is.cpp.box11", "is.cpp.box12") 
+# 
+# traitcovs[["cpp8.1"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", 
+#                         "is.cpp.box8", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") 
+# 
+# traitcovs[["cpp8.t"]]  <- list("one", "sex", "is.gen53", "is.gen56", "is.batch2", "is.batch10", "is.batch13","is.batch15", "is.batch21", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12", "comerr8") 
+# 
+# traitcovs[["sens"]]    <- list("one", "sex", "is.gen52", "is.cpp.box7", "is.batch8") 
+# 
+# traitcovs[["act1.t"]]  <- list("one", "sex", "is.batch14", "is.cpp.box3", "is.cpp.box4", "is.cpp.box5", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12", "comerr1")
+# 
+# traitcovs[["act2.t"]]  <- list("one", "sex", "is.gen52","is.gen56", "is.cpp.box5", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box12", "is.batch8") 
+# 
+# traitcovs[["act4.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box11") 
 
-traitcovs[["cpp8.1"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", 
-                        "is.cpp.box8", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") 
-
-traitcovs[["cpp8.t"]]  <- list("one", "sex", "is.gen53", "is.gen56", "is.batch2", "is.batch10", "is.batch13","is.batch15", "is.batch21", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12", "comerr8") 
-
-traitcovs[["sens"]]    <- list("one", "sex", "is.gen52", "is.cpp.box7", "is.batch8") 
-
-traitcovs[["act1.t"]]  <- list("one", "sex", "is.batch14", "is.cpp.box3", "is.cpp.box4", "is.cpp.box5", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12", "comerr1")
-
-traitcovs[["act2.t"]]  <- list("one", "sex", "is.gen52","is.gen56", "is.cpp.box5", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box12", "is.batch8") 
-
-traitcovs[["act4.t"]]  <- list("one", "sex", "is.cpp.box7", "is.cpp.box8", "is.cpp.box11") 
-
-traitcovs[["wild.binary"]]    <- list("one", "sex")
 
 traitcovs[["ppi3.logit"]] <- list("one", "sex", "is.ppi.box3", "ppi.weight", "is.batch4")
 traitcovs[["ppi6.logit"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4", "ppi.weight")
 traitcovs[["ppi12.logit"]] <- list("one", "sex", "is.ppi.box3", "is.ppi.box4","ppi.weight", 
                             "is.batch3", "is.batch4", "is.batch7", "is.batch9")
 
-traitcovs[["startle"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch2", "is.batch16", "is.batch17") # shyam: is sex excluded for a reason - ## natalia: see comment under avg.ppi
+# traitcovs[["startle"]] <- list("one", "is.ppi.box3", "is.ppi.box4", "ppi.weight", "is.batch2", "is.batch16", "is.batch17") # shyam: is sex excluded for a reason - ## natalia: see comment under avg.ppi
+# 
+# traitcovs[["habituation"]] <- list("one", "ppi.weight") 
 
-traitcovs[["habituation"]] <- list("one", "ppi.weight") 
+traitcovs[["wild.binary"]]    <- list("one", "sex")
 
 traitcovs[["act3.t"]]  <- list("one", "sex", "is.gen51", "is.gen52", "is.gen53", "is.gen54", "is.gen55", "is.batch2", "is.batch3", "is.batch4", "is.batch5", "is.batch6", "is.batch7", "is.batch8", "is.batch9", "is.batch10", "is.batch11", "is.batch12", "is.batch13", "is.batch21", "is.batch22", "is.cpp.box7", "is.cpp.box8", "is.cpp.box10", "is.cpp.box11", "is.cpp.box12") 
 
-traitcovs[["act5.t"]]  <- list("one", "sex", "is.gen51", "is.gen53", "is.gen54", "is.gen55", "is.gen56", "is.cpp.box7", "is.cpp.box8", "is.batch7", "is.batch13", "is.batch15", "is.batch20", "is.batch21", "is.batch22") 
+traitcovs[["tail"]] <-list("one", "sex", "is.gen52", "is.gen53", "is.gen51", "is.gen56")
 
-traitcovs[["act8.t"]]  <- list("one", "sex", "is.gen56", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12", "is.batch3", "is.batch7") 
+traitcovs[["sc1.t"]] <-list("one", "sex", "is.gen51", "is.gen53", "is.gen56", "is.gen54", "is.gen55","is.batch2", "is.batch4", "is.batch6", "is.batch12", "is.batch13", "is.batch21", "is.cpp.box2", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box12")
 
-traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
+traitcovs[["sc8.t"]] <-list("one", "sex", "is.cpp.box6", "is.cpp.batch2", "is.cpp.batch3", 
+                            "is.cpp.batch6", "is.cpp.batch7", "is.cpp.batch10", "is.cpp.batch15", 
+                            "is.cpp.batch20", "is.gen54", "is.gen55", "is.gen56")
+
+# traitcovs[["act5.t"]]  <- list("one", "sex", "is.gen51", "is.gen53", "is.gen54", "is.gen55", "is.gen56", "is.cpp.box7", "is.cpp.box8", "is.batch7", "is.batch13", "is.batch15", "is.batch20", "is.batch21", "is.batch22") 
+# 
+# traitcovs[["act8.t"]]  <- list("one", "sex", "is.gen56", "is.cpp.box3", "is.cpp.box4", "is.cpp.box6", "is.cpp.box7", "is.cpp.box8", "is.cpp.box9", "is.cpp.box11", "is.cpp.box12", "is.batch3", "is.batch7") 
+# 
+# traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
 
 
 #################### Make script to run Gemma for chosen trait ##############
