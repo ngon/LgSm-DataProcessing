@@ -31,22 +31,22 @@ traits <- c("cpp.diff",
             #"glucose"
             )
 
-titles <- c("Change in preference for meth paired side", 
-            #"Time spent on meth paired side on day 8 (5 min)", 
+titles <- c(#"Change in preference for meth paired side", 
+            "Time spent on meth paired side on day 8 (5 min)", 
             #"Time spent on meth paired side on day 8 (30 min)", 
-            "Locomotor response to novelty (Day 1 activity)",
-            "Locomotor response to meth (Day 2 activity)", 
-            #"Day 4 activity (1 mg/kg meth)", 
-            #"Day 5 activity (saline)",
-            #"Day 8 activity (saline)",
+            #"Locomotor response to novelty (Day 1 activity)",
+            #"Locomotor response to meth (Day 2 activity)", 
+            "Day 4 activity (1 mg/kg meth)", 
+            "Day 5 activity (saline)",
+            "Day 8 activity (saline)",
             #"Locomotor sensitization to meth", 
             #"Acoustic startle reflex", 
             #"Wildness (number of escapes during CPP)", 
             #"Prepulse inhibition (73 dB)",
-            "Prepulse inhibition (76 dB)" 
+            #"Prepulse inhibition (76 dB)" 
            # "Prepulse inhibition (82 dB)",
-            #"Habituation to acoustic startle",
-            #"Blood glucose levels after a 4h fast"
+            "Habituation to acoustic startle",
+            "Blood glucose levels after a 4h fast"
             )
 
 outfiles <- paste0(traits, ".manhattan.png")
@@ -55,7 +55,7 @@ traits<- c("startle", "ppi12")
 titles<- c("Acoustic startle reflex", "Prepulse inhibition (82 dB)")
 outfiles <- paste0(traits, ".manhattan.png")
 
-for (index in 1:1) {
+for (index in 1:6) {
         print(paste("Starting trait", traits[index]))
         plotManhattan(traits[index], outfile=outfiles[index], title=titles[index])
         print(paste("Done with trait", traits[index]))
@@ -153,6 +153,12 @@ test<-act5t4[order(act5t4$ps),]
 plotZoom(trait="act5.t", chrom=4, start=127158422, end=134999602)
 
 
+hab <- read.table("habituation.chr4.assoc.txt", sep="\t", header=T )
+test<-hab[order(hab$ps),]
+head(test)
+tail(test)
+
+plotZoom(trait="habituation", chrom=4, start=6063986, end=156255616)
 
 
 plotZoom <- function(trait, chrom, start, end, outfile=NULL, dotColor="#aab0be", signifLine=5, signifColor="#000000", title=NULL, scaling=1e6, scalename="(Mb)") {
@@ -180,7 +186,7 @@ plotZoom <- function(trait, chrom, start, end, outfile=NULL, dotColor="#aab0be",
 }
 
 
-
-
+3158013
+94657175
 
 
