@@ -77,15 +77,38 @@ write.table(testped, "testped.txt", sep="\t", col.names=T, row.names=F)
 write.table(mouselist, "mouselist.qtlRel.txt", sep="\t", col.names=T, row.names=F)
 
 # try running cic command on fixedped
-fixedped <- read.table("testped.txt", sep="\t", header=T)
+testped <- read.table("testped.txt", sep="\t", header=T)
 
 
 # test cic command again 
-idcfs <- cic(ped=fixedped, ids=mouselist$id, df=5, ask=T, verbose=T)
+idcfs <- cic(ped=testped, ids=mice$id, df=5, ask=T, verbose=T)
 
 # success! disk space needed = 83.2 Gb
+# however there are still errors... program says certain IDs are out of bounds, but they shouldn't be.
 
+# import inbred ped fragment from peter's lgsmfear githib repo
+# except wtf peter... the sire and dams are identical. this is an error. 
+inbred.ped <- read.table("pedigreeInbred.txt", sep="\t", header=T)
+inbred.ped <- cbind(inbred.ped[1], inbred.ped[4:5], inbred.ped[3], inbred.ped[2])
+levels(inbred.ped$sex)[levels(inbred.ped$sex)=="M"] <- "1"
+levels(inbred.ped$sex)[levels(inbred.ped$sex)=="F"] <- "2"
+write.table(inbred.ped, "inbredpedNMG.txt", sep="\t", row.names=F)
 
+testped <- read.table("testped.txt", sep="\t", header=T)
+testped <- testped[1:5]
+testped <- testped[3:10177,]
+testped$id <- as.factor(testped$id)
+testped$sire <- as.factor(testped$sire)
+testped$dam <- as.factor(testped$dam)
+testped$sex <- as.factor(testped$sex)
+testped$generation <- as.factor(testped$generation)
+write.table(testped, "pedforQtlRel.txt", sep="\t", row.names=F)
 
+ped <- read.table("pedforQtlRel.txt", sep="\t", header=T)
+mice$id <- as.factor(mice$id)
+write.table(mice, "mice.txt", sep="\t", row.names=F)
 
+ail.kinship <- kinship(ped, mice$id)
 
+# test cic command again 
+idcfs <- cic(ped=ped, ids=mice$id, df=5, ask=T, verbose=T)
