@@ -110,6 +110,12 @@ pheno <- transform(pheno,
                    sum.nostim = as.numeric(sum.nostim)
                    
                    )
+# create binary trait from 'startle' indicating that the mouse may be hard of hearing
+pheno <- cbind(pheno,
+               data.frame(deaf = factor(as.numeric(pheno$startle < 25))))
+
+
+
 return(pheno)
 }
 
@@ -120,7 +126,7 @@ binary.from.categorical <- function (x, col.names = NULL) {
   # Create a binary factor for each value of the categorical variable.
   d <- list()
   for (value in levels(x))
-    d[[value]] <- factor(as.integer(x == value))
+    d[[value]] <- as.integer(x == value)
   
   # Convert the list to a data frame, and adjust the column names, if
   # requested.
@@ -136,52 +142,42 @@ binary.from.categorical <- function (x, col.names = NULL) {
 setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles")
 
 
-pheno<- read.pheno("allData.txt")
+phenotypes <- read.pheno("allData.txt")
 
 # make binary phenotypes from some factor variables
-pheno <- cbind(pheno,
-               binary.from.categorical(pheno$gen, col.names=paste0("gen",50:56)),
-               binary.from.categorical(pheno$batch, col.names=paste0("batch",1:22)),
-               binary.from.categorical(pheno$cpp.box, col.names=paste0("cpp.box",1:12)),
-               binary.from.categorical(pheno$ppi.box, col.names=paste0("ppi.box",1:5)),
-               binary.from.categorical(pheno$batch, col.names=paste0("coat",1:3))
+binaryPhenos <- cbind(binary.from.categorical(phenotypes$gen, 
+                                       col.names=paste0("is.gen", 50:56)),
+               binary.from.categorical(phenotypes$coat, 
+                                       col.names=paste0("is.coat", c("A","B","W"))),
+               binary.from.categorical(phenotypes$batch, 
+                                       col.names=paste0("is.batch", 1:22)),
+               binary.from.categorical(phenotypes$cpp.box, 
+                                       col.names=paste0("is.cpp.box",1:12)),
+               binary.from.categorical(phenotypes$ppi.box, 
+                                       col.names=paste0("is.ppi.box",1:5))
                )
 
-# not sure why, but running the command above creates 19 NA variables
-# at the end of the data frame pheno. i'm deleting them. 
-pheno <- pheno[,-c(202:220)]
+# combine with phenotypes data frame
+phenotypes <- cbind(phenotypes, binaryPhenos)
+
+# write to an all-in-one file
+write.table(phenotypes, "allDataWithBinaryPhenotypes.txt", sep="\t", row.names=F,
+            col.names=T)
+
+# make covariate files
+one <- data.frame(rep(1, length(phenotypes$id)))
+covariates <- cbind(one, phenotypes[1:36], phenotypes[110:116], phenotypes[118:119],
+                    phenotypes[121:122], phenotypes[125:128], phenotypes[153:202])
+names(covariates)[1] <- "one"
+
+write.table(names(covariates), "cov.names.txt", sep="\t", row.names=F)
+write.table(covariates, "cov.noHeader.txt", sep="\t", row.names=F, col.names=F)
+
+# make pheno files
+traits <- cbind(phenotypes[c(1, 25:109, 117, 120, 122:124, 126, 129:153, 161:163)])
+write.table(names(traits), "pheno.names.txt", sep="\t", row.names=F)
+write.table(traits, "pheno.noHeader.txt", sep="\t", row.names=F, col.names=F)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# This function prepares the phenotype data for QTL mapping.
-prepare.pheno <- function (pheno) {
-   
-  # The deaf mice add "noise" to the PPI phenotypes. remove these samples 
-  # from the analysis. My cutoff is 10, which is what Peter used for CFWs.
-  ppi.phenotypes <-
-    c("ppi3", "ppi6", "ppi12", "ppi3.logit", "ppi6.logit", "ppi12.logit", 
-      "startle", "habituation")
-  rows <- which(pheno$startle < 10) 
-  pheno[rows,ppi.phenotypes] <- NA
-  
-   # Return the updated phenotype data table.
-  return(pheno)
-}
 
 

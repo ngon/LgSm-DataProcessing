@@ -36,44 +36,40 @@ covars$sex    <- replace(covars$sex, covars$sex == "M", "0")
 covars$sex    <- replace(covars$sex, covars$sex == "F", "1")
 covars$sex    <- as.numeric(covars$sex)
 
-#### Change the batch and ppi.box covariates to set of indicator variables for gemma
-#### Convert generation to factor as well.
-batches       <- unique(covars$batch)
-#batches       <- batches[-1]
-for (batch in batches) {
-  covars[,paste0("is.batch", batch)]  <- as.integer(covars$batch == batch)
-}
-boxes         <- unique(covars$ppi.box[which(!is.na(covars$ppi.box))])
-#boxes         <- boxes[-1]
-for (box in boxes) {
-  covars[,paste0("is.ppi.box", box)] <- as.integer(covars$ppi.box == box)
-}
-boxes         <- unique(covars$cpp.box[which(!is.na(covars$cpp.box))])
-#boxes         <- boxes[-1]
-for (box in boxes) {
-  covars[,paste0("is.cpp.box", box)] <- as.integer(covars$cpp.box == box)
-}
-gens          <- unique(covars$gen)
-#gens          <- gens[-1]
-for (gen in gens) {
-    covars[,paste0("is.gen", gen)] <- as.integer(covars$gen == gen)
-}
+#### Removing this because I've processed the phenotypes so that they already
+#### include binary covariates in the input files. -- NMG 3-17-15
+#####################################################################################
+### Change the batch and ppi.box covariates to set of indicator variables for gemma
+### Convert generation to factor as well.
+# batches       <- unique(covars$batch)
+# #batches       <- batches[-1]
+# for (batch in batches) {
+#   covars[,paste0("is.batch", batch)]  <- as.integer(covars$batch == batch)
+# }
+# boxes         <- unique(covars$ppi.box[which(!is.na(covars$ppi.box))])
+# #boxes         <- boxes[-1]
+# for (box in boxes) {
+#   covars[,paste0("is.ppi.box", box)] <- as.integer(covars$ppi.box == box)
+# }
+# boxes         <- unique(covars$cpp.box[which(!is.na(covars$cpp.box))])
+# #boxes         <- boxes[-1]
+# for (box in boxes) {
+#   covars[,paste0("is.cpp.box", box)] <- as.integer(covars$cpp.box == box)
+# }
+# gens          <- unique(covars$gen)
+# #gens          <- gens[-1]
+# for (gen in gens) {
+#     covars[,paste0("is.gen", gen)] <- as.integer(covars$gen == gen)
+# }
+#############################################################################
 
-#### Make covariate file with all ids in gentype file
+#### Make covariate file with all ids in genotype file
 covars <- merge(geno.samples, covars, all.x=TRUE)
 covars$one <- 1
 
-####### Code for anova testing batch having a significant explantory power on outcome
-####### and batch 13 as being different from rest of batches in terms of outcome
-#cpp8.t <- pheno$cpp8.t
-#batch <- as.factor(covars$batch)
-#anova.cpp <- anova(lm(cpp8.t~batch))
-#anova.cpp <- anova(lm(cpp8.t~covars$is.batch13))
-#anova.cpp <- anova(lm(cpp8.t~as.factor(covars$cpp.box)))
-
 ### covariates for each trait 
-#### updated by Natalia 3/10/15 to map transformed traits and bin traits
-traitcovs <- vector("list", length=80)
+#### updated by Natalia 3/17/15 to map transformed traits and bin traits
+traitcovs <- vector("list", length=83)
 
 # all traits
 names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", "tail","glucose",
@@ -87,7 +83,8 @@ names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", 
                       "act4.t", "act4.1", "act4.2", "act4.3", "act4.4", "act4.5", "act4.6",
                       "act5.t", "act5.1", "act5.2", "act5.3", "act5.4", "act5.5", "act5.6",
                       "act8.t", "act8.1", "act8.2", "act8.3", "act8.4", "act8.5", "act8.6",
-                      "habituation", "startle", "sens", "cpp.diff"
+                      "habituation", "startle", "sens", "cpp.diff", 
+                      "is.coatA", "is.coatB", "is.coatW"
                       )
 
 ###### ppi, startle and habituation #######
@@ -223,8 +220,9 @@ traitcovs[["sens6"]]    <- list("one", "sex", "is.cpp.box3","is.cpp.box4","is.cp
 traitcovs[["wild.binary"]]    <- list("one", "sex", "cpp.age")
 traitcovs[["tail"]] <-list("one", "sex", "is.gen52", "is.gen53", "is.gen51", "is.gen56", "rip.weight")
 traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
-
-
+traitcovs[["is.coatA"]] <- list("one", "sex")
+traitcovs[["is.coatB"]] <- list("one", "sex")
+traitcovs[["is.coatW"]] <- list("one", "sex")
 
 
 
@@ -240,3 +238,15 @@ for (trait in names(traitcovs)) {
 }
 write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.cmds"), row.names=F, col.names=F, quote=F)
 
+
+########################################
+####### OLD STUFF - NOT USED ###########
+########################################
+
+####### Code for anova testing batch having a significant explantory power on outcome
+####### and batch 13 as being different from rest of batches in terms of outcome
+#cpp8.t <- pheno$cpp8.t
+#batch <- as.factor(covars$batch)
+#anova.cpp <- anova(lm(cpp8.t~batch))
+#anova.cpp <- anova(lm(cpp8.t~covars$is.batch13))
+#anova.cpp <- anova(lm(cpp8.t~as.factor(covars$cpp.box)))
