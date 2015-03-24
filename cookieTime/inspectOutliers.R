@@ -1,39 +1,29 @@
 ##### Manual removal of phenotypic outliers
 ##### 18 Mar 2015
 
-setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles")
+setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/figures/residuals/qq.resid/")
 library("ggplot2")
 source("../cookieTime/read.pheno.R")
-source("../cookieTime/binary.from.categorical.R")
 source("../cookieTime/check.normal.quantiles.R")
 source("../cookieTime/gg_qq.R")
 
+#### I. LOAD DATA --------------------------------------------------------------
 
-#### I. LOAD DATA AND PREPARE PHENOTYPES -----------------------------------
+# read phenotype data
+alldata <- read.pheno("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/allData.txt")
 
-# read and phenotype data
-pheno <- read.pheno("allData.txt")
+# read ppi data with all bins included
+allppi <- read.table("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/ppi.data.ALL.txt", sep="\t", header=T)
 
-# make binary phenotypes from some factor variables
-binaryPhenos <- cbind(binary.from.categorical(pheno$gen, 
-                                              col.names=paste0("is.gen", 50:56)),
-                      binary.from.categorical(pheno$coat, 
-                                              col.names=paste0("is.coat",
-                                                               c("A","B","W"))),
-                      binary.from.categorical(pheno$batch, 
-                                              col.names=paste0("is.batch", 1:22)),
-                      binary.from.categorical(pheno$cpp.box, 
-                                              col.names=paste0("is.cpp.box",1:12)),
-                      binary.from.categorical(pheno$ppi.box, 
-                                              col.names=paste0("is.ppi.box",1:5)))
-# combine with phenotypes data frame
-pheno <- cbind(pheno, binaryPhenos)
+info <- read.table("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/ppi.info.all.txt", sep="\t", header=T)
+info <- info[info$id %in% allppi$ID,]
+
+allppi <- data.frame(allppi, info$ppi.weight)
 
 #### II. PLOT RESIDUALS AND IDENTIFY OUTLIERS --------------------------------
 
-### A. PREPARE PHENOS FOR PLOTTING 
-
-### 1. CPP PHENOTYPES (all of which have four covariates) 
+#### A. PREPARE CPP, GLUC, WILD & TAIL PHENOS FOR PLOTTING -------------------
+####   All of these phenos have four covariates) 
 panels <- list(
   cpp.diff1 = list(pheno='cpp.diff1', cov=c("sex", "gen", "batch", "cpp.box")),
   cpp.diff2 = list(pheno='cpp.diff2', cov=c("sex", "gen", "batch", "cpp.box")),
@@ -129,13 +119,15 @@ panels <- list(
   act8.4 = list(pheno='act8.4', cov=c("sex", "gen", "batch", "cpp.box")),
   act8.5 = list(pheno='act8.5', cov=c("sex", "gen", "batch", "cpp.box")),
   act8.6 = list(pheno='act8.6', cov=c("sex", "gen", "batch", "cpp.box")),
-  act8.t = list(pheno='act8.t', cov=c("sex", "gen", "batch", "cpp.box")))
+  act8.t = list(pheno='act8.t', cov=c("sex", "gen", "batch", "cpp.box")),
+
+  glucose = list(pheno='glucose', cov=c("sex","gen", "glu.weight", "glu.age")),
+  tail = list(pheno="tail", cov=c("sex", "gen", "batch", "rip.weight")))
 
 phenotypes <- unique(sapply(panels,function(x)x$pheno))
 pheno <- alldata
 
-
-## Get residual plots and outlier/quantile stats --------------------------
+#### B. IDENTIFY OUTLIERS AND PLOT CPP, GLUC, WILD & TAIL DATA ----------------
 
 # outlierList is a list of lists for each trait. each trait list 
 # contains individuals who fall outside the confidence interval specified
@@ -148,14 +140,14 @@ outlierList=list()
 # and Observed cumulative distributions 
 normQuantiles=list()
 
-# THIS CODE ONLY WORKS FOR TRAITS WITH 4 COVARIATES
+# THIS LOOP WORKS FOR TRAITS WITH 4 COVARIATES
 for (panel in names(panels)) {
   r <- panels[[panel]]
   phenotype <- r$pheno
   covariate <- r$cov
   data        <- pheno[c(phenotype,covariate)]
   names(data) <- c("y","x1", "x2", "x3", "x4")
-  model <- lm(y ~ x1 + x2 +x3 + x4, data)
+  model <- lm(y ~ x1 + x2 + x3 + x4, data)
   x <- (model$resid - mean(model$resid))/sqrt(var(model$resid))
   outlierList[[panel]] <- gg_qq(x, trait=phenotype)
   normQuantiles[[panel]] <- (check.normal.quantiles(model$resid))
@@ -184,25 +176,128 @@ for (panel in names(panels)) {
   rm.missing <- as.numeric(rm.missing)
   pheno.rm.out[[panel]] <- rm.missing
   pheno.rm.out <- do.call(what=cbind.data.frame, args=pheno.rm.out)
-  pheno.rm.out <- data.frame(pheno$id, pheno.rm.out)
   }
+# bind pheno ids to new data frame  
+pheno.rm.out <- data.frame(pheno$id, pheno.rm.out)
+
+
+# for each trait, get the ids of animals whose measurements were omitted
+out <- list()
+for (i in seq_along(outliers)) { out[[i]] <- as.integer(outliers[[i]]) }
+names(out) <- names(outliers)
+out <- lapply(out, function(x) x[!is.na(x)])
+
+ids <- list()
+for (i in seq_along(outliers)){
+  m <- subset(pheno[1], row.names(pheno) %in% outliers[[i]])
+  ids[[i]] <- m
+  }
+names(ids) <- names(outliers)
+
+for (i in names(ids)){
+lapply(ids[i], write.table, file=paste0(i, ".outlierList.txt"), row.names=T)
+}
+
+
+
+
+
+for (panel in names(panels)){
+  r <- panels[[panel]]
+  phenotype <- r$pheno
+  data <- pheno[phenotype]
+  o <- as.integer(outliers[[panel]])
+  o <- o[which(complete.cases(o))]
+  matches <- which(row.names(data) %in% o)
+
   
-
-
-
-
-
-########### ppi traits #################
-# gluc = list(pheno='glucose', cov=c("sex", "gluc.weight", "gluc.age")),
-# wildness = list(pheno="wild", cov=c("sex", "cpp.age")),
-# 
-#  panels <- list(     
-# pp3 = list(pheno='ppi3.logit', cov=c("sex","gen", "ppi.box", "batch", "ppi.weight")),
-# pp6 = list(pheno='ppi6.logit', cov=c("sex", "gen","ppi.box", "batch","ppi.weight")),
-# pp12 = list(pheno='ppi12.logit', cov=c("sex", "gen","ppi.box", "batch","ppi.weight")),
-# start = list(pheno='startle', cov=c("sex", "gen","ppi.box", "batch","ppi.weight")),
-# habit = list(pheno='habituation', cov=c("sex","gen", "ppi.box", "batch","ppi.weight")))
-
+  for row.name in matches
+  rbind()
 
   
- 
+  rm.missing <- unlist(lapply(data, function(x) rbind())))
+  rm.missing <- as.numeric(rm.missing)
+  pheno.rm.out[[panel]] <- rm.missing
+  pheno.rm.out <- do.call(what=cbind.data.frame, args=pheno.rm.out)
+}
+
+#### C. PREPARE PPI PHENOS FOR PLOTTING ------------------------------------
+
+panels <- list(   
+  ppi3.logit = list(pheno='ppi3.logit', cov=c("sex","gen", "ppi.box", 
+                                       "batch", "ppi.weight")),
+  ppi6.logit = list(pheno='ppi6.logit', cov=c("sex", "gen","ppi.box", 
+                                       "batch","ppi.weight")),
+  ppi12.logit = list(pheno='ppi12.logit', cov=c("sex", "gen","ppi.box", 
+                                         "batch","ppi.weight")),
+  startle = list(pheno='startle', cov=c("sex", "gen","ppi.box", 
+                                      "batch","ppi.weight")),
+  habituation = list(pheno='habituation', cov=c("sex","gen", "ppi.box", 
+                                          "batch","ppi.weight")))
+
+phenotypes <- unique(sapply(panels,function(x)x$pheno))
+pheno <- alldata
+
+#### D. IDENTIFY & REMOVE PROBLEMATIC SAMPLES IN PPI DATA -----------------------
+
+# ppi phenotypes do not follow a normal distribution. ppi3, 6 and 12 are
+# proportions QTLs will be mapped on transformed values (logit). 
+# startle should be transformed with log(10) and habituation is ~normal.
+
+# find the average startle amplitude for the no stimulus trials
+allppi$avg.nostim <- (allppi$nostim.1 + allppi$nostim.2 + allppi$nostim.3 + 
+                       allppi$nostim.4 + allppi$nostim.5 + allppi$nostim.6 +
+                       allppi$nostim.7 + allppi$nostim.8)/8
+
+# find the mice with the smallest differences between avg.nostim and startle.
+# i chose 15 as my cutoff for a "suspiciously small difference" and examined
+# the data manually. 
+allppi$diff.start.nostim <- allppi$startle - allppi$avg.nostim
+quantile(allppi$diff.start.nostim, probs=seq(0, 1, 0.05), na.rm=T)
+errors <- allppi[allppi$diff.start.nostim <= 15,]
+
+# of the mice whose diff.start.nostim <=15, i'm throwing out mice whose 
+# avg.nostim >= 30. many of these appear to be technical errors. i also looked
+# at the mice whose diff.start.nostim > 15 and whose avg.nostim >=30, but in
+# all of these cases, diff.start.nostim was large enough that an avg.nostim 
+# score >=30 did not appear out of the ordinary. notably, 53/59 of the mice w/
+# avg.nostim >= 30 were tested in box 3, and a few batches were overrepresented
+# in this subset. since i'm looking at raw data, NOT residuals, i don't want to
+# be overzealous in removing samples since i expect that covariates will help to
+# further control deviation from the mean. 
+
+# i'm also discarding mice for whom the difference between average startle
+# and average nostim is <=5.0. i looked at values that were slightly greater
+# than 5.0 to see if i'd missed anything, but it appears to be ok. 
+
+# a list of these ids (n=25) are in the file ppi.outliers.txt.
+ppiOutliers <- read.table("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/ppi.outliers.txt", sep="\t", header=T)
+
+data <- pheno[c(1, 129:138)]
+matches <- which(data$id %in% ppiOutliers$ppi.outliers)
+data.noid <- data[-1]
+rm.missing <- lapply(data.noid, function(x) replace(x, matches, "NA"))
+rm.missing <- as.numeric(rm.missing)
+ppi <- do.call(what=cbind.data.frame, args=rm.missing)
+ppi <- data.frame(pheno$id, ppi)
+names(ppi)[1] <- "id"
+
+write.table(ppi, "ppi.rm.out.txt", sep="\t", row.names=F, col.names=T)
+ppi <-read.table("ppi.rm.out.txt", sep="\t", header=T)
+
+#### E. UPDATE FILES TO BE USED FOR QTL MAPPING -------------------------------
+# this is the updated form of Natalia's file 'allData' with covariates and
+# phenotypes that have had outliers removed
+otherVars <- pheno[c(1:36, )]
+pheno.noOutliers <- data.frame(pheno[c(1:36)], pheno.rm.out[-1], 
+                           pheno[c(110:116,118:119, 121:122, 124:128)],  
+                           ppi.rm.out[-1], pheno[c(152:204)])
+write.table(pheno.noOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/allData.rmOut.txt", col.names=T, row.names=F)
+
+# these are the updated phenotype files for Gemma; they do not include 
+# covariates and the header is stored separately.
+phenonoOutliers <- data.frame(pheno.noOutliers[c(1, 25:122, 131, 133:134,
+                                                  136, 139:149, 157:159)])
+write.table(phenonoOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/phenotypes.rmOut.txt", col.names=T, row.names=F)
+write.table(names(pheno.noOutliers), "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/pheno.names.rmOut.txt", row.names=F)
+write.table(pheno.noOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/pheno.noHeader.rmOut.txt", row.names=F, col.names=F)

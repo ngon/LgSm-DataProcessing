@@ -18,7 +18,7 @@ project.onto.interval <- function(x, a, b)
         pmin(b, pmax(a,x))
 
 transform.proportion <- function(x) 
-        logit10((project.onto.interval(x, 0.01, 0.99))
+  logit10((project.onto.interval(x, a=0.01, b=0.99)))
 
 # transform the phenotypes in allData file 
 # values are expresed as percentages; change to proportions first.

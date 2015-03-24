@@ -219,7 +219,7 @@ traitcovs[["sens6"]]    <- list("one", "sex", "is.cpp.box3","is.cpp.box4","is.cp
 ###### other traits ######
 traitcovs[["wild.binary"]]    <- list("one", "sex", "cpp.age")
 traitcovs[["tail"]] <-list("one", "sex", "is.gen52", "is.gen53", "is.gen51", "is.gen56", "rip.weight")
-traitcovs[["glucose"]] <- list("one", "sex", "glu.weight")
+traitcovs[["glucose"]] <- list("one", "sex", "glu.weight", "glu.age")
 traitcovs[["is.coatA"]] <- list("one", "sex")
 traitcovs[["is.coatB"]] <- list("one", "sex")
 traitcovs[["is.coatW"]] <- list("one", "sex")
