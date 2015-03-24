@@ -30,14 +30,14 @@ find.low.outlier <- function(data, cutoff=3){
 }
 
 # remove outlier values and replace with NA
-remove.outlier <- function(data, outliers) {
-  rmout <- mapply(function(d,o){
-    result <- d
-    result[o] <- NA
-    return(result)
-  }, data, outliers)
-  return(as.data.frame(result))
-}  
+# remove.outlier <- function(data, outliers) {
+#   rmout <- mapply(function(d,o){
+#     result <- d
+#     result[o] <- NA
+#     return(result)
+#   }, data, outliers)
+#   return(as.data.frame(result))
+# }  
 
 
 
