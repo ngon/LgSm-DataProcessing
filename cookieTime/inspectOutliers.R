@@ -20,7 +20,7 @@ info <- info[info$id %in% allppi$ID,]
 
 allppi <- data.frame(allppi, info$ppi.weight)
 
-#### II. PLOT RESIDUALS AND IDENTIFY OUTLIERS --------------------------------
+#### II. PLOT RESIDUALS AND IDENTIFY OUTLIERS 
 
 #### A. PREPARE CPP, GLUC, WILD & TAIL PHENOS FOR PLOTTING -------------------
 ####   All of these phenos have four covariates) 
@@ -182,6 +182,7 @@ pheno.rm.out <- data.frame(pheno$id, pheno.rm.out)
 
 
 # for each trait, get the ids of animals whose measurements were omitted
+
 out <- list()
 for (i in seq_along(outliers)) { out[[i]] <- as.integer(outliers[[i]]) }
 names(out) <- names(outliers)
@@ -195,31 +196,11 @@ for (i in seq_along(outliers)){
 names(ids) <- names(outliers)
 
 for (i in names(ids)){
-lapply(ids[i], write.table, file=paste0(i, ".outlierList.txt"), row.names=T)
+lapply(ids[i], write.table, file=paste0(i, "outlierList.txt"), 
+       sep="\t", row.names=T, quote=F)
 }
 
 
-
-
-
-for (panel in names(panels)){
-  r <- panels[[panel]]
-  phenotype <- r$pheno
-  data <- pheno[phenotype]
-  o <- as.integer(outliers[[panel]])
-  o <- o[which(complete.cases(o))]
-  matches <- which(row.names(data) %in% o)
-
-  
-  for row.name in matches
-  rbind()
-
-  
-  rm.missing <- unlist(lapply(data, function(x) rbind())))
-  rm.missing <- as.numeric(rm.missing)
-  pheno.rm.out[[panel]] <- rm.missing
-  pheno.rm.out <- do.call(what=cbind.data.frame, args=pheno.rm.out)
-}
 
 #### C. PREPARE PPI PHENOS FOR PLOTTING ------------------------------------
 
