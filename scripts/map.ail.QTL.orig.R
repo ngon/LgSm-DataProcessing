@@ -1,8 +1,5 @@
 ##### MAP QTL IN F50-56 AIL #####
-## This file uses phenotype data with outliers removed.
-## For details on how this was done, see ./dataFiles/inspectOutliers/README.txt and
-## look at the script ./cookieTime/inspectOutliers.R
-
+##### this file uses phenotype data without outliers removed
 
 ##### GO TO DIRECTORY
 setwd("/group/palmer-lab/AIL/LgSm-DataProcessing")
@@ -23,11 +20,10 @@ geno.samples[which(geno.samples$V1 == "51717-19"), 1] <- "51717"
 geno.samples[which(geno.samples$V1 == "51348"), 1]    <- "51349"
 names(geno.samples) <- c("id")
 
-
-# READ TAB DELIMITED PHENO AND COV FILES ** WITH OUTLIERS REMOVED **
+# READ TAB DELIMITED PHENO AND COV FILES 
 # Sex is an indicator variable; M=0 and F=1
-pheno <- read.file("./phenotypes.orm.txt", sep="\t", header=T, as.is=T)
-covars <- read.file("./covariates.orm.txt", sep="\t", header=T, as.is=T)
+pheno <- read.file("./phenotypes.txt", sep="\t", header=T, as.is=T)
+covars <- read.file("./covariates.txt", sep="\t", header=T, as.is=T)
 
 
 #### EXTRACT DATA FOR GENOTYPED SAMPLES ------------------------------------
@@ -39,7 +35,7 @@ write.table(pheno.allgeno, file="phenos.allgeno.txt",
 
 ### Make covariate file with all ids in genotype file
 covars <- merge(geno.samples, covars, all.x=TRUE)
-covars$one <- 1
+#covars$one <- 1
 
 #### DEFINE COVARIATES FOR EACH TRAIT ------------------------------------
 
@@ -62,7 +58,7 @@ names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", 
                       "act8.t", "act8.1", "act8.2", "act8.3", "act8.4", "act8.5", "act8.6",
                       "habituation", "startle", "sens", "cpp.diff", 
                       "is.coatA", "is.coatB", "is.coatW"
-)
+                      )
 
 # PPI, STARTLE AND HABITUATION
 traitcovs[["ppi3.logit"]] <- list("one", "sex", "is.ppi.box3", "ppi.weight", "is.batch4")
@@ -210,22 +206,23 @@ traitcovs[["is.coatW"]] <- list("one", "sex")
 cmds <- c()
 for (trait in names(traitcovs)) {
   
-  index.pheno     <- which(pheno.names == trait)
-  chosen.covars   <- covars[, unlist(traitcovs[[trait]])]
-  
-  write.table(chosen.covars, 
-              file=paste0("/group/palmer-lab/AIL/qtlmapping/covariates/", trait, ".covs"), 
-              sep="\t", quote=F, row.names=F, col.names=F)
-  
-  for (chrom in 1:19) {
-    cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom, 
-                           ".filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot", 
-                           chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/chr", 
-                           chrom, ".filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/", 
-                           trait, ".covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr", 
-                           chrom, " -n ", index.pheno))
-  }
+    index.pheno     <- which(pheno.names == trait)
+    chosen.covars   <- covars[, unlist(traitcovs[[trait]])]
+    
+    write.table(chosen.covars, 
+                file=paste0("/group/palmer-lab/AIL/qtlmapping/covariates/", trait, ".covs"), 
+                sep="\t", quote=F, row.names=F, col.names=F)
+    
+    for (chrom in 1:19) {
+        cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom, 
+                              ".filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot", 
+                               chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/chr", 
+                               chrom, ".filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/", 
+                               trait, ".covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr", 
+                               chrom, " -n ", index.pheno))
+    }
 }
 write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.cmds"), 
             row.names=F, col.names=F, quote=F)
+
 

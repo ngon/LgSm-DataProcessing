@@ -298,6 +298,5 @@ write.table(pheno.noOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataP
 # covariates and the header is stored separately.
 phenonoOutliers <- data.frame(pheno.noOutliers[c(1, 25:122, 131, 133:134,
                                                   136, 139:149, 157:159)])
-write.table(phenonoOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/phenotypes.rmOut.txt", col.names=T, row.names=F)
-write.table(names(pheno.noOutliers), "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/pheno.names.rmOut.txt", row.names=F)
-write.table(pheno.noOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/pheno.noHeader.rmOut.txt", row.names=F, col.names=F)
+write.table(phenonoOutliers, "C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/phenotypes.orm.txt", sep="\t", col.names=T, row.names=F, quote = F)
+
