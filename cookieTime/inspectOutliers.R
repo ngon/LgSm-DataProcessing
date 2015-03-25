@@ -20,7 +20,7 @@ info <- info[info$id %in% allppi$ID,]
 
 allppi <- data.frame(allppi, info$ppi.weight)
 
-#### II. PLOT RESIDUALS AND IDENTIFY OUTLIERS --------------------------------
+#### II. PLOT RESIDUALS AND IDENTIFY OUTLIERS 
 
 #### A. PREPARE CPP, GLUC, WILD & TAIL PHENOS FOR PLOTTING -------------------
 ####   All of these phenos have four covariates) 
@@ -196,7 +196,8 @@ for (i in seq_along(outliers)){
 names(ids) <- names(outliers)
 
 for (i in names(ids)){
-lapply(ids[i], write.table, file=paste0(i, ".outlierList.txt"), row.names=T, quote=F)
+lapply(ids[i], write.table, file=paste0(i, "outlierList.txt"), 
+       sep="\t", row.names=T, quote=F)
 }
 
 
