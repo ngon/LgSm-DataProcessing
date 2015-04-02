@@ -12,7 +12,7 @@ import os           # misc OS interfaces
 import re           # regular expression operations
 import argparse     # parser for cmd line options, args and sub-cmds
 import gzip         # support for gzip files
-import numpy as np  # array processing for nums, strings, records, objs
+import numpy as np  # NUMerical PYthon for scientific computing
                     # np = alias for numpy. purpose: avoid namespace conflicts.
 import sys          # system-specific params and fxns
 import datetime     # basic date and time types
@@ -193,21 +193,26 @@ def nearestNeigh(readstr, adapters):
     if numnearest > 1: return None
     return nearest
 
+# sidfname is the adapter file name (-s arg above)
 sidfile = open(args.sidfname)
 #enzymeSuffix = 'TGCAG' #works only for PstI
+# enzyme suffix is given after -e; default is 'TGCAG'
 enzymeSuffix = args.enzyme
 line = sidfile.readline() # gets rid of header
-sids = {}
+sids = {}   # sid stands for sample id?
 for line in sidfile:
-    line = line.strip()
-    toks = line.split()
-    adap = toks[1].upper()+enzymeSuffix
-    if (args.lib == toks[2]):
-        sids[adap] = toks[0]
+    line = line.strip() # line is a string with whitespace removed
+    toks = line.split() # alias for splitting a string into subunits
+                        # ask shyam wtf is up with 'toks'
+    adap = toks[1].upper()+enzymeSuffix # make subunit[1] (the idx) an uppercase
+                                        # string & cat(TGCAG) to the end
+    if (args.lib == toks[2]):   # the toks[2] must be the library name ('AIL50')
+        sids[adap] = toks[0]    # toks[0] is the mouse id
 sidfile.close()
 
+# the function below handles paired end reads and zipped files
 fhands_1 = {}
-if (args.paired):
+if (args.paired): 
     fhands_2 = {}
 if (args.unzipout):
     for name in np.unique(sids.values()):
@@ -226,10 +231,10 @@ else:
 
 cntReads = 0
 success = 0
-firsts = open(args.left)
-if args.right != "":
+firsts = open(args.left)  # this will be the only files for SE reads
+if args.right != "":      # e.g. 'if paired end' there will be righthand reads
     seconds = open(args.right)
-if (args.qseq):
+if (args.qseq):           # handles qseq files
     fs=[x.strip() for x in firsts.readlines()]
     for fname1 in fs:
         if(args.paired):
