@@ -1,77 +1,64 @@
-# plot SNP density by chr in ggplot2
-# data frame should have SNPs in rows, and a column for chromosome, position,
-# and the factor you want to group it by, if any (e.g. empirical vs. imputed).
+#### plot.SNP.density ######
+#### a function for plotting SNP density for each chromosome
+
+# Run this in /group/palmer-lab/AIL/GBS/genoSummaries
+# to do: read in each chromosome at once, get the information you need and then
+# discard from memory.
+# all you need is ps col from each chrInfo file. immediately divide all the ps
+# by 1 Mb (or whatever bin size you want) and store the results AS INTEGERS.
+# then: chr1bins<- tapply(sort(unique(chrInfoTable)), chrInfoTable, count)
+# this will give you the number of SNPs in each 1 Mb bin. save this into a list
+# use hist(chr1bins, plot=FALSE)
+# then match by row name to list of empirical snps
+
+# get preimpute filenames except for chrX (idx 20), which is empty
+preimpFiles <- list.files(path="../preimpute/", pattern="*.preimpute.geno")
+preimpFiles <- preimpFiles[-20]
+# extract row names from each file
+get.emp.rownames <- function(file) {read.table(file, sep="\t", header=F)[3]}
+empSnps <- lapply(file.path("../preimpute/", preimpFiles), get.emp.rownames)
 
 
-chrLens    <- read.table("chrLengths_mm10.txt")$V2
-chrLens    <- c(0, cumsum(chrLens*1.0))
+plot.SNP.density <- function(infoFile, empFile) {
 
-labPos     <- read.table("chrLengths_mm10.txt")$V2/2.0
-labPos     <- chrLens[1:19]+labPos
-
-chromosomes <- paste0("chr", 1:19)
-
-
-
-#########
-
-# need a df with chr, position, is.empirical, is.imputed
-
-plot.SNP.density <- function(chr, outfile=NULL,title=NULL) {
-
-    if (is.null(outfile)) {
-        outfile <- paste0(chr, ".SNPdensity.png")
+    print("Finding the necessary files...")
+    chromosomes <- paste0("chr", 1:19)
+    filenames <- list()
+    for (i in chromosomes){
+        filenames[i] <- paste0("../dosage/", i, ".filtered.snpinfo")
     }
-    if (is.null(title)) {
-        title <- paste0("SNP density on ", chr)
+
+    read.info <- function(filename) {read.table(filename, sep="\t", header=F,
+                                     col.names=c("snp", "ps", "chr"))}
+    info <- lapply(filenames, read.info)
+    info <- do.call(what=rbind.data.frame, info)
+
+    # make new column marking each SNP as empirical=TRUE or FALSE
+    emp<- read.table("./empirical.snp.list.txt", sep="\t", header=T)[1]
+    info$is.emp <- info$snp %in% emp$snp
+
+    p<- ggplot(data=info, aes(x=ps/1e6)) +
+        geom_histogram(aes(x=ps/1e6), binwidth=1, fill="goldenrod2") +
+        geom_histogram(data=info[info$is.emp == T,],
+                       binwidth=1, fill="steelblue3") +
+        facet_grid(chr~.) +
+        ggtitle("Genome-wide SNP density") +
+        xlab("Chromosome position (Mb)") +
+        ylab("SNP density") +
+        theme_bw() +
+        theme(axis.title.x=element_text(size=12),
+              axis.title.y=element_text(size=12),
+              axis.text.x=element_text(size=10),
+              axis.text.y=element_text(size=10))
+
+    save(p, "./snpDensity.RData")
+    #     png(file=paste0(outfile, ".png"), height = 11, width=8, units="in")
+    #     print(p)
+    #     dev.off()
+
     }
-    png(file=outfile, height=400, width=500, bg="transparent")
-    #pvals <- c()
-    positions <- c()
-    #cols <- c()
-
-    for (chrom in 1:19) {
-        filename <- paste0("chr", chrom, ".filtered.dosage.txt")
-        print(paste("Starting chromosome ", chrom))
-        output <- read.table(filename, header=T, as.is=TRUE)
-        #output$chr <- as.numeric(sub("chr", "", output$chr))
-        #pvals <- c(pvals, -log10(output$p_lrt))
-        positions <- c(positions, chrLens[output$chr]+output$ps)
-#         if (chrom %% 2) {
-#             cols <- c(cols, rep(oddcolor, nrow(output)))
-#         } else {
-#             cols <- c(cols, rep(evencolor, nrow(output)))
-#         }
-        print(paste("Done with chromosome", chrom))
-    }
-    ##### plotting code goes here
-}
-#########
 
 
-snps<-read.table("snp132_ucsc_hg19.bed",sep="\t",header=F)
-colnames(snps)<-c("chr","start","end","id","score","strand")
 
-# put the chromosomes in order
-goodChrOrder <- paste("chr",c(1:19,"X","Y"),sep="")
-snps$chr <- factor(snps$chr,levels=goodChrOrder)
 
-# Plot the densities of snps in the bed file for each chr seperately
-library(ggplot2)
-snpDensity<-ggplot(snps) +
-    geom_histogram(aes(x=start),binwidth=1e6) + # pick a binwidth that is not too small
-    facet_wrap(~ chr,ncol=2) + # seperate plots for each chr, x-scales can differ from chr to chr
-    ggtitle("Density of SNP-132 across hg19") +
-    xlab("Position in the genome") +
-    ylab("SNP density") +
-    theme_bw() # I prefer the black and white theme
 
-##### TO GROUP PLOTS BY A FACTOR, USE FACET_GRID
-# ggplot(yourData) +
-#   geom_histogram(aes(x=position),binwidth=1e6) +
-#    facet_grid(group ~ chr)
-
-# save the plot to .png file
-png("snp132_density.png",500,750)
-print(snpDensity)
-dev.off()
