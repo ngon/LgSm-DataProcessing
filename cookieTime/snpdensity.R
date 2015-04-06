@@ -3,6 +3,7 @@
 ###################################################
 setwd("/group/palmer-lab/AIL/GBS/genoSummaries/")
 library("ggplot2")
+source("/group/palmer-lab/AIL/LgSm-DataProcessing/cookieTime/multiplot.R")
 
 # load list of empirical SNP positions (emp)
 # and chromosome lengths (chrlens)
