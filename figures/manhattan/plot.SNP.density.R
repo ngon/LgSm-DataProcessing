@@ -36,7 +36,7 @@ save(emp, chrlens, file="empSnps.and.chrlens.RData")
 
 library("ggplot2")
 # load list of empirical SNP positions (emp) and chromosome lengths (chrlens)
-load("empSnps.and.chrlens.RData")
+load("./empSnps.and.chrlens.RData")
 
 snp.density <- function(filename, empRows=FALSE) {
     chrPos <- trunc((read.table(filename, sep="\t", header=F)[2])/1e6)
