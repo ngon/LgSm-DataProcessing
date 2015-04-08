@@ -36,8 +36,8 @@ get SNP names...the file is huge and it takes a long time ( >60 min)
     preimpFiles <- preimpFiles[-20]
 
     # extract SNP names from each file. this takes quite a long time. (20 min)
-    get.emp.rownames <- function(file) {read.table(file, sep="\t", header=F)[3]}
-    empSnps <- lapply(file.path("../preimpute/", preimpFiles), get.emp.rownames)
+    get.emp.positions <- function(file) {read.table(file, sep="\t", header=F)[3]}
+    empSnps <- lapply(file.path("../preimpute/", preimpFiles), get.emp.positions)
     empSnps <- do.call(what=rbind.data.frame, args=empSnps) # 316,013 SNPs
     names(empSnps)[1] <- "snps"
     write.table(empSnps, file="./empirical.snp.list.txt", sep="/t",quote=FALSE,
@@ -47,51 +47,207 @@ get SNP names...the file is huge and it takes a long time ( >60 min)
     emp <- which(allSnps$snps %in% empSnps$snps) # 312516
     imp <- which(!allSnps$snps %in% empSnps$snps) # 3166525
 
-
+empRows=list()
+for(file in filenames){
+    empRows[[file]] <- which((read.table(file, header=F, sep="\t",as.is=T)[2])$V2 %in% emp$ps)
+}
 #  MAF and HET ---------------------------------------------------------------
 # is there anything <16% (copying error rate in imputation)
 
-# geno is the filtered.dosage file
-maf.and.het <- function(genofile, empList=NULL, color=rgb(0.1,0.1,0.1,0.5),
-                    color2=rgb(1,0,0,0.5)) {
+# list the necessary file names
+chromosomes <- paste0("chr", 1:19)
+filenames <- list()
+for (i in chromosomes){
+    filenames[i] <- paste0("../dosage/", i, ".filtered.dosage")
+}
 
+# load positions of empirical snps (a list called empRows)
+load("empSnpRows.Rdata")
+
+
+# GET MAF AND HET ----------------------------------------------------------------------
+snpInfo <- lapply(files, maf.and.het, emp.rows=empRows)
+files <- c("./chr8.txt", "./chr19.txt")
+names(files)[1:2]<- c("chr8", "chr19")
+
+#testmh <- maf.and.het(file=file, emp.rows=empRows)
+
+### get.empirical.data ----------------------------------------------------
+get.empirical.data <- function(file, e=emp.rows, x=maf, y=het.snp){
+    print("Getting data on empirical SNPs...")
+
+    #chrname <- substr(basename(file), 1, nchar(basename(file))-16)
+    chrname <- substr(basename(file), 1, nchar(basename(file))-4)
+    empR <- e[[chrname]]
+    #print(chrname)
+    #print (length(empR))
+    emp.maf <- data.frame(table(sort(x[seq_along(x) %in% empR])))
+    names(emp.maf)[1] <- "emp.maf"
+    emp.het <- data.frame(table(sort(y[seq_along(y) %in% empR])))
+    names(emp.het)[1] <- "emp.het.snp"
+
+    list(emp.maf=emp.maf, emp.het=emp.het)
+
+}
+
+# maf and het --------------------------------------------------------------
+maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
+#     chrname <- names(file)
     print("Getting genotype data...")
-    geno <- read.table(genofile, header=F, as.is=T, nrows =3)[-c(1:3)]
-    classes <- lapply(geno, class)
-    geno <- as.matrix(read.table(genofile, header=F, colClasses=classes))
+    geno <- read.table(file, header=F, as.is=T)[-c(1:4)] # change 4 to a 3
 
-    if(!is.null(empList)){
-        emp <- read.table(file=empList, sep="\t", header=T)[1]
-    }
-
+    ########## MAF
     print("Calculating minor allele frequencies...")
-    freq <- cbind((rowMeans(geno, na.rm = T)/2),
-                  1-(rowMeans(geno, na.rm=T)/2))
-    maf <- apply(freq, 1, min)
-    return(maf)
+    freq <- cbind( (rowMeans(geno, na.rm = T)/2),
+                1-(rowMeans(geno, na.rm=T)/2)  )
+    maf <- round(apply(freq, 1, min), digits=1)
 
-    print("Plotting MAF histogram....")
-    png(file="MAFplot.png", width=425, height=375, units="px")
+    ########## HET
+    print("Calculating average heterozygosity...")
+    # get heterozygosity by sample and by SNP
+    hetsites <- geno <= upper & geno >= lower
+    het.mouse <- apply(hetsites, 2, mean)
+    het.snp <- round(apply(hetsites, 1, mean), digits=1)
 
-    if(is.null(empList)) { # Standard MAF histogram
-         hist(maf, breaks=seq(0, 0.5, by=0.01), col=color,
-                    main = "Minor allele frequency distribution",
-                    xlab = "Minor allele frequency",
-                    ylab = "Count")
-         box()
+    if(!is.null(emp.rows)){
+        empStats <- get.empirical.data(file=file, e=emp.rows, x=maf, y=het.snp)
+
+        maf <- data.frame(table(sort(maf)))
+        names(maf)[1] <- "maf"
+        het.snp <- data.frame(table(sort(het.snp)))
+        names(het.snp)[1] <- "het.snp"
+
+       result<- list(maf, het.snp, het.mouse, empStats["emp.maf"], empStats["emp.het"])
+
+    } else {
+        maf <- data.frame(table(sort(maf)))
+        names(maf)[1] <- "maf"
+        het.snp <- data.frame(table(sort(het.snp)))
+        names(het.snp)[1] <- "het.snp"
+
+        result<-  list(maf, het.snp, het.mouse)
+    }
+    return(result)
+
+}
+
+## plot maf  ------------------------------------------------------
+
+# top level test = chr
+# bottom level = maf, het.snp, het.mouse (vector), emp.maf, emp.het
+
+mafplots <- list()
+hetplots <- list()
+mouseplots <- list()
+
+data <- snpInfo
+
+    for(chr in chromosomes){
+        print("Plotting MAF for each chromosome....")
+        all <- data.frame(data[[chr]][1])
+        names(all)[1:2] <-c("maf", "Freq")
+        emp <- data.frame(data[[chr]][4])
+        names(emp)[1:2] <-c("maf", "Freq")
+
+    mafplots[[chr]] <- ggplot(data=all, aes(x=maf, y=Freq/sum(Freq))) +
+            geom_bar(stat="identity", fill="goldenrod1", color="black") +
+            geom_bar(data=emp, aes(x=maf, y=Freq/sum(Freq)),
+                     stat="identity", fill="orangered", alpha=0.5, color="black") +
+            xlab(paste0("Minor allele frequency on ", chr)) +
+            ylab("Proportion of SNPs") +
+            theme_bw() +
+            theme(axis.title.x=element_text(size=10),
+                  axis.title.y=element_text(size=11),
+                  axis.text.x=element_text(size=10),
+                  axis.text.y=element_text(size=10))
+
+    print("Plotting SNP heterozygosity for each chromosome....")
+    all <- data.frame(data[[chr]][2])
+    names(all)[1:2] <-c("het", "Freq")
+    emp <- data.frame(data[[chr]][5])
+    names(emp)[1:2] <-c("het", "Freq")
+
+    hetplots[[chr]] <- ggplot(data=all, aes(x=het, y=Freq/sum(Freq))) +
+        geom_bar(stat="identity", fill="goldenrod1", color="black") +
+        geom_bar(data=emp, aes(x=het, y=Freq/sum(Freq)),
+                 stat="identity", fill="orangered", alpha=0.5, color="black") +
+        xlab(paste0("Average heterozygosity on ", chr)) +
+        ylab("Proportion of SNPs") +
+        theme_bw() +
+        theme(axis.title.x=element_text(size=10),
+              axis.title.y=element_text(size=11),
+              axis.text.x=element_text(size=10),
+              axis.text.y=element_text(size=10))
+
+    print("Plotting mouse heterozygosity for each chromosome....")
+    all <- as.data.frame(unlist(data[[chr]][3]))
+    names(all)[1] <- "het"
+
+    mouseplots[[chr]] <- ggplot(data=all, aes(x=het)) +
+        geom_histogram(fill="goldenrod1", color="black", binwidth=0.1) +
+        xlab(paste0("Average heterozygosity on ", chr)) +
+        ylab("Proportion of mice") +
+        theme_bw() +
+        theme(axis.title.x=element_text(size=10),
+              axis.title.y=element_text(size=11),
+              axis.text.x=element_text(size=10),
+              axis.text.y=element_text(size=10))
+
+}
+
+
+
+pdf(file="./mafChromosomes.pdf", height=12, width=10, colormodel="cmyk")
+multiplot(plotlist=mafplots, cols=4)
+dev.off()
+
+pdf(file="./hetChromosomes.pdf", height=12, width=10, colormodel="cmyk")
+multiplot(plotlist=hetplots, cols=4)
+dev.off()
+
+pdf(file="./hetChromosomes.pdf", height=10, width=8, colormodel="cmyk")
+multiplot(plotlist=hetplots, cols=5)
+dev.off()
+
+
+
+
+
+
+else { # Draw MAF histogram stratified by empirical vs. imputed SNPs
+
+    if(empRows==TRUE){
+        is.emp <- which((read.table(genofile, header=F, as.is=T)[1])$V1 %in% emp$ps)
+        emp.maf <- geno[row.names(geno) %in% is.emp,]
     }
 
-    else { # Draw MAF histogram stratified by empirical vs. imputed SNPs
-         hist(maf[which(seq_along(maf) %in% emp[1])],
-                    breaks=seq(0, 0.5, by=0.01), col=color,
-                    main = "Minor allele frequency distribution",
-                    sub  = "Empirical vs. imputed SNPs",
-                    xlab = "Minor allele frequency",
-                    ylab = "Count")
-        hist(maf[which(!seq_along(maf) %in% emp[1])],col=color2, add=TRUE)
-        box()
-           }
-    dev.off()
+    hist(maf[which(seq_along(maf) %in% emp[1])],
+         breaks=seq(0, 0.5, by=0.01), col=color,
+         main = "Minor allele frequency distribution",
+         sub  = "Empirical vs. imputed SNPs",
+         xlab = "Minor allele frequency",
+         ylab = "Count")
+    hist(maf[which(!seq_along(maf) %in% emp[1])],col=color2, add=TRUE)
+    box()
+}
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###### PLOT DATA --------------------------------------------------------------
+
+
 
     print("Calculating average heterozygosity...")
     # get heterozygosity by sample and by SNP
@@ -134,46 +290,6 @@ maf.and.het <- function(genofile, empList=NULL, color=rgb(0.1,0.1,0.1,0.5),
     dev.off()
     }
 
-# HETEROZYGOSITY BY SAMPLE ----------------------------------------------------
-# for each row (snp) calculate the proportion of cols with dosage 0.8-1.2.
-
-heterozygosity <- function(geno, lower=0.8, upper=1.2){
-
-    df <- as.matrix(geno[-c(1:3)])
-    hetsites <- df <= upper & df >= lower
-
-    het.mouse <- apply(hetsites, 2, mean)
-    het.snp <- apply(hetsites, 1, mean)
-
-    list(het.mouse, het.snp)
-    }
-
-# plot HET
-hist(ehet.mouse, breaks=30, main="Average heterozygosity per mouse",
-     xlab="Average heterozygosity")
-
-# HETEROZYGOSITY BY SNP -------------------------------------------------------
-# for each row (snp) calculate the proportion of cols with dosage 0.8-1.2.
-
-het.snp <- function(geno, lower=0.8, upper=1.2){
-    df <- geno[-c(1:3)]
-    hets <- vector(length=nrow(df))
-    for(i in 1:nrow(df)) {
-        hets[i] <- (sum(df[i,] >= lower & df[i,] <= upper))/(ncol(df))
-    }
-    return(hets)
-}
-# plot HET
-hist(ehet.snp, breaks=30, main="Average heterozygosity per SNP",
-     xlab="Average heterozygosity")
-
-# LOCAL NUCLEOTIDE DIVERSITY ---------------------------------------------------
-# how many SNPs in each n Kb window - write a fxn where the user can specify n
-# code SNPs by strain origin
-# might also be interesting to make a 3D plot including association pvals
-
-
-
 # PED VS GRM RELATEDNESS ------------------------------------------------------
 # 1. Get GRM
 # first centralize rows of the pxn matrix where p=snps, n=mice
@@ -193,7 +309,6 @@ empGRM <- (t(matEmp)%*%(matEmp)) / nrow(matEmp)
 
 
 # 2. Compare to ped
-
 
 # LD DECAY -------------------------------------------------------------------
 # transpose GRM correl matrix to get cor(r) between snps

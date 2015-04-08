@@ -7,7 +7,8 @@ source("/group/palmer-lab/AIL/LgSm-DataProcessing/cookieTime/multiplot.R")
 
 # load list of empirical SNP positions (emp)
 # and chromosome lengths (chrlens)
-load("./empSnps.and.chrlens.RData")
+
+load("./empSnpPositions.RData")
 
 snp.density <- function(filename, empRows=FALSE) {
     chrPos <- trunc((read.table(filename, sep="\t", header=F)[2])/1e6)
