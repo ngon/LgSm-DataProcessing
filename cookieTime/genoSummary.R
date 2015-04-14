@@ -67,10 +67,10 @@ load("empSnpRows.Rdata")
 
 # GET MAF AND HET ----------------------------------------------------------------------
 snpInfo <- lapply(files, maf.and.het, emp.rows=empRows)
-files <- c("./chr8.txt", "./chr19.txt")
-names(files)[1:2]<- c("chr8", "chr19")
+# files <- c("./chr8.txt", "./chr19.txt")
+# names(files)[1:2]<- c("chr8", "chr19")
 
-#testmh <- maf.and.het(file=file, emp.rows=empRows)
+
 
 ### get.empirical.data ----------------------------------------------------
 get.empirical.data <- function(file, e=emp.rows, x=maf, y=het.snp){
@@ -90,7 +90,7 @@ get.empirical.data <- function(file, e=emp.rows, x=maf, y=het.snp){
 
 }
 
-# maf and het --------------------------------------------------------------
+### maf and het --------------------------------------------------------------
 maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
 #     chrname <- names(file)
     print("Getting genotype data...")
@@ -131,10 +131,18 @@ maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
 
 }
 
+
+
+
+
+
 ## plot maf  ------------------------------------------------------
 
 # top level test = chr
 # bottom level = maf, het.snp, het.mouse (vector), emp.maf, emp.het
+
+source("../cookieTime/multiplot.R")
+library("ggplot2")
 
 mafplots <- list()
 hetplots <- list()
@@ -205,32 +213,12 @@ pdf(file="./hetChromosomes.pdf", height=12, width=10, colormodel="cmyk")
 multiplot(plotlist=hetplots, cols=4)
 dev.off()
 
-pdf(file="./hetChromosomes.pdf", height=10, width=8, colormodel="cmyk")
-multiplot(plotlist=hetplots, cols=5)
+pdf(file="./hetmouseChromosomes.pdf", height=10, width=8, colormodel="cmyk")
+multiplot(plotlist=mouseplots, cols=5)
 dev.off()
 
 
 
-
-
-
-else { # Draw MAF histogram stratified by empirical vs. imputed SNPs
-
-    if(empRows==TRUE){
-        is.emp <- which((read.table(genofile, header=F, as.is=T)[1])$V1 %in% emp$ps)
-        emp.maf <- geno[row.names(geno) %in% is.emp,]
-    }
-
-    hist(maf[which(seq_along(maf) %in% emp[1])],
-         breaks=seq(0, 0.5, by=0.01), col=color,
-         main = "Minor allele frequency distribution",
-         sub  = "Empirical vs. imputed SNPs",
-         xlab = "Minor allele frequency",
-         ylab = "Count")
-    hist(maf[which(!seq_along(maf) %in% emp[1])],col=color2, add=TRUE)
-    box()
-}
-dev.off()
 
 
 
