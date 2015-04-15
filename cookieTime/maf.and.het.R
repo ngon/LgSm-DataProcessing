@@ -1,5 +1,6 @@
 # load positions of empirical snps (a list called empRows)
-load("/group/palmer-lab/AIL/GBS/genoSummaries/empSnpRows.Rdata")
+setwd("/group/palmer-lab/AIL/GBS/genoSummaries")
+load("/group/palmer-lab/AIL/GBS/genoSummaries/empRows.Rdata")
 source("/group/palmer-lab/AIL/LgSm-DataProcessing/cookieTime/multiplot.R")
 library("ggplot2")
 
@@ -63,7 +64,7 @@ for (i in chromosomes){
 }
 
 ## get data
-snpInfo <- lapply(files, maf.and.het, emp.rows=empRows)
+snpInfo <- lapply(filenames, maf.and.het, emp.rows=empRows)
 
 ## plot data
 mafplots <- list()
