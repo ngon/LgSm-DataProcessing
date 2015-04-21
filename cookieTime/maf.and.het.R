@@ -38,7 +38,7 @@ maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
             hetsites    <- geno <= upper & geno >= lower
             het.mouse   <- apply(hetsites, 2, mean)
             het.snp     <- round(apply(hetsites, 1, mean), digits=2)
-            hetsnp.hist <- hist(het.snp, breaks=seq(0,0.5, 0.05), plot=F,
+            hetsnp.hist <- hist(het.snp, breaks=seq(0,1, 1), plot=F,
                             include.lowest=T)
 
     if(!is.null(emp.rows)){

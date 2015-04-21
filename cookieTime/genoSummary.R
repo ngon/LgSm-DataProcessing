@@ -55,22 +55,20 @@ for(file in filenames){
 # is there anything <16% (copying error rate in imputation)
 
 # list the necessary file names
-chromosomes <- paste0("chr", 1:19)
-filenames <- list()
-for (i in chromosomes){
-    filenames[i] <- paste0("../dosage/", i, ".filtered.dosage")
-}
+# chromosomes <- paste0("chr", 1:19)
+# filenames <- list()
+# for (i in chromosomes){
+#     filenames[i] <- paste0("../dosage/", i, ".filtered.dosage")
+# }
 
 # load positions of empirical snps (a list called empRows)
+chromosomes <- c("chr8", "chr19")
+filenames <- c("./chr8.txt", "./chr19.txt")
+names(filenames) <- c("chr8", "chr19")
+
 load("empSnpRows.Rdata")
 
-
 # GET MAF AND HET ----------------------------------------------------------------------
-snpInfo <- lapply(files, maf.and.het, emp.rows=empRows)
-# files <- c("./chr8.txt", "./chr19.txt")
-# names(files)[1:2]<- c("chr8", "chr19")
-
-
 
 ### get.empirical.data ----------------------------------------------------
 get.empirical.data <- function(file, e=emp.rows, x=maf, y=het.snp){
@@ -81,13 +79,20 @@ get.empirical.data <- function(file, e=emp.rows, x=maf, y=het.snp){
     empR <- e[[chrname]]
     #print(chrname)
     #print (length(empR))
-    emp.maf <- data.frame(table(sort(x[seq_along(x) %in% empR])))
-    names(emp.maf)[1] <- "emp.maf"
-    emp.het <- data.frame(table(sort(y[seq_along(y) %in% empR])))
-    names(emp.het)[1] <- "emp.het.snp"
+    #emp.maf <- data.frame(table(sort(x[seq_along(x) %in% empR])))
+    emp.maf <- sort(x[seq_along(x) %in% empR])
+    #names(emp.maf)[1] <- "emp.maf"
+    empmaf.hist <- hist(emp.maf[1], breaks=seq(0,0.5, 0.05), plot=F,
+                        include.lowest=T)
+    #emp.het <- data.frame(table(sort(y[seq_along(y) %in% empR])))
+    emp.het <- sort(y[seq_along(y) %in% empR])
+    #names(emp.het)[1] <- "emp.het.snp"
+    emphet.hist <- hist(emp.het[1], breaks=seq(0,0.5, 0.05), plot=F,
+                        include.lowest=T)
 
-    list(emp.maf=emp.maf, emp.het=emp.het)
 
+   # list(emp.maf=emp.maf, emp.het=emp.het)
+    list(empmaf.hist=empmaf.hist, emphet.hist=emphet.hist)
 }
 
 ### maf and het --------------------------------------------------------------
@@ -100,30 +105,35 @@ maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
     print("Calculating minor allele frequencies...")
     freq <- cbind( (rowMeans(geno, na.rm = T)/2),
                 1-(rowMeans(geno, na.rm=T)/2)  )
-    maf <- round(apply(freq, 1, min), digits=1)
+    maf <- round(apply(freq, 1, min), digits=2) ####
+    maf.hist <- hist(maf, breaks=seq(0,0.5, 0.05), plot=F,
+                     include.lowest=T) #####
 
     ########## HET
     print("Calculating average heterozygosity...")
     # get heterozygosity by sample and by SNP
     hetsites <- geno <= upper & geno >= lower
     het.mouse <- apply(hetsites, 2, mean)
-    het.snp <- round(apply(hetsites, 1, mean), digits=1)
+    het.snp <- round(apply(hetsites, 1, mean), digits=2) ####
+    hetsnp.hist <- hist(het.snp, breaks=seq(0,0.5, 0.05), plot=F,
+                        include.lowest=T) #####
 
     if(!is.null(emp.rows)){
         empStats <- get.empirical.data(file=file, e=emp.rows, x=maf, y=het.snp)
 
-        maf <- data.frame(table(sort(maf)))
-        names(maf)[1] <- "maf"
-        het.snp <- data.frame(table(sort(het.snp)))
-        names(het.snp)[1] <- "het.snp"
+        #maf <- data.frame(table(sort(maf)))
+        #names(maf)[1] <- "maf"
+        #het.snp <- data.frame(table(sort(het.snp)))
+        #names(het.snp)[1] <- "het.snp"
 
-       result<- list(maf, het.snp, het.mouse, empStats["emp.maf"], empStats["emp.het"])
+        result<- list(maf.hist, hetsnp.hist, het.mouse,
+                  empStats["empmaf.hist"], empStats["emphet.hist"])
 
     } else {
-        maf <- data.frame(table(sort(maf)))
-        names(maf)[1] <- "maf"
-        het.snp <- data.frame(table(sort(het.snp)))
-        names(het.snp)[1] <- "het.snp"
+        #maf <- data.frame(table(sort(maf)))
+        #names(maf)[1] <- "maf"
+        #het.snp <- data.frame(table(sort(het.snp)))
+        #names(het.snp)[1] <- "het.snp"
 
         result<-  list(maf, het.snp, het.mouse)
     }
@@ -131,31 +141,58 @@ maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
 
 }
 
-
-
-
-
-
 ## plot maf  ------------------------------------------------------
+data <- lapply(filenames, maf.and.het, emp.rows=empRows)
 
+# files <- c("./chr8.txt", "./chr19.txt")
+# names(files)[1:2]<- c("chr8", "chr19")
 # top level test = chr
 # bottom level = maf, het.snp, het.mouse (vector), emp.maf, emp.het
 
-source("../cookieTime/multiplot.R")
-library("ggplot2")
 
-mafplots <- list()
-hetplots <- list()
-mouseplots <- list()
+pdf(file="./mafc.pdf", height=5, width=10, colormodel="cmyk")
+par(mfrow=c(1,2))
+for(chr in chromosomes){
+    #all <- data.frame(data[[chr]][1])
+    all <- data[[chr]][1]
+    #names(all)[1:2] <-c("maf", "Freq")
+    #emp <- data.frame(data[[chr]][4])
+    emp <- data[[chr]][4]
+    #names(emp)[1:2] <-c("maf", "Freq")
+    plot.het.maf(all, emp)
 
-data <- snpInfo
+}
+dev.off()
 
-    for(chr in chromosomes){
-        print("Plotting MAF for each chromosome....")
-        all <- data.frame(data[[chr]][1])
-        names(all)[1:2] <-c("maf", "Freq")
-        emp <- data.frame(data[[chr]][4])
-        names(emp)[1:2] <-c("maf", "Freq")
+plot.het.maf <- function(all, emp) {
+   plot(x=all[[1]], xlab=paste0("Minor allele frequency on ", chr),
+             ylab="Number of SNPs", main=NULL, cex.lab=0.9, cex.axis=0.8,
+             col=rgb(255,193,37, maxColorValue = 255))
+
+   plot(x=emp[[1]]$empmaf.hist, col=rgb(255,69,0,128, maxColorValue = 255), add=T)
+
+   legend(x=0, y=max(all[[1]]$counts), legend=c("All", "GBS"), bty="n",
+               cex=0.8, fill=c(rgb(255,193,37, maxColorValue=255),
+                               rgb(255,69,0,150, maxColorValue=255)))
+    box()
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     mafplots[[chr]] <- ggplot(data=all, aes(x=maf, y=Freq/sum(Freq))) +
             geom_bar(stat="identity", fill="goldenrod1", color="black") +
@@ -166,7 +203,7 @@ data <- snpInfo
             theme_bw() +
             theme(axis.title.x=element_text(size=10),
                   axis.title.y=element_text(size=11),
-                  axis.text.x=element_text(size=10),
+                  axis.text.x=element_text(size=8),
                   axis.text.y=element_text(size=10))
 
     print("Plotting SNP heterozygosity for each chromosome....")
@@ -217,66 +254,6 @@ pdf(file="./hetmouseChromosomes.pdf", height=10, width=8, colormodel="cmyk")
 multiplot(plotlist=mouseplots, cols=5)
 dev.off()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-###### PLOT DATA --------------------------------------------------------------
-
-
-
-    print("Calculating average heterozygosity...")
-    # get heterozygosity by sample and by SNP
-    hetsites <- geno <= upper & geno >= lower
-    het.mouse <- apply(hetsites, 2, mean)
-    het.snp <- apply(hetsites, 1, mean)
-    list(het.mouse, het.snp)
-
-    print("Making heterozygosity plots...")
-    png(file="het.mouse.png", width=425, height=375, units="px")
-
-    # het.mouse histogram
-    hist(het.mouse, breaks=30, col=color,
-             main = "Average heterozygosity per mouse",
-             xlab = "Average heterozygosity",
-             ylab = "Number of mice")
-    dev.off()
-
-    png(file="het.snp.png", width=425, height=375, units="px")
-
-    if(is.null(empList)) { # Standard het.snp histogram
-        hist(het.snp, breaks=30, col=color,
-             main = "Average heterozygosity per SNP",
-             xlab = "Average heterozygosity",
-             ylab = "Number of SNPs")
-        box()
-    }
-
-    else { # Het.snp histogram stratified by empirical vs. imputed SNPs
-        hist(het.snp[which(seq_along(het.snp) %in% emp[1])],
-             breaks= 30, col=color,
-             main = "Average heterozygosity per SNP",
-             sub  = "Empirical vs. imputed SNPs",
-             xlab = "Average heterozygosity",
-             ylab = "Number of SNPs")
-        hist(maf[which(!seq_along(maf) %in% emp[1])],col=color2, add=TRUE)
-        box()
-    }
-
-    dev.off()
-    }
 
 # PED VS GRM RELATEDNESS ------------------------------------------------------
 # 1. Get GRM

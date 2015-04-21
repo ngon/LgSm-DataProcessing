@@ -1,3 +1,4 @@
+# this code takes approximately 9 hours to run on CRI when 150 GB are allocated
 setwd("/group/palmer-lab/AIL/GBS/genoSummaries")
 load("/group/palmer-lab/AIL/GBS/genoSummaries/empRows.Rdata")
 library("ggplot2")
