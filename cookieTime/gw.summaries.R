@@ -6,7 +6,7 @@ library("ggplot2")
 ### genome wide maf --------------------------------------------------------------
 ### all snps
 gw.maf <- function(file) {
-    geno <- read.table(file, header=F, as.is=T)[-c(1:4)]
+    geno <- read.table(file, header=F, as.is=T)[-c(1:3)]
     freq <- cbind((rowMeans(geno, na.rm = T)/2),
                    1-(rowMeans(geno, na.rm=T)/2))
     maf <- round(apply(freq, 1, min), digits=2)
@@ -16,7 +16,7 @@ gw.maf <- function(file) {
 ### empirical snps
 gw.emaf <- function(file, e=emp.rows){
 
-    geno <- read.table(file, header=F, as.is=T)[-c(1:4)]
+    geno <- read.table(file, header=F, as.is=T)[-c(1:3)]
     freq <- cbind((rowMeans(geno, na.rm = T)/2),
                   1-(rowMeans(geno, na.rm=T)/2))
     maf <- round(apply(freq, 1, min), digits=2)

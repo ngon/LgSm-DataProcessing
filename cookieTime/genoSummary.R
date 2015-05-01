@@ -179,21 +179,6 @@ plot.het.maf <- function(all, emp) {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     mafplots[[chr]] <- ggplot(data=all, aes(x=maf, y=Freq/sum(Freq))) +
             geom_bar(stat="identity", fill="goldenrod1", color="black") +
             geom_bar(data=emp, aes(x=maf, y=Freq/sum(Freq)),
@@ -255,46 +240,57 @@ multiplot(plotlist=mouseplots, cols=5)
 dev.off()
 
 
-# PED VS GRM RELATEDNESS ------------------------------------------------------
-# 1. Get GRM
+# GRM RELATEDNESS ------------------------------------------------------
 # first centralize rows of the pxn matrix where p=snps, n=mice
-### eg subtract the mean dosage for SNPi from every mouse's dose
-# GRM = ( t(Xc) %*% Xc ) / p, where Xc is the centralized version of the data file and P
-# is the number of SNPs. this is the var/covar matrix.
-# to get pairwise LD, you want the (cor(Xrow1, Xrow2...))^2
+# a. find mean dosage for each SNP
+# b. subtract the mean dosage from every mouse's dose
+# c. GRM = ( t(Xc) %*% Xc ) / p, where Xc is the centralized version of the data
+#    file and P is the number of SNPs. this is the var/covar matrix.
 
-meanDosage <- rowMeans(emp[-c(1:3)], na.rm = T)
+geno <- read.table("chr19.txt")[-c(1:4)]
+meanDosage <- rowMeans(geno, na.rm = T)
 
 # the matrix has to be transposed inside the scale() function because scale()
 # does column-wise centering.
-matEmp <- t(scale(t(as.matrix(emp[-c(1:3)])), center=meanDosage, scale=FALSE))
+centerGeno <- (scale(t(as.matrix(geno)), center=meanDosage, scale=FALSE))
 
-empGRM <- (t(matEmp)%*%(matEmp)) / nrow(matEmp)
 # when you simply use cov or var(matEmp), you get slightly different results
+GRM <- centerGeno%*%(t(centerGeno)) / nrow(centerGeno)
 
-
-# 2. Compare to ped
 
 # LD DECAY -------------------------------------------------------------------
 # transpose GRM correl matrix to get cor(r) between snps
-# AIL/knownSNPs/imputeHaplotypes
-# .hap files, first snp is LG and 2nd is SM.
+# pairwise LD: (cor(Xrow1, Xrow2...))^2
+# AIL/knownSNPs/imputeHaplotypes .hap files, first snp is LG and 2nd is SM.
 # DOSAGE = always the number of alternative alleles, so you need to match back to
 # LG and SM using the genos in the haplo files.
 # .legend files give row names (snps)
 
-empLD <- t(cor(t(empGRM)))^2
+# compute LD
+LD <- (t(centerGeno)%*%centerGeno/ncol(centerGeno))**2
+
+# get snp names
+snps <- read.table("chr19.txt")[2]
+snps <- as.list(substring(snps$V2, first=11))
+rownames(LD)[1:500] <- snps
+colnames(LD)[1:500] <- snps
 
 
 # to plot LD decay, i want a df with SNP pairs in the first two cols, positions,
 # and the correlation between them
 # distance = site.i - site.j
-# order df by distance
-# row_bp <- unique(df$site.i); col_bp <- unique(df$site.j)
 
+flattenMatrix <- function(m) {
+    data.frame(snp1=as.double(as.character(rep(row.names(m),ncol(m)))),
+                snp2=as.double(as.character(rep(colnames(m),each=nrow(m)))),
+                rsq=as.vector(m))
+}
 
+test <- flattenMatrix(LD)
+test$dist <- abs(test$snp2 - test$snp1)
 
-
+row_bp <- unique(test$snp1)
+col_bp <- unique(test$snp2)
 
 
 
