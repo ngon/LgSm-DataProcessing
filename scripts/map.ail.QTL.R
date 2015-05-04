@@ -39,7 +39,7 @@ write.table(pheno.allgeno, file="phenos.allgeno.txt",
 
 ### Make covariate file with all ids in genotype file
 covars <- merge(geno.samples, covars, all.x=TRUE)
-covars$one <- 1
+#covars$one <- 1
 
 #### DEFINE COVARIATES FOR EACH TRAIT ------------------------------------
 
@@ -214,17 +214,17 @@ for (trait in names(traitcovs)) {
     chosen.covars   <- covars[, unlist(traitcovs[[trait]])]
 
     write.table(chosen.covars,
-                file=paste0("/group/palmer-lab/AIL/qtlmapping/covariates/", trait, ".covs"),
+                file=paste0("/group/palmer-lab/AIL/qtlmapping/covariates/", trait, ".emp.covs"),
                 sep="\t", quote=F, row.names=F, col.names=F)
 
     for (chrom in 1:19) {
         cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom,
-                               ".filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot",
+                               ".filtered.dosage.emp -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot",
                                chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/chr",
-                               chrom, ".filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/",
-                               trait, ".covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr",
+                               chrom, ".filtered.snpinfo.emp -c /group/palmer-lab/AIL/qtlmapping/covariates/",
+                               trait, ".emp.covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr",
                                chrom, " -n ", index.pheno))
     }
 }
-write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.cmds"),
+write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.emp.cmds"),
             row.names=F, col.names=F, quote=F)
