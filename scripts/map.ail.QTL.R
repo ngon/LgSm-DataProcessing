@@ -26,11 +26,12 @@ names(geno.samples) <- c("id")
 
 # READ TAB DELIMITED PHENO AND COV FILES ** WITH OUTLIERS REMOVED **
 # Sex is an indicator variable; M=0 and F=1
-pheno <- read.file("./phenotypes.orm.txt", sep="\t", header=T, as.is=T)
-covars <- read.file("./covariates.orm.txt", sep="\t", header=T, as.is=T)
-
+pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=T, as.is=T)
+covars <- read.table("./covariates.txt", sep="\t", header=T, as.is=T)
+pheno.names <- names(pheno)
 
 #### EXTRACT DATA FOR GENOTYPED SAMPLES ------------------------------------
+
 
 ### Generate phenotype data for all samples with genotypes
 pheno.allgeno <- merge(geno.samples, pheno, all.x=TRUE)
@@ -219,13 +220,13 @@ for (trait in names(traitcovs)) {
   
   for (chrom in 1:19) {
     cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom, 
-                           ".filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot", 
+                           ".filtered.dosage.emp -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot", 
                            chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/chr", 
-                           chrom, ".filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/", 
+                           chrom, ".filtered.snpinfo.emp -c /group/palmer-lab/AIL/qtlmapping/covariates/", 
                            trait, ".covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr", 
                            chrom, " -n ", index.pheno))
   }
 }
-write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.cmds"), 
+write.table(cmds, file=paste0("/group/palmer-lab/AIL/code/gemma.alltraits.emp.cmds"), 
             row.names=F, col.names=F, quote=F)
 
