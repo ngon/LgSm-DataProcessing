@@ -39,7 +39,7 @@ write.table(pheno.allgeno, file="phenos.allgeno.txt",
 
 ### Make covariate file with all ids in genotype file
 covars <- merge(geno.samples, covars, all.x=TRUE)
-#covars$one <- 1
+covars$one <- 1
 
 #### DEFINE COVARIATES FOR EACH TRAIT ------------------------------------
 
