@@ -47,7 +47,7 @@ covars$one <- 1
 # ppi traits are logit-transformed.
 # wild, is.coatA, is.coatB, and is.coatW are binary.
 
-traitcovs <- vector("list", length=84)
+traitcovs <- vector("list", length=96)
 
 names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", "tail","glucose",
                       "sc1.t", "sc1.1", "sc1.2", "sc1.3", "sc1.4", "sc1.5", "sc1.6",
@@ -61,6 +61,8 @@ names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", 
                       "act5.t", "act5.1", "act5.2", "act5.3", "act5.4", "act5.5", "act5.6",
                       "act8.t", "act8.1", "act8.2", "act8.3", "act8.4", "act8.5", "act8.6",
                       "habituation", "startle", "sens", "cpp.diff","cpp.diff.p",
+                      "cpp.diff1", "cpp.diff2", "cpp.diff3", "cpp.diff4", "cpp.diff5",
+                      "cpp.diff6", "sens1", "sens2", "sens3", "sens4", "sens5", "sens6",
                       "is.coatA", "is.coatB", "is.coatW"
 )
 
