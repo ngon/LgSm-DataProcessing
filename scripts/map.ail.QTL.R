@@ -26,9 +26,9 @@ names(geno.samples) <- c("id")
 
 # READ TAB DELIMITED PHENO AND COV FILES ** WITH OUTLIERS REMOVED **
 # Sex is an indicator variable; M=0 and F=1
-pheno <- read.file("./phenotypes.orm.txt", sep="\t", header=T, as.is=T)
-covars <- read.file("./covariates.orm.txt", sep="\t", header=T, as.is=T)
-
+pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=T, as.is=T)
+covars <- read.table("./covariates.orm.txt", sep="\t", header=T, as.is=T)
+pheno.names <- names(pheno)
 
 #### EXTRACT DATA FOR GENOTYPED SAMPLES ------------------------------------
 
