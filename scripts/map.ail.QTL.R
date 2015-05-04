@@ -47,7 +47,7 @@ covars <- merge(geno.samples, covars, all.x=TRUE)
 # ppi traits are logit-transformed.
 # wild, is.coatA, is.coatB, and is.coatW are binary.
 
-traitcovs <- vector("list", length=83)
+traitcovs <- vector("list", length=84)
 
 names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", "tail","glucose",
                       "sc1.t", "sc1.1", "sc1.2", "sc1.3", "sc1.4", "sc1.5", "sc1.6",
@@ -60,7 +60,7 @@ names(traitcovs) <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "wild.binary", 
                       "act4.t", "act4.1", "act4.2", "act4.3", "act4.4", "act4.5", "act4.6",
                       "act5.t", "act5.1", "act5.2", "act5.3", "act5.4", "act5.5", "act5.6",
                       "act8.t", "act8.1", "act8.2", "act8.3", "act8.4", "act8.5", "act8.6",
-                      "habituation", "startle", "sens", "cpp.diff",
+                      "habituation", "startle", "sens", "cpp.diff","cpp.diff.p",
                       "is.coatA", "is.coatB", "is.coatW"
 )
 
@@ -116,6 +116,7 @@ traitcovs[["cpp8.6"]]  <- list("one","sex", "is.gen54", "is.gen56", "is.batch15"
 
 # DIFFERENCE BETWEEN FINAL AND INITIAL PREFERENCE (D8 - D1, total and six 5-min bins)
 traitcovs[["cpp.diff"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4","is.cpp.box6", "is.cpp.box7", "is.cpp.box11", "is.cpp.box12", "is.batch2", "is.batch3","is.batch9", "is.batch14", "is.batch16", "is.batch17", "is.batch18", "is.batch19", "is.batch21", "is.batch22")
+traitcovs[["cpp.diff.p"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4","is.cpp.box6", "is.cpp.box7", "is.cpp.box11", "is.cpp.box12", "is.batch2", "is.batch3","is.batch9", "is.batch14", "is.batch16", "is.batch17", "is.batch18", "is.batch19", "is.batch21", "is.batch22")
 traitcovs[["cpp.diff1"]]  <- list("one", "sex","is.gen55", "is.gen56","is.cpp.box2", "is.cpp.box3", "is.cpp.box4","is.cpp.box6", "is.cpp.box7", "is.cpp.box11", "is.cpp.box12", "is.batch2", "is.batch3","is.batch9","is.batch14","is.batch16","is.batch17","is.batch18","is.batch19","is.batch21", "is.batch22")
 traitcovs[["cpp.diff2"]]  <- list("one", "sex", "is.cpp.box2", "is.cpp.box3", "is.cpp.box4","is.cpp.box5","is.cpp.box6", "is.cpp.box7", "is.cpp.box11", "is.cpp.box12", "is.batch3", "is.batch14", "is.batch22")
 traitcovs[["cpp.diff3"]]  <- list("one", "sex", "is.cpp.box10", "is.batch7", "is.batch15")
