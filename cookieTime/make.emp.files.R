@@ -22,13 +22,13 @@ make.emp.files <- function(dosageFile, empRows){
     emp         <- empRows[[chrname]]
     emp.snps    <- geno[row.names(geno) %in% emp == TRUE,]
     write.table(emp.snps, file=paste0(dosageFile, ".emp"), quote=FALSE, sep="\t",
-                col.names=FALSE)
+                col.names=FALSE, row.names=FALSE)
 
     infoFile    <- paste0(substr(dosageFile, 1, nchar(dosageFile)-6), "snpinfo")
     info        <- read.table(infoFile, header=FALSE, as.is=TRUE)
     emp.info    <- info[row.names(info) %in% emp == TRUE,]
     write.table(emp.info, file=paste0(infoFile, ".emp"), quote=FALSE, sep="\t",
-                col.names=FALSE)
+                col.names=FALSE, row.names=FALSE)
 }
 
 ## Execute the function make.emp.files.
