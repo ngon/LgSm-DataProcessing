@@ -24,7 +24,7 @@
 # GET NAMES OF EMPIRICAL AND IMPUTED SNPS -----------------------------------
 # Run R from /group/palmer-lab/AIL/GBS/genoSummaries
 
-get SNP names...the file is huge and it takes a long time ( >60 min)
+#get SNP names...the file is huge and it takes a long time ( >60 min)
     allSnps <- read.table(file="../dosage/chrAll.filtered.dosage",
                            sep=" ",as.is=TRUE)[1]
     names(allSnps)[1] <- "snps"
