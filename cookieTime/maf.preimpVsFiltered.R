@@ -56,59 +56,38 @@ maf <- function(file) {
     pre.geno <- t(pre.geno)
 
     print("Calculating minor allele frequencies for filtered emp SNPs...")
-    freq        <- cbind( (rowMeans(geno, na.rm = T)/2),
-                          1-(rowMeans(geno, na.rm=T)/2)  )
+#     freq        <- cbind( (rowMeans(geno, na.rm = T)/2),
+#                           1-(rowMeans(geno, na.rm=T)/2)  )
+#     maf         <- round(apply(freq, 1, min), digits=2)
+#     maf.hist    <- hist(maf, breaks=seq(0,0.5, 0.05), plot=F,
+#                         include.lowest=T)
+
+    freq        <- cbind( (rowMeans(geno, na.rm = F)/2),
+                          1-(rowMeans(geno, na.rm=F)/2)  )
     maf         <- round(apply(freq, 1, min), digits=2)
     maf.hist    <- hist(maf, breaks=seq(0,0.5, 0.05), plot=F,
                         include.lowest=T)
 
     print("Calculating minor allele frequencies for emp SNPs pre-imputation...")
-    pre.freq        <- cbind( (rowMeans(pre.geno, na.rm = T)/2),
-                              1-(rowMeans(pre.geno, na.rm=T)/2)  )
+#     pre.freq        <- cbind( (rowMeans(pre.geno, na.rm = T)/2),
+#                               1-(rowMeans(pre.geno, na.rm=T)/2)  )
+#     pre.maf         <- round(apply(pre.freq, 1, min), digits=2)
+#     pre.maf.hist    <- hist(pre.maf, breaks=seq(0,0.5, 0.05), plot=F,
+#                             include.lowest=T)
+    pre.freq        <- cbind( (rowMeans(pre.geno, na.rm = F)/2),
+                          1-(rowMeans(pre.geno, na.rm=F)/2)  )
     pre.maf         <- round(apply(pre.freq, 1, min), digits=2)
     pre.maf.hist    <- hist(pre.maf, breaks=seq(0,0.5, 0.05), plot=F,
-                            include.lowest=T)
+                        include.lowest=T)
 
     result<-  list(maf, maf.hist, pre.maf, pre.maf.hist)
     return(result)
 
 }
 
-
-### get data-----------------------------------------------------------------
-chromosomes <- paste0("chr", 1:19)
-empfiles <- list()
-for (i in chromosomes){
-    empfiles[i] <- paste0("../dosage/", i, ".filtered.dosage.emp")
-}
-
-maf.data <- lapply(empfiles, maf)
-for(chr in names(maf.data)){
-    names(maf.data[[chr]]) <- c("filtered", "filt.hist", "preimp", "pre.hist")
-    }
-# in most cases the preImp data has a lower #SNPs than the filtered data. I'm
-# guessing this is because missing values were removed while calculating MAF,
-# and missing SNPs were imputed in filtered.dosage files.
-
-
-
-
-for(chr in chromosomes){
-    fileName <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/maf.filt",
-                       chr, ".pdf")
-
-    pdf(file=fileName,height=4, width=4)
-
-        plot(maf.data[[chr]]$filt.hist, main=paste0("MAF for filtered SNPs on ", chr),
-           xlab="MAF", ylab="Number of SNPs", cex.axis=0.9)
-    #plot(maf.data[[chr]]$pre.hist, main=paste0("MAF for preimpute SNPs on ", chr),
-     #    xlab="MAF", ylab="Number of SNPs", cex.axis=0.9)
-
-    dev.off()
-}
-
-
-
+#### FUNCTION: plot.maf --------------------------------------------------------
+# overlapping MAF histograms from 2 populations
+# BUG: the legend does not print on the PDF
 
 plot.maf <- function(all, emp) {
     plot(x=all, xlab=paste0("Minor allele frequency on ", chr),
@@ -124,17 +103,55 @@ plot.maf <- function(all, emp) {
 
 }
 
+### get data-----------------------------------------------------------------
+chromosomes <- paste0("chr", 1:19)
+empfiles <- list()
+for (i in chromosomes){
+    empfiles[i] <- paste0("../dosage/", i, ".filtered.dosage.emp")
+}
+
+maf.data <- lapply(empfiles, maf)
+for(chr in names(maf.data)){
+    names(maf.data[[chr]]) <- c("filtered", "filt.hist", "preimp", "pre.hist")
+    }
+# in most cases the preImp data has a lower #SNPs than the filtered data. I'm
+# guessing this is because missing values were removed while calculating MAF,
+# and missing SNPs were imputed in filtered.dosage files?? I'm going to re-run
+# the calculation with the maf functions edited so that calculations include
+# NA values.
+maf.data.na <- lapply(empfiles, maf)
+for(chr in names(maf.data.na)){
+    names(maf.data.na[[chr]]) <- c("filtered", "filt.hist", "preimp", "pre.hist")
+}
+# there did not appear to be a difference in the MAF plots.
 
 # plot maf.snp
-pdf(file="/group/palmer-lab/AIL/LgSm-DataProcessing/figures/mafHistsTest.pdf",
+pdf(file="/group/palmer-lab/AIL/LgSm-DataProcessing/figures/mafHists.na.pdf",
     height=16, width=14.5, colormodel="cmyk")
 par(mfrow=c(5,4))
 for(chr in chromosomes){
-    filt <- maf.data[[chr]]$filt.hist
-    pre <- maf.data[[chr]]$pre.hist
+    filt <- maf.data.na[[chr]]$filt.hist
+    pre <- maf.data.na[[chr]]$pre.hist
     plot.maf(all=filt, emp=pre)
 }
 dev.off()
+
+# MAKE INDIVIDUAL MAF PLOTS
+for(chr in chromosomes){
+    fileName <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/maf.filt",
+                       chr, ".pdf")
+
+    pdf(file=fileName,height=4, width=4)
+
+        plot(maf.data[[chr]]$filt.hist, main=paste0("MAF for filtered SNPs on ", chr),
+           xlab="MAF", ylab="Number of SNPs", cex.axis=0.9)
+    #plot(maf.data[[chr]]$pre.hist, main=paste0("MAF for preimpute SNPs on ", chr),
+     #    xlab="MAF", ylab="Number of SNPs", cex.axis=0.9)
+
+    dev.off()
+}
+
+
 
 
 

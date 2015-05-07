@@ -213,7 +213,7 @@ traitcovs[["is.coatW"]] <- list("one", "sex")
 ## CREATE COVARIATE FILES AND COMMANDS FOR MULTIVARIATE GEMMA
 
 
-cmds <- c()
+
 
 choose.traits <- function(traits=list(), filename){
    chosen.covs <- c()
@@ -232,6 +232,7 @@ choose.traits <- function(traits=list(), filename){
    write.table(cov.df, file=paste0(filename, ".emp.covs"),
                 sep="\t", quote=F, row.names=F, col.names=F)
 
+   cmds <- c()
    for (chrom in 1:19) {
        cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom,
                               ".filtered.dosage.emp -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot",
@@ -240,45 +241,45 @@ choose.traits <- function(traits=list(), filename){
                               filename, ".emp.covs -lmm 2 -maf ", MAF, " -o ", filename, ".chr",
                               chrom, " -n ", paste(index.pheno, collapse=" ")))
    }
+return(cmds)
+
+}
 
 write.table(cmds, file=paste0("./gemma.multivar.emp.cmds"),
             row.names=F, col.names=F, quote=F)
 
-}
 
+cmds<- choose.traits(traits=c("cpp.diff", "sens"), filename="cpp.diff_sens")
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff", "act8.t"), filename="cpp.diff_act8.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff", "act1.t"), filename="cpp.diff_act1.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff", "act2.t"), filename="cpp.diff_act2.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff", "sens.p"), filename="cpp.diff_sens.p")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff", "cpp8.t"), filename="cpp.diff_cpp8.t")))
 
-choose.traits(traits=c("cpp.diff", "sens"), filename="cpp.diff_sens")
-choose.traits(traits=c("cpp.diff", "act8.t"), filename="cpp.diff_act8.t")
-choose.traits(traits=c("cpp.diff", "act1.t"), filename="cpp.diff_act1.t")
-choose.traits(traits=c("cpp.diff", "act2.t"), filename="cpp.diff_act2.t")
-choose.traits(traits=c("cpp.diff", "sens.p"), filename="cpp.diff_sens.p")
-choose.traits(traits=c("cpp.diff", "cpp8.t"), filename="cpp.diff_cpp8.t")
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff.p", "sens"), filename="cpp.diff.p_sens")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff.p", "act8.t"), filename="cpp.diff.p_act8.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff.p", "act1.t"), filename="cpp.diff.p_act1.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff.p", "act2.t"), filename="cpp.diff.p_act2.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff.p", "sens.p"), filename="cpp.diff.p_sens.p")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp.diff.p", "cpp8.t"), filename="cpp.diff.p_cpp8.t")))
 
-choose.traits(traits=c("cpp.diff.p", "sens"), filename="cpp.diff.p_sens")
-choose.traits(traits=c("cpp.diff.p", "act8.t"), filename="cpp.diff.p_act8.t")
-choose.traits(traits=c("cpp.diff.p", "act1.t"), filename="cpp.diff.p_act1.t")
-choose.traits(traits=c("cpp.diff.p", "act2.t"), filename="cpp.diff.p_act2.t")
-choose.traits(traits=c("cpp.diff.p", "sens.p"), filename="cpp.diff.p_sens.p")
-choose.traits(traits=c("cpp.diff.p", "cpp8.t"), filename="cpp.diff.p_cpp8.t")
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "sens"), filename="cpp8.t_sens")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "act8.t"), filename="cpp8.t_act8.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "act1.t"), filename="cpp8.t_act1.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "act2.t"), filename="cpp8.t_act2.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "sens.p"), filename="cpp8.t_sens.p")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "cpp1.t"), filename="cpp8.t_cpp1.t")))
+cmds<- append(cmds, (choose.traits(traits=c("cpp8.t", "cpp.diff", "cpp.diff.p"), filename="cpp.all")))
+cmds<- append(cmds, (choose.traits(traits=c("act2.t", "act3.t", "act4.t", "act5.t"), filename="act2-5.t")))
+cmds<- append(cmds, (choose.traits(traits=c("act8.t", "act1.t"), filename="act1-8.t")))
 
-choose.traits(traits=c("cpp8.t", "sens"), filename="cpp8.t_sens")
-choose.traits(traits=c("cpp8.t", "act8.t"), filename="cpp8.t_act8.t")
-choose.traits(traits=c("cpp8.t", "act1.t"), filename="cpp8.t_act1.t")
-choose.traits(traits=c("cpp8.t", "act2.t"), filename="cpp8.t_act2.t")
-choose.traits(traits=c("cpp8.t", "sens.p"), filename="cpp8.t_sens.p")
-choose.traits(traits=c("cpp8.t", "cpp1.t"), filename="cpp8.t_cpp1.t")
+cmds<- append(cmds, (choose.traits(traits=c("act1.t", "sens"), filename="sens_act1.t")))
+cmds<- append(cmds, (choose.traits(traits=c("act1.t", "sens.p"), filename="sens.p_act1-8.t")))
+cmds<- append(cmds, (choose.traits(traits=c("ppi3.logit", "ppi6.logit", "ppi12.logit"), filename="ppi.all")))
+cmds<- append(cmds, (choose.traits(traits=c("ppi3.logit", "ppi6.logit", "ppi12.logit", "startle", "habituation"), filename="ppi.all_startle_hab")))
 
-choose.traits(traits=c("cpp8.t", "cpp.diff", "cpp.diff.p"), filename="cpp.all")
-choose.traits(traits=c("act2.t", "act3.t", "act4.t", "act5.t"), filename="act2-5.t")
-choose.traits(traits=c("act8.t", "act1.t"), filename="act1-8.t")
-
-choose.traits(traits=c("act1.t", "sens"), filename="sens_act1.t")
-choose.traits(traits=c("act1.t", "sens.p"), filename="sens.p_act1-8.t")
-
-choose.traits(traits=c("ppi3.logit", "ppi6.logit", "ppi12.logit"), filename="ppi.all")
-choose.traits(traits=c("ppi3.logit", "ppi6.logit", "ppi12.logit", "startle", "habituation"), filename="ppi.all_startle_hab")
-choose.traits(traits=c("startle", "habituation"), filename="startle_hab")
-choose.traits(traits=c("is.coatA", "is.coatB", "is.coatW"), filename="coat.colors")
+cmds<- append(cmds, (choose.traits(traits=c("startle", "habituation"), filename="startle_hab")))
+cmds<- append(cmds, (choose.traits(traits=c("is.coatA", "is.coatB", "is.coatW"), filename="coat.colors")))
 
 
 
