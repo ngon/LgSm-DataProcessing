@@ -221,10 +221,10 @@ for (trait in names(traitcovs)) {
                 sep="\t", quote=F, row.names=F, col.names=F)
 
     for (chrom in 1:19) {
-        cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/chr", chrom,
-                               ".filtered.dosage.emp -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/chrNot",
-                               chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/chr",
-                               chrom, ".filtered.snpinfo.emp -c /group/palmer-lab/AIL/qtlmapping/covariates/",
+        cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/chr", chrom,
+                               ".filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/onlyEmpirical/chrNot",
+                               chrom,".cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/chr",
+                               chrom, ".filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/",
                                trait, ".emp.covs -lmm 2 -maf ", MAF, " -o ", trait, ".chr",
                                chrom, " -n ", index.pheno))
     }
