@@ -1,9 +1,11 @@
 ######## Auxillary code to generate plots ###############
 #Code to plot manhattanplot
 chrLens    <- read.table('/group/palmer-lab/reference_genomes/mouse/chrLengths_mm10_chrnames.txt')$V2
+chrLens    <- chrLens[1:19]
 chrLens    <- c(0, cumsum(chrLens*1.0))
 labPos     <- read.table('/group/palmer-lab/reference_genomes/mouse/chrLengths_mm10_chrnames.txt')$V2/2.0
-labPos     <- chrLens[1:19]+labPos
+labPos     <- labPos[1:19]
+labPos     <- chrLens+labPos
 
 plotManhattan <- function(trait, outfile=NULL,
                           oddcolor="#ff6040", evencolor="#aab0be",
@@ -164,7 +166,7 @@ titles <- c("Prepulse inhibition (73 dB)","Prepulse inhibition (76 dB)",
 
             )
 
-outfiles <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/manhattan/onlyEmpManhattan", traits, ".pdf")
+outfiles <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/manhattan/onlyEmpManhattan/", traits, ".pdf")
 
 
 
