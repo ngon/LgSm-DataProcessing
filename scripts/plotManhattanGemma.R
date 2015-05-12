@@ -5,7 +5,7 @@ chrLens    <- chrLens[1:19]
 chrLens    <- c(0, cumsum(chrLens*1.0))
 labPos     <- read.table('/group/palmer-lab/reference_genomes/mouse/chrLengths_mm10_chrnames.txt')$V2/2.0
 labPos     <- labPos[1:19]
-labPos     <- chrLens+labPos
+labPos     <- chrLens[1:19]+labPos
 
 plotManhattan <- function(trait, outfile=NULL,
                           oddcolor="#ff6040", evencolor="#aab0be",
@@ -16,7 +16,7 @@ plotManhattan <- function(trait, outfile=NULL,
     if (is.null(title)) {
         title = trait
     }
-    pdf(file=outfile, height=4.5, width=10, bg="transparent")
+    pdf(file=outfile, height=2.25, width=5, bg="transparent")
     pvals <- c()
     positions <- c()
     cols <- c()
@@ -80,7 +80,7 @@ traits <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "habituation", "startle",
                       "cpp.diff4","cpp.diff5","cpp.diff6",
                       "act1.t", "act1.1", "act1.2", "act1.3", "act1.4", "act1.5", "act1.6",
                       "act2.t", "act2.1", "act2.2", "act2.3", "act2.4", "act2.5", "act2.6",
-                      "act3.t", "act3.1", "act3.2", "act3.3", "act3.4", "act3.5", "act3.6",
+                      #"act3.t", "act3.1", "act3.2", "act3.3", "act3.4", "act3.5", "act3.6",
                       "act4.t", "act4.1", "act4.2", "act4.3", "act4.4", "act4.5", "act4.6",
                       "act5.t", "act5.1", "act5.2", "act5.3", "act5.4", "act5.5", "act5.6",
                       "act8.t", "act8.1", "act8.2", "act8.3", "act8.4", "act8.5", "act8.6",
@@ -132,10 +132,10 @@ titles <- c("Prepulse inhibition (73 dB)","Prepulse inhibition (76 dB)",
             "Day 2 activity (meth, 15-20 min)", "Day 2 activity (meth, 20-25 min)",
             "Day 2 activity (meth, 25-30 min)",
 
-            "Day 3 activity (saline)", "Day 3 activity (saline, 0-5 min)",
-            "Day 3 activity (saline, 5-10 min)", "Day 3 activity (saline, 10-15 min)",
-            "Day 3 activity (saline, 15-20 min)", "Day 3 activity (saline, 20-25 min)",
-            "Day 3 activity (saline, 25-30 min)",
+           # "Day 3 activity (saline)", "Day 3 activity (saline, 0-5 min)",
+            #"Day 3 activity (saline, 5-10 min)", "Day 3 activity (saline, 10-15 min)",
+            #"Day 3 activity (saline, 15-20 min)", "Day 3 activity (saline, 20-25 min)",
+            #"Day 3 activity (saline, 25-30 min)",
 
             "Day 4 activity (meth)", "Day 4 activity (meth, 0-5 min)",
             "Day 4 activity (meth, 5-10 min)", "Day 4 activity (meth, 10-15 min)",
@@ -166,14 +166,14 @@ titles <- c("Prepulse inhibition (73 dB)","Prepulse inhibition (76 dB)",
 
             )
 
-outfiles <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/manhattan/onlyEmpManhattan/", traits, ".pdf")
+outfiles <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/manhattan/onlyEmpManhattan/", traits, "SM.pdf")
 
 
 
 
 
 
-for (index in 1:96) {
+for (index in 1:89) {
     print(paste("Starting trait", traits[index]))
     plotManhattan(traits[index], outfile=outfiles[index], title=titles[index])
     print(paste("Done with trait", traits[index]))
