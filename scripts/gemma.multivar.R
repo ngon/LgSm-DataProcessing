@@ -232,12 +232,12 @@ choose.traits <- function(traits=list(), filename){
    write.table(cov.df, file=paste0(filename, ".emp.covs"),
                 sep="\t", quote=F, row.names=F, col.names=F)
 
-   cmds <- c()
-   for (chrom in 1:19) {
-       cmds <- c(cmds, paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/chrALL.filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/onlyEmpirical/chrAll.cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/chrALL.filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/",
-                              filename, ".emp.covs -lmm 2 -maf ", MAF, " -o ", filename, " -n ", paste(index.pheno, collapse=" ")))
-   }
-return(cmds)
+   #cmds <- c()
+   #for (chrom in 1:19) {
+       comds <- paste0("gemma -g /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/chrALL.filtered.dosage -p /group/palmer-lab/AIL/LgSm-DataProcessing/phenos.allgeno.txt -k /group/palmer-lab/AIL/qtlmapping/kinship/onlyEmpirical/chrAll.cXX.txt -a /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/chrALL.filtered.snpinfo -c /group/palmer-lab/AIL/qtlmapping/covariates/", filename, ".emp.covs -lmm 2 -maf ", MAF, " -o ", filename, " -n ", paste(index.pheno, collapse=" "))
+
+   #}
+return(comds)
 
 }
 
