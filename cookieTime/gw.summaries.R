@@ -31,7 +31,7 @@ gw.maf <- function(file) {
 chromosomes <- paste0("chr", 1:19)
 filenames <- list()
 for (i in chromosomes){
-    filenames[i] <- paste0("../dosage/onlyEmpirical", i, ".filtered.dosage")
+    filenames[i] <- paste0("/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/", i, ".filtered.dosage")
 }
 
 all_maf <- data.frame(table(sort(unlist(lapply(filenames, gw.maf)))))
