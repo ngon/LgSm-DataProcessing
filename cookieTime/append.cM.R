@@ -25,7 +25,7 @@ load('/group/palmer-lab/AIL/LgSm-DataProcessing/dataFiles/snpChrPosCm.RData')
 #load("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/snpChrPosCm.RData")
 
 
-append.cM <- function(trait){
+append.cM <- function(trait, snpinfo=snpinfo){
 
     chromosomes <- paste0("chr", 1:19)
 
