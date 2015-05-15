@@ -25,8 +25,7 @@ load('/group/palmer-lab/AIL/LgSm-DataProcessing/dataFiles/snpChrPosCm.RData')
 #load("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/snpChrPosCm.RData")
 
 
-append.cM <- function(trait){
-
+    for(trait in traits){
     chromosomes <- paste0("chr", 1:19)
 
     for (chr in chromosomes){
@@ -41,6 +40,7 @@ append.cM <- function(trait){
                                        trait, ".", chr, ".assoc.txt"),
                 col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")
     }
+    }
 
-lapply(traits, append.cM)
+
 
