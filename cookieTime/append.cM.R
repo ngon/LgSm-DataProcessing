@@ -24,9 +24,6 @@ load('/group/palmer-lab/AIL/LgSm-DataProcessing/dataFiles/AIL.traits.RData')
 load('/group/palmer-lab/AIL/LgSm-DataProcessing/dataFiles/snpChrPosCm.RData')
 #load("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/dataFiles/snpChrPosCm.RData")
 
-assoc <- read.table("../figures/gwas/firstPassAssocFiles/act1.t.chr1.assoc.txt",
-                      nrows=1000, header=T, sep="\t")
-
 
 append.cM <- function(trait){
 
