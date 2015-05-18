@@ -1,11 +1,10 @@
 ### PURPOSE: plot association results with cM position on x-axis.
 
-plot.cM <- function(trait, outfile=NULL,
-                          oddcolor="#ff6040", evencolor="#aab0be",
+plot.cM <- function(trait, oddcolor="#ff6040", evencolor="#aab0be",
                           signifLine=5, signifColor="#000000", title=NULL) {
-    if (is.null(outfile)) {
-        outfile <- paste0(trait, ".cMhattan.pdf")
-    }
+#     if (is.null(outfile)) {
+#         outfile <- paste0(trait, ".mh.pdf")
+#     }
     if (is.null(title)) {
         title = trait
     }
@@ -13,6 +12,7 @@ plot.cM <- function(trait, outfile=NULL,
     for (chrom in 1:19) {
         filename <- paste0("/group/palmer-lab/AIL/qtlmapping/output/cM.",
                            trait, ".chr", chrom, ".assoc.txt")
+        outfile <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/gwas/onlyEmpManhattan/cM/",trait,".chr", chrom, ".pdf")
 
         print(paste("Starting chromosome ", chrom))
         output <- read.table(filename, header=T, as.is=TRUE, sep="\t")
@@ -27,11 +27,11 @@ plot.cM <- function(trait, outfile=NULL,
         print(paste0("Done with chromosome ", chrom, ": ready to plot."))
 
 
-       pdf(file=outfile, height=2.25, width=5, bg="transparent")
+       pdf(file=outfile, height=4, width=4, bg="transparent")
 
-       plot(cms, pvals, col=cols, pch=19, cex=0.78, main=title, ylab='-log10(p-value)',
-            xlab='Genetic distance (cM)', axes=T, frame.plot=T, cex.lab=1.7,
-            cex.main=1.8, font.main=1)
+       plot(cms, pvals, col=cols, pch=19, cex=0.6, main=title, ylab='-log10(p-value)',
+            xlab='Genetic distance (cM)', axes=T, frame.plot=T, cex.lab=0.8,
+            cex.main=1.2, font.main=1, cex.axis=0.8)
        # axis(2, cex.axis=1.5)
       # axis(1, at=labPos, labels=1:19, tick=F, cex.axis=1.5)
        abline(h=signifLine, col=signifColor, lty=2)
@@ -71,8 +71,8 @@ plot.cM <- function(trait, outfile=NULL,
 #traits <- vector("list", length=96)
 
 traits <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", "habituation", "startle",
-                      "sc1.t", "sc1.1", "sc1.2", "sc1.3", "sc1.4", "sc1.5", "sc1.6",
-                      "sc8.t", "sc8.1", "sc8.2", "sc8.3", "sc8.4", "sc8.5", "sc8.6",
+                      #"sc1.t", "sc1.1", "sc1.2", "sc1.3", "sc1.4", "sc1.5", "sc1.6",
+                      #"sc8.t", "sc8.1", "sc8.2", "sc8.3", "sc8.4", "sc8.5", "sc8.6",
                       "cpp1.t", "cpp1.1", "cpp1.2", "cpp1.3", "cpp1.4", "cpp1.5", "cpp1.6",
                       "cpp8.t", "cpp8.1", "cpp8.2", "cpp8.3", "cpp8.4", "cpp8.5", "cpp8.6",
                       "cpp.diff","cpp.diff.p","cpp.diff1", "cpp.diff2", "cpp.diff3",
@@ -94,15 +94,15 @@ titles <- c("Prepulse inhibition (73 dB)","Prepulse inhibition (76 dB)",
             "Prepulse inhibition (82 dB)", "Habituation to acoustic startle",
             "Acoustic startle response",
 
-            "Side changes on Day 1", "Side changes on Day 1 (0-5 min)",
-            "Side changes on Day 1 (5-10 min)", "Side changes on Day 1 (10-15 min)",
-            "Side changes on Day 1 (15-20 min)", "Side changes on Day 1 (20-25 min)",
-            "Side changes on Day 1 (25-30 min)",
-
-            "Side changes on Day 8", "Side changes on Day 8 (0-5 min)",
-            "Side changes on Day 8 (5-10 min)", "Side changes on Day 8 (10-15 min)",
-            "Side changes on Day 8 (15-20 min)", "Side changes on Day 8 (20-25 min)",
-            "Side changes on Day 8 (25-30 min)",
+#             "Side changes on Day 1", "Side changes on Day 1 (0-5 min)",
+#             "Side changes on Day 1 (5-10 min)", "Side changes on Day 1 (10-15 min)",
+#             "Side changes on Day 1 (15-20 min)", "Side changes on Day 1 (20-25 min)",
+#             "Side changes on Day 1 (25-30 min)",
+#
+#             "Side changes on Day 8", "Side changes on Day 8 (0-5 min)",
+#             "Side changes on Day 8 (5-10 min)", "Side changes on Day 8 (10-15 min)",
+#             "Side changes on Day 8 (15-20 min)", "Side changes on Day 8 (20-25 min)",
+#             "Side changes on Day 8 (25-30 min)",
 
             "Initial preference", "Initial preference (0-5 min)",
             "Initial preference (5-10 min)",  "Initial preference (10-15 min)",
@@ -165,15 +165,15 @@ titles <- c("Prepulse inhibition (73 dB)","Prepulse inhibition (76 dB)",
 
             )
 
-outfiles <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/manhattan/onlyEmpManhattan/", traits, "SM.pdf")
+# outfiles <- paste0("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/gwas/onlyEmpManhattan/", trait, ".cM.pdf")
 
 
 
 
 
 
-for (index in 1:89) {
+for (index in 1:27) {
     print(paste("Starting trait", traits[index]))
-    plotManhattan(traits[index], outfile=outfiles[index], title=titles[index])
+    plot.cM(traits[index], title=titles[index])
     print(paste("Done with trait", traits[index]))
 }
