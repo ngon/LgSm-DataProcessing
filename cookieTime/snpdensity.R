@@ -1,14 +1,14 @@
 
 
 ###################################################
-setwd("/group/palmer-lab/AIL/GBS/genoSummaries/")
+#setwd("/group/palmer-lab/AIL/GBS/genoSummaries/")
 library("ggplot2")
 source("/group/palmer-lab/AIL/LgSm-DataProcessing/cookieTime/multiplot.R")
 
-# load list of empirical SNP positions (emp)
-# and chromosome lengths (chrlens)
-
-load("./empSnpPositions.RData")
+# load list of empirical SNP positions (emp) and chromosome lengths (chrlens)
+#load("./empSnpPositions.RData")
+chrLens    <- read.table('/group/palmer-lab/reference_genomes/mouse/chrLengths_mm10_chrnames.txt')$V2
+chrLens    <- chrLens[1:19]
 
 snp.density <- function(filename, empRows=FALSE) {
     chrPos <- trunc((read.table(filename, sep="\t", header=F)[2])/1e6)
@@ -31,28 +31,29 @@ chromosomes <- paste0("chr", 1:19)
 
 filenames <- list()
 for (i in chromosomes){
-    filenames[i] <- paste0("../dosage/", i, ".filtered.snpinfo")
+    filenames[i] <- paste0("/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/", i, ".filtered.snpinfo")
 }
 
 snpsPerMb <- list()
 for(file in filenames) {
-    snpsPerMb[[file]] <- snp.density(file, empRows=TRUE)
+    snpsPerMb[[file]] <- snp.density(file, empRows=FALSE)
 }
 names(snpsPerMb)[1:19] <- paste0("chr", 1:19)
-save(snpsPerMb, file="./snpsPerMb.RData")
+save(snpsPerMb, file="/group/palmer-lab/AIL/qtlmapping/snpsPerMb.RData")
 
 ####### PLOTS ------------------------------------------------------------------
 plotlist <- list()
 
 for (chr in seq_along((snpsPerMb))) {
     chrdata <- snpsPerMb[[chr]]
-    names(chrdata)[1:2] <- c("all", "emp")
-    xmax <- chrlens[chr,]
+    #names(chrdata)[1:2] <- c("all", "emp")
+    names(chrdata)[1] <- "all"
+    xmax <- chrlens[chr]
 
     plotlist[[chr]] <- ggplot(data=chrdata[[1]], aes(x=all.Mb, y=Freq)) +
-        geom_bar(stat="identity", fill="goldenrod1") +
-        geom_bar(data=chrdata[[2]], aes(x=emp.Mb, y=Freq),
-                 stat="identity", fill="steelblue3") +
+        geom_bar(stat="identity", fill="steelblue3") +
+        #geom_bar(data=chrdata[[2]], aes(x=emp.Mb, y=Freq),
+        #        stat="identity", fill="goldenrod1") +
         xlab(paste0("Position (Mb) on chromosome ", chr)) +
         ylab("SNP density") +
         scale_x_discrete(limits=(0:xmax), breaks=seq(0, xmax, 10)) +
@@ -64,7 +65,7 @@ for (chr in seq_along((snpsPerMb))) {
               axis.text.y=element_text(size=10))
 }
 
-pdf(file="./snpDensityPlots.pdf", height=14, width=10, title="Genome-wide SNP Density in the Lg x Sm AIL", colormodel="cmyk")
+pdf(file="/group/palmer-lab/AIL/LgSm-DataProcessing/figures/snpDensity_onlyEmp.pdf", height=14, width=10, title="Genome-wide SNP Density in the Lg x Sm AIL", colormodel="cmyk")
 multiplot(plotlist=plotlist, cols=2)
 dev.off()
 
