@@ -50,7 +50,9 @@ for (chr in seq_along((snpsPerMb))) {
     names(chrdata)[1] <- "all"
     xmax <- chrlens[chr]
 
-    plotlist[[chr]] <- ggplot(data=chrdata[[1]], aes(x=all.Mb, y=Freq)) +
+    plotlist[[chr]] <- ggplot(data=chrdata$all,
+                              aes(x=as.numeric(as.character(chrdata$all[[1]])),
+                                  y=as.numeric(as.character(chrdata$all[[2]])))) +
         geom_bar(stat="identity", fill="steelblue3") +
         #geom_bar(data=chrdata[[2]], aes(x=emp.Mb, y=Freq),
         #        stat="identity", fill="goldenrod1") +
