@@ -5,6 +5,7 @@
 ### derive a threshold based on the pvalues that fall in the 95th percentile
 ### in permuted data sets.
 
+### LOAD DATA ------------------------------------------------------------------
 pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 cov <- read.table("./covariates.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 load("./traitcovs.RData")
@@ -16,11 +17,6 @@ traits.to.perm <- c("act1.t", "act2.t", "act4.t", "act5.t", "act8.t", "cpp.diff"
 # pheno data for traits.to.perm
 phenew <- which(names(pheno) %in% names(traits.to.perm))
 phenew <- data.frame(pheno$id, pheno[phenew])
-
-# nalist <- list()
-# for (name in names(phenew)){
-#     nalist[[name]] <- which(is.na(phenew[[name]]))
-# }
 
 # one list of covariates for each trait in traits.to.perm
 tnames <- traitcovs[names(traitcovs) %in% traits.to.perm]
@@ -140,96 +136,67 @@ names(phenop) <-pnames
 write.table(phenop, file="./permutedPhenotypes.txt", sep="\t",
             row.names=F, col.names=T, quote=F)
 
-[[i]][[1]][i]
 # make a separate file for each set of permuted covariates
+for(i in seq_along(covp)){
+    cov <- covp[[i]][[1]][[1]]
+    write.table(cov, file=paste0("./perm1.",traits.to.perm[i], ".cov.txt"),
+                row.names=F, col.names=T, quote=F)
+}
 
+for(i in seq_along(covp)){
+    cov <- covp[[i]][[1]][[2]]
+    write.table(cov, file=paste0("./perm2.",traits.to.perm[i], ".cov.txt"),
+                row.names=F, col.names=T, quote=F)
+}
+for(i in seq_along(covp)){
+    cov <- covp[[i]][[1]][[3]]
+    write.table(cov, file=paste0("./perm3.",traits.to.perm[i], ".cov.txt"),
+                row.names=F, col.names=T, quote=F)
+}
+for(i in seq_along(covp)){
+    cov <- covp[[i]][[1]][[4]]
+    write.table(cov, file=paste0("./perm4.",traits.to.perm[i], ".cov.txt"),
+                row.names=F, col.names=T, quote=F)
+}
 for(i in seq_along(covp)){
     cov <- covp[[i]][[1]][[5]]
     write.table(cov, file=paste0("./perm5.",traits.to.perm[i], ".cov.txt"),
                 row.names=F, col.names=T, quote=F)
 }
 
-
-### PERMUTE COVARS AND SAVE DATA ----------------------------------------------
-permedCovars <- sapply(traits.to.perm, permute.phenos, data=phco,
-                       levels=levs, nset=5 )
-names(permedCovars) <- traits.to.perm
-covarSet <- permedCovars[[trait]][[1]]
-
-
-# returns a list with nset rows and n columns for each trait vector.
-# level 1: for each phenotype in traits.to.perm
-# level 2: for each column of data assoc w/ traits in traits.to.perm
-# level 3: matrix of row indexes for each cov or pheno column in phco
-# > test[[1]][1,]
-#test <- permute.phenos(trait="startle", data=phco, levels=levs, nset=5)
-permutedRows <- sapply(traits.to.perm, permute.phenos, data=phco,
-                       levels=levs, nset=5)
-# name structures for easier indexing
-for (trait in traits.to.perm){
-    names(permutedRows[[trait]]) <- names(phco[[trait]])
-}
-# access a set of permuted data for a given trait/cov as so:
-permutedRows[['act1.t']][['act1.t']][1,]
-
-
-get.permedData <- function(trait, nset){
-p.perm <- c()
-for(i in 1:nset){ # TO DO: replace permutedRows with perms
-    p.perm[[trait]][[i]] <- phco[[trait]][[trait]][(permutedRows[[trait]][[trait]][i,])]
-}
-p.perm[[trait]] <- as.data.frame(p.perm[[trait]])
-names(p.perm[[trait]])[1:nset] <- paste0("p",trait, 1:nset)
-return(p.perm)
-}
-
-
-c.perm <- c()
-for(j in names(phco[[trait]][-1])){
-    c.perm[[j]] <- cbind(c, phco[[trait]][[j]][(permutedRows[[trait]][[j]][i,])])
-}
-
-
-
 ### base R perms - in progress
-permute.pheno <- function(phenotype, phenoData, covData){
-
-    phenoData <- phenew
-    data <- data.frame(phenew[[phenotype]])
-    names(data)[1] <- phenotype
-    covData <- traitcov[[phenotype]]
-
-    a<- rownames(phenew[which(!phenew[['wild.binary']] == "NA"),])
-
-    sample(phenew[['wild.binary']][which(!phenoData[['wild.binary']] == "NA")])
-
-    samp <- list()
-    perms <- list()
-    p.names <- c()
-
-    for (i in 1:5){
-        p.names[i] <- paste0(i, phenotype)
-        p.samp[[i]] <- sample(phenoData[[phenotype]][which(!phenoData[[phenotype]] == "NA")])
-        p.perm[[i]] <- replace(x=phenoData[[phenotype]],
-                              list=which(!phenoData[[phenotype]] == "NA"),
-                              values=samp[[i]])
-
-        c.samp[[i]] <- order()
-        c.perm[[i]] <- replace()
-
-    }
-
-    covData <- traitcov[[phenotype]]
-
-    names(p.perm) <- p.names
-    list(p.perms, c.perm)
-}
-
-testPerm <-lapply(traits, permute.pheno)
-
-
-
-
-
-
+# permute.pheno <- function(phenotype, phenoData, covData){
+#
+#     phenoData <- phenew
+#     data <- data.frame(phenew[[phenotype]])
+#     names(data)[1] <- phenotype
+#     covData <- traitcov[[phenotype]]
+#
+#     a<- rownames(phenew[which(!phenew[['wild.binary']] == "NA"),])
+#
+#     sample(phenew[['wild.binary']][which(!phenoData[['wild.binary']] == "NA")])
+#
+#     samp <- list()
+#     perms <- list()
+#     p.names <- c()
+#
+#     for (i in 1:5){
+#         p.names[i] <- paste0(i, phenotype)
+#         p.samp[[i]] <- sample(phenoData[[phenotype]][which(!phenoData[[phenotype]] == "NA")])
+#         p.perm[[i]] <- replace(x=phenoData[[phenotype]],
+#                               list=which(!phenoData[[phenotype]] == "NA"),
+#                               values=samp[[i]])
+#
+#         c.samp[[i]] <- order()
+#         c.perm[[i]] <- replace()
+#
+#     }
+#
+#     covData <- traitcov[[phenotype]]
+#
+#     names(p.perm) <- p.names
+#     list(p.perms, c.perm)
+# }
+#
+# testPerm <-lapply(traits, permute.pheno)
 
