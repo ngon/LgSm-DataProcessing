@@ -1,3 +1,10 @@
+### PERMUTE PHENOTYPES ###
+### PURPOSE: Create files with permuted phenotypes and covariates to feed
+### GEMMA. Goal is to find significance thresholds for GWAS data to include
+### in my 2015 CTC poster. Five GWAS will be run for each phenotype.I will
+### derive a threshold based on the pvalues that fall in the 95th percentile
+### in permuted data sets.
+
 pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 cov <- read.table("./covariates.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 load("./traitcovs.RData")
