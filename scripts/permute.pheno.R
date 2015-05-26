@@ -137,34 +137,15 @@ write.table(phenop, file="./permutedPhenotypes.txt", sep="\t",
             row.names=F, col.names=T, quote=F)
 
 # make a separate file for each set of permuted covariates
+for(j in seq_along(1:5)){
 for(i in seq_along(covp)){
-    cov <- covp[[i]][[1]][[1]]
-    write.table(cov, file=paste0("./perm1.",traits.to.perm[i], ".cov.txt"),
+    cov <- covp[[i]][[1]][[j]]
+    write.table(cov, file=paste0("./perm", j, ".", traits.to.perm[i], ".cov.txt"),
                 row.names=F, col.names=T, quote=F)
+}
 }
 
-for(i in seq_along(covp)){
-    cov <- covp[[i]][[1]][[2]]
-    write.table(cov, file=paste0("./perm2.",traits.to.perm[i], ".cov.txt"),
-                row.names=F, col.names=T, quote=F)
-}
-for(i in seq_along(covp)){
-    cov <- covp[[i]][[1]][[3]]
-    write.table(cov, file=paste0("./perm3.",traits.to.perm[i], ".cov.txt"),
-                row.names=F, col.names=T, quote=F)
-}
-for(i in seq_along(covp)){
-    cov <- covp[[i]][[1]][[4]]
-    write.table(cov, file=paste0("./perm4.",traits.to.perm[i], ".cov.txt"),
-                row.names=F, col.names=T, quote=F)
-}
-for(i in seq_along(covp)){
-    cov <- covp[[i]][[1]][[5]]
-    write.table(cov, file=paste0("./perm5.",traits.to.perm[i], ".cov.txt"),
-                row.names=F, col.names=T, quote=F)
-}
-
-### base R perms - in progress
+### base R perms - unused -----------------------------------------------------
 # permute.pheno <- function(phenotype, phenoData, covData){
 #
 #     phenoData <- phenew
@@ -199,4 +180,63 @@ for(i in seq_along(covp)){
 # }
 #
 # testPerm <-lapply(traits, permute.pheno)
+
+
+### GET P VALUES FROM GWAS ON PERMUTED PHENOS ----------------------------------
+
+### FUNCTION: get.filenames ---------------------------------------------------
+### (get permed assoc files to feed to getP)
+get.filenames <- function(trait){
+    filenames <- c()
+    for (i in 1:5){
+        filenames[i] <- paste0("/group/palmer-lab/AIL/qtlmapping/output/permutedTraits/perm",
+                               i, ".")
+    }
+    return(filenames)
+}
+files <- lapply(traits.to.perm, get.filenames)
+files <- unlist(files)
+
+
+### FUNCTION: get.P ------------------------------------------------------------
+### (adapted from getP.plotQ.R - this one does not plot qqs)
+
+getP.plotQ <- function(directory=getwd(), trait){
+    # match file names to trait
+    fileStart <- c()
+    fileNames <- c()
+    chromosomes <- 1:19
+
+    for (j in seq_along(1:5)){
+        for(i in seq_along(chromosomes)){
+            fileStart[j] <- paste0("/group/palmer-lab/AIL/qtlmapping/output/permutedTraits/perm",
+                                   j, ".")
+            fileNames[i] <- paste0(fileStart[j], trait, ".chr", chromosomes[i],
+                                   ".assoc.txt")
+        }
+    }
+    # read only p_lrt columns from selected files and compile them into a single data frame
+    chosenFiles <- lapply(file.path(directory, fileNames), read.table, sep="\t",
+                          header=T, colClasses = c(rep("NULL", 8), "numeric"))
+    pValues <- do.call(what=rbind.data.frame, args=chosenFiles)
+
+    # take the -log10 and get expected and observed values
+    pValues <- pValues$p_lrt
+    obs = -log10(sort(pValues,decreasing=F))
+    exp = -log10( 1:length(obs)/length(obs) )
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
