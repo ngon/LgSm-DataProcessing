@@ -47,8 +47,11 @@ covars$one <- 1
 # ppi traits are logit-transformed.
 # wild, is.coatA, is.coatB, and is.coatW are binary.
 
-traitcovs <- vector("list", length=58)
+# gene expression covariates (to start with)
+gexcovs <- list("one", "sex", "rip.age")
 
+
+traitcovs <- vector("list", length=58)
 names(traitcovs) <- c(#"ppi3.logit", "ppi6.logit", "ppi12.logit", "habituation", "startle",
                       "sc1.t", "sc1.1", "sc1.2", "sc1.3", "sc1.4", "sc1.5", "sc1.6",
                       "sc8.t", "sc8.1", "sc8.2", "sc8.3", "sc8.4", "sc8.5", "sc8.6",
