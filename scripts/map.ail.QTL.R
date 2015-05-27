@@ -48,7 +48,6 @@ covars$one <- 1
 # wild, is.coatA, is.coatB, and is.coatW are binary.
 
 # gene expression covariates (to start with)
-gexcovs <- list("one", "sex", "rip.age")
 
 
 traitcovs <- vector("list", length=58)

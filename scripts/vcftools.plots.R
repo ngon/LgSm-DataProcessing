@@ -61,28 +61,28 @@ names(snpdepth)[1:19] <- chrnames[1:19]
 
 ### get locations of PstI cut sites -------------------------------------------
 
-# library(BSgenome.Mmusculus.UCSC.mm10)
-# ls("package:BSgenome.Mmusculus.UCSC.mm10")
-# genome <- BSgenome.Mmusculus.UCSC.mm10
-# psti = DNAString("CTGCAG")
+library(BSgenome.Mmusculus.UCSC.mm10)
+ls("package:BSgenome.Mmusculus.UCSC.mm10")
+genome <- BSgenome.Mmusculus.UCSC.mm10
+psti = DNAString("CTGCAG")
+
+chrnames <- paste0("chr", 1:19)
+pstiSites <- list()
+for (chr in chrnames){
+    pstiSites[[chr]]<- matchPattern(pattern=psti, subject=DNAString(Mmusculus[[chr]]), max.mismatch=0, with.indels=F)
+}
+#rm(pstiSites,chrnames,genome,psti)
+pstiCutPositions <- list()
+for (chr in names(pstiSites)){
+    pstiCutPositions[[chr]] <- start(pstiSites[[chr]])+4
+}
+pstiCutSites<- lapply(pstiCutPositions, data.frame, y=0)
+for (chr in names(pstiCutSites)){
+    names(pstiCutSites[[chr]])[1] <- "pos"
+}
+save(pstiCutSites, file="pstiCutSites_mm10.RData")
+
 #
-# chrnames <- paste0("chr", 1:19)
-# pstiSites <- list()
-# for (chr in chrnames){
-#     pstiSites[[chr]]<- matchPattern(pattern=psti, subject=DNAString(Mmusculus[[chr]]), max.mismatch=0, with.indels=F)
-# }
-# #rm(pstiSites,chrnames,genome,psti)
-# pstiCutPositions <- list()
-# for (chr in names(pstiSites)){
-#     pstiCutPositions[[chr]] <- start(pstiSites[[chr]])+4
-# }
-# pstiCutSites<- lapply(pstiCutPositions, data.frame, y=0)
-# for (chr in names(pstiCutSites)){
-#     names(pstiCutSites[[chr]])[1] <- "pos"
-# }
-# save(pstiCutSites, file="pstiCutSites_mm10.RData")
-
-
 #     p<-    ggplot(data=snpdepth, aes(x=snpdepth$POS, y=log10(snpdepth$SUM_DEPTH)))+
 #         geom_point(stat='identity', na.rm=T, color='blue', alpha=0.5)+
 #         geom_point(data=snpdepth, aes(x=snpdepth$POS, y=log10(snpdepth$MEAN_DEPTH)),

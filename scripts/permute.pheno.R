@@ -184,48 +184,57 @@ for(i in seq_along(covp)){
 
 ### GET P VALUES FROM GWAS ON PERMUTED PHENOS ----------------------------------
 
-### FUNCTION: get.filenames ---------------------------------------------------
+### FUNCTIONS to get filenames-------------------------------------------------
 ### (get permed assoc files to feed to getP)
-get.filenames <- function(trait){
-    filenames <- c()
-    for (i in 1:5){
-        filenames[i] <- paste0("/group/palmer-lab/AIL/qtlmapping/output/permutedTraits/perm",
-                               i, ".")
+traits.to.perm <- c("act1.t", "act2.t", "act4.t", "act5.t", "act8.t", "cpp.diff",
+                    "sc8.t", "sc1.t", "startle", "wild.binary", "ppi6.logit",
+                    "ppi12.logit", "tail","glucose")
+
+get.filePrefixes <- function(trait){
+    filePrefixes <- c()
+    for (i in seq_along(1:5)){
+        filePrefixes[i] <- paste0("/group/palmer-lab/AIL/qtlmapping/output/permutedTraits/perm",i, ".", trait, ".chr")
     }
-    return(filenames)
-}
-files <- lapply(traits.to.perm, get.filenames)
-files <- unlist(files)
+    return(filePrefixes)
+} # returns a list containing 5 entries for the trait (one file prefix for each perm)
 
-
-### FUNCTION: get.P ------------------------------------------------------------
-### (adapted from getP.plotQ.R - this one does not plot qqs)
-
-getP.plotQ <- function(directory=getwd(), trait){
-    # match file names to trait
-    fileStart <- c()
-    fileNames <- c()
-    chromosomes <- 1:19
-
-    for (j in seq_along(1:5)){
-        for(i in seq_along(chromosomes)){
-            fileStart[j] <- paste0("/group/palmer-lab/AIL/qtlmapping/output/permutedTraits/perm",
-                                   j, ".")
-            fileNames[i] <- paste0(fileStart[j], trait, ".chr", chromosomes[i],
-                                   ".assoc.txt")
+get.fileNames <- function(filePrefix){
+        fileNames <- c()
+        chromosomes <- 1:19
+        for (chr in chromosomes){
+            fileNames[[chr]] <- paste0(filePrefix, chr, ".assoc.txt")
         }
+        return(fileNames)
+    } # for each chromosome, returns a list of 5 file prefixes (1 for each perm) per trait
+
+test_filePrefixes <- lapply (traits.to.perm, get.filePrefixes)
+test_fileNames <- lapply(test_filePrefixes, get.fileNames)
+# collapse all chromosomes and perms for each trait
+permFiles <- lapply(test_fileNames, unlist)
+names(permFiles)[1:14] <- traits.to.perm
+
+
+### FUNCTION: pval.thresholds --------------------------------------------------
+### get pval thresholds for each trait across all 5 permutations, and find the
+### 95th percentile of pvalues; this is the threshold.
+
+pval.thresholds <- function(filenameList){
+    # read only p_lrt columns from selected files and compile them into a df
+    pvalues <- c()
+    collapsePvals <- c()
+    quant05 <- c()
+    for (file in filenameList){
+        pvalues[[file]] <- read.table(file, sep="\t", header=T)[9]
+        collapsePvals <- do.call(what=rbind.data.frame, args=pvalues)
     }
-    # read only p_lrt columns from selected files and compile them into a single data frame
-    chosenFiles <- lapply(file.path(directory, fileNames), read.table, sep="\t",
-                          header=T, colClasses = c(rep("NULL", 8), "numeric"))
-    pValues <- do.call(what=rbind.data.frame, args=chosenFiles)
-
-    # take the -log10 and get expected and observed values
-    pValues <- pValues$p_lrt
-    obs = -log10(sort(pValues,decreasing=F))
-    exp = -log10( 1:length(obs)/length(obs) )
-
+    for (i in seq_along(collapsePvals)){
+        quant05[[i]] <- quantile(collapsePvals[[i]][1], 0.05)
+    }
+    return(quant05)
 }
+
+thresholds <- lapply(permFiles, pval.thresholds)
+save(thresholds, file="gwas.pvalueThresholds.RData")
 
 
 
