@@ -222,15 +222,17 @@ pval.thresholds <- function(filenameList){
     # read only p_lrt columns from selected files and compile them into a df
     pvalues <- c()
     collapsePvals <- c()
-    quant05 <- c()
+    quant <- c()
     for (file in filenameList){
         pvalues[[file]] <- read.table(file, sep="\t", header=T)[9]
         collapsePvals <- do.call(what=rbind.data.frame, args=pvalues)
     }
+    save(collapsePvals, file="permutationPvals.RData")
     for (i in seq_along(collapsePvals)){
-        quant05[[i]] <- quantile(collapsePvals[[i]][1], 0.05)
+        collapsePvals[[i]][1] <- sort(collapsePvals[[i]][1])
+        quant[[i]] <- quantile(collapsePvals[[i]][1], probs=seq(0,1, 0.05))
     }
-    return(quant05)
+    return(quant)
 }
 
 thresholds <- lapply(permFiles, pval.thresholds)
