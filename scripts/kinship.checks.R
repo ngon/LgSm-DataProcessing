@@ -1,22 +1,25 @@
-### PURPOSE: Check for mismatches in phenotype and genotype data.
+### PURPOSE: Check for mismatches in phenotype and genotype data for F50-56
 
 ### LOAD DATA ------------------------------------------------------------------
 ### geno.samples is genotyped samples, info is phenotype data with fam info
 ### ail.kinship is a matrix of kinship coeffs from the pedigree,and grm is the
 ### IBS/grm for all genotyped samples.
 geno.samples <- read.table("./genotyped.samples.txt",as.is=T)
-geno.samples[which(geno.samples$V1 == "54109_11"), 1] <- "54109"
-geno.samples[which(geno.samples$V1 == "51717-19"), 1] <- "51717"
-geno.samples[which(geno.samples$V1 == "51348"), 1]    <- "51349"
 names(geno.samples) <- c("id")
 geno.samples$id <- as.numeric(geno.samples$id)
 geno.samples$id <- geno.samples$id + 0.1
 
+# all phenotype and covariate data
 info <- read.table("./dataFiles/phenotypes/allData.txt", sep="\t",
                    header=T, as.is=T)[1:6]
 info$id <- info$id + 0.1
 info$cc=NULL
 
+#which(!info$id %in% row.names(ail.kinship)) # 89, 46368, gen 50
+#info <- info[c(1:88, 90:1124),]
+
+
+# kinship and grm matrices
 load("./pedigree/ail.kinship.QTLRel.RData")
 grm <- read.table("./dataFiles/chrAll.cXX.txt", as.is=TRUE)
 row.names(grm)[1:1830] <- geno.samples$id[1:1830]
@@ -24,16 +27,16 @@ names(grm)[1:1830] <- geno.samples$id[1:1830]
 
 ### SIBLING PAIRS & PED DATA ---------------------------------------------------
 ### Is ped kinship between sibs (defined as having the same fam name) around
-### the expected value of 0.5?
+### the expected value of 0.5
 ### ANSWER: Min kinship for all sibs is 0.4128; max is 0.5763.
 ### There are two sib pairs with k < 0.5:
 ### 46023 & 46024, different parents (but both listed as fam BrF49-24).
-id gen      fam   dam  sire
+      id gen      fam   dam  sire
 46023.1  50 BrF49-24 45383 45318
 46024.1  50 BrF49-24 45392 45446 # should be BrF49-28
 ### 50210 & 50377. same as above, both listed as BrF51-34
-id gen      fam   dam  sire
-50210.1  52 BrF51-34 49017 48404 # should be BrF51-47
+      id gen      fam   dam  sire
+50210.1  52 BrF51-34 49017 48404 # is a sib with 50377. change parents 48442 and 49096, as below.
 50377.1  52 BrF51-34 48442 49096
 ### The dam and sire ids are CORRECT in both cases; only the fam name is wrong.
 
@@ -52,8 +55,7 @@ for (family in famNames){
 siblings <- data.frame(sib1, sib2, kinship)
 
 ### Same as above, except sibs are paired by unique dam names instead. Here
-### we have no misnatches. Perhaps throw out the fam.id altogether; use parent
-### IDs as substitutes for fam.id.
+### we have no misnatches.
 damNames <- info$dam[which(duplicated(info$dam))]
 sibA <- c()
 sibB <- c()
@@ -67,42 +69,112 @@ for (dam in damNames){
 }
 siblings.d <- data.frame(sibA, sibB, kinship.d)
 
-### SIBLING PAIRS AND GRM ------------------------------------------------------
-
-### Make a new info df for AILs that were phenotyped and genotyped (29 mice
-### remain to be genotyped)
-grinfo <- info[info$id %in% row.names(grm),]
-
-
-sampDams<- grinfo$dam[which(duplicated(grinfo$dam))]
-sib1 <- c()
-sib2 <- c()
-sib3 <- c()
-ibs <- c()
-for (dam in sampDams){
-    sibs <- grinfo[grinfo$dam == dam,]
+sireNames <- info$sire[which(duplicated(info$sire))]
+sibAa <- c()
+sibBb <- c()
+kinship.s <- c()
+for (sire in sireNames){
+    sibs <- info[info$sire == sire,]
     sibs$id <- as.character(sibs$id)
-    sib1 <- append(sib1, sibs[1,1])
-    if(length(sibs$id == 3)){
-        sib2 <- append(sib2, sibs[2,1])
-        sib3 <- append(sib3, sibs[3,1])
-    } else if(length(sibs$id == 2)){
-        sib2 <- append(sib2, sibs[2,1])
-        sib3 <- append(sib3, "NA")
-    } else if(length(sibs$id == 1)){
-        sib2 <- append(sib2, "NA")
-        sib3 <- append(sib3, "NA")
-    }
-
-    ibs <- append(ibs, grm[sibs[1,1], sibs[2,1]])
+    sibAa <- append(sibAa, sibs[1,1])
+    sibBb <- append(sibBb, sibs[2,1])
+    kinship.s <- append(kinship.s, ail.kinship[sibs[1,1], sibs[2,1]])
 }
-sibs.ibs <- data.frame(sib1, sib2, ibs, sib3)
+siblings.s <- data.frame(sibAa, sibBb, kinship.s)
 
+### filtering out sibs by sire or dam gives different results. there are 542
+### dams that are parents of siblings, yet 546 sires that are parents of siblings.
+dim(siblings.d); dim(siblings.s)
+### there are 581 unique dams, yet only 577 unique sires. the nums should be equal.
+
+stest<- info[which(info$sire %in% sireNames),]
+dtest<- info[which(info$dam %in% damNames),]
+
+info[which(!sibA %in% sibAa),]
+
+         id gen      fam   dam  sire
+127 46490.1  50 BrF49-74 45347 45470 # ok
+128 46491.1  50 BrF49-74 45347 45470 # ok
+131 46640.1  50 BrF49-70 45437 45470 # dam, sire = 45424, 45394
+132 46641.1  50 BrF49-70 45437 45470 # "
+         id gen      fam   dam  sire
+390 50225.1  52 BrF51-56 49049 49500 # sire = 49000
+392 50230.1  52 BrF51-56 49049 49500 # sire = 49000
+491 50716.1  53 BrF52-28 50219 49500 # this should be 50714. 50716 is his sib, a breeder mouse. since they're brothers it really doesn't matter and i'm leaving it as is for now.it looks like their ID tags were switched.
+494 50723.1  53 BrF52-28 50219 49500 # 49500 is an F52 mouse.
+         id gen      fam   dam  sire
+536 51211.1  53 BrF52-60 50393 50138 # sire = 50124
+539 51220.1  53 BrF52-60 50393 50138 # sire = 50124
+572 51289.1  53 BrF52-61 50389 50138 # ok
+574 51294.1  53 BrF52-61 50389 50138 # ok
+          id gen      fam   dam  sire
+981  54282.1  55 BrF54-77 51957 52184 # ok
+986  54291.1  55 BrF54-77 51957 52184 # ok
+1060 54853.1  56 BrF55-12 52097 52184 # sire = 52084
+1061 54854.1  56 BrF55-12 52097 52184 # sire = 52084
+
+
+
+### SIBLING PAIRS AND GRM ------------------------------------------------------
 ### find families with more than 1 sibling (should only be a few)
 levs <- as.factor(info$fam)
 familySizes <- which(table(levs) > 2)
 BrF50-17 BrF50-82 BrF51-10 BrF52-57 BrF52-65 BrF54-51 BrF55-04
 (3, 4, 3, 3, 3, 3, 4)
+
+# look for typos
+all.not <- geno.samples[!geno.samples$id %in% alldata$id,]
+gen<-c(42,42,42,42, 43, 50,50,50,50,50,50,50,50,50,50,50,50,50,51,51,51,51,51,NA,51, 51, 53,53,52,52, 52,52,53,53,53,53,53,54,54,54)
+sex<- c(1,1,1,1, 2, 1, 2,2,2,1,1,1,1,1,1,2,2,1,2,2,1,1,2, NA, 2,1, 1,2, 2,1,2,2,2,2,1,1,2,1,1,2)
+missingRows <- cbind(as.integer(all.not[1:40]), as.integer(gen), as.integer(sex))
+
+
+
+which(grm['49290.1',]>0.05) # sib 49289. gen 51. AIL lib 42. this one looks like a typo in the testing/breeding spreadsheet. it's entered as 48290 even though all the surrounding ids are in the 49000s. so althought 49290 is probably the correct id, i'm leaving it as 48290.
+
+"54386" # flowcell 28 lib 84 - gen 56
+which(grm['54386.1',] > 0.05) # 54385 is definitely a sib. 52197 could be a sib, or is at least related. gr between 85,86 = 0.097; with 52197 = 0.051
+
+"57801" # flowcell 25 lib 65 - allegedly generation 54 - should be 51801.
+which(grm['57801.1',] > 0.05)
+# kinship from the GRM adds up - if 51801, i'd expect her to be most related to the potential sibi=ling, 51794, and that is the case.
+relatives<- c()
+for (i in rownames(grm)){
+    if(length(which(grm[i,] > 0.05)) > 2){
+        relatives[[i]] <- which(grm[i,] > 0.05)
+        } }
+}
+biglove <- names(relatives)
+biglove <- as.integer(relatives) + 0.1  # list of 1076
+relatives.ids <- info$id[which(info$id %in% biglove)] # 403 from F50-56 may have more than one sibling listed as a relative. the rest are in previous generations and this is expected. obviously there will be many redundant entries.
+ailrel<- relatives[which(names(relatives) %in% relatives.ids)]
+maxl<- lapply(ailrel, length)
+which(maxl ==17) # 48383.1
+# next in line is 46023.1, which has 12 relatives
+# 49482, 50248 have 11
+# 50756 has 8, 50148 has 7
+# lots have 6
+
+
+values <- c()
+for (name in names(ailrel)){
+    len <- length(ailrel[[name]])
+    values[[name]] <- data.frame(idx1=rep(ailrel[[name]][1], times=len),
+                                 idx2=ailrel[[name]])
+    k <- c()
+        for (i in seq_along(values[[name]][['idx2']])){
+           k <- c(k, grm[values[[name]][1,1], values[[name]][i,2] ])
+        }
+    values[[name]][["k"]] <- k
+    rownames(values[[name]]) <- as.integer(rownames(values[[name]]))+0.1
+    #fam <- info[info$id %in% rownames(values[[name]]), c(2:5)]
+    values[[name]] <- cbind(values[[name]],
+                            info[info$id %in% rownames(values[[name]]), c(2:5)])
+}
+
+## need all
+
+
 
 ### FUNCTION: ALL DUP
 ### allDup finds and keeps all duplicated records.
@@ -124,7 +196,6 @@ library(lattice)
 
 test<-colorRampPalette(cols, alpha = TRUE)(50)
 cols<- brewer.pal(11, 'PiYG')
-
 
 levelplot(soloRel, col.regions=test, cuts=49, cex.axis=0.8,
           scales=list(x=list(rot=45)))
