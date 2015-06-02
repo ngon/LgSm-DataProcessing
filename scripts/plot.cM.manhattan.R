@@ -1,5 +1,16 @@
 ### PURPOSE: plot association results with cM position on x-axis.
 
+### 6-2-15: Plot cM zooms with permPval thresholds
+load("./dataFiles/permThresholds.RData")
+#load("/group/palmer-lab/AIL/LgSm-DataProcessing/dataFiles/permThresholds.RData")
+p.thr <- c()
+for (name in names(thresholds)){
+    p.thr[[name]] <- thresholds[[name]][2]
+}
+
+
+
+
 plot.cM <- function(trait, oddcolor="#ff6040", evencolor="#aab0be",
                           signifLine=5, signifColor="#000000", title=NULL) {
 #     if (is.null(outfile)) {
