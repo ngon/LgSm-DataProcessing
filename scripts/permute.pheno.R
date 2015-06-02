@@ -1,22 +1,33 @@
 ### PERMUTE PHENOTYPES ###
 ### PURPOSE: Create files with permuted phenotypes and covariates to feed
 ### GEMMA. Goal is to find significance thresholds for GWAS data to include
-### in my 2015 CTC poster. Five GWAS will be run for each phenotype.I will
-### derive a threshold based on the pvalues that fall in the 95th percentile
-### in permuted data sets.
+### in my 2015 CTC poster.
+
 
 ### LOAD DATA ------------------------------------------------------------------
-pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
-cov <- read.table("./covariates.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
+#pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
+#cov <- read.table("./covariates.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 load("./traitcovs.RData")
 
-traits.to.perm <- c("act1.t", "act2.t", "act4.t", "act5.t", "act8.t", "cpp.diff",
-                    "sc8.t", "sc1.t", "startle", "wild.binary", "ppi6.logit",
-                    "ppi12.logit", "tail","glucose")
+allData.out<- read.table("./dataFiles/phenotypes/allData.txt", sep="\t", header=T,
+                         as.is=T)
+traits.to.perm <- c("id","act1.t", "act5.t", "startle", "wild.binary",  "ppi12.logit")
+
+# tail is messed up. fixing it.
+tails <- read.table("./dataFiles/phenotypes/tail.pheno.txt", sep="\t", header=T)
+tails <- tails[do.call(order, tails),]
+
+phenew <- allData.out[,c(traits.to.perm)]
+phenew <- phenew[do.call(order, phenew),]
+
+p <- merge(phenew, tails, all.x=T)
+phenew <- p
+
+
 
 # pheno data for traits.to.perm
-phenew <- which(names(pheno) %in% names(traits.to.perm))
-phenew <- data.frame(pheno$id, pheno[phenew])
+# phenew <- which(names(pheno) %in% names(traits.to.perm))
+# phenew <- data.frame(pheno$id, pheno[phenew])
 
 # one list of covariates for each trait in traits.to.perm
 tnames <- traitcovs[names(traitcovs) %in% traits.to.perm]
@@ -236,7 +247,7 @@ pval.thresholds <- function(traitNames, fileNames){
         }
         pvalues[[trait]] <- do.call(what=rbind.data.frame, args=pval.tmp)
 
-        quant[[trait]] <- quantile(pvalues[[trait]]$p_lrt, probs=seq(0,.5,0.05))
+        quant[[trait]] <- quantile(pvalues[[trait]]$p_lrt, probs=seq(0,.05,0.005))
     }
     list(quant)
 }
@@ -253,15 +264,15 @@ pvalues[['wild.binary']] <- do.call(what=rbind.data.frame, args=pval.tmp)
 quant[['wild.binary']] <- quantile(pvalues[['wild.binary']]$p_lrt, probs=seq(0,0.5,0.05))
 
 
-thr <- pval.thresholds(traitNames=c("act1.t", "act2.t", "act4.t","cpp.diff","startle","ppi12.logit", "tail","glucose"), fileNames=files)
+thr1 <- pval.thresholds(traitNames=c("act1.t", "act2.t", "act4.t", "act5.t", "act8.t", "cpp.diff"), fileNames=files[1:6])
 
-thr2 <- pval.thresholds(traitNames=c("act5.t", "act8.t", "cpp.diff",
-                    "sc8.t", "sc1.t"), fileNames=files)
+thr2 <- pval.thresholds(traitNames=c("startle", "wild.binary", "ppi6.logit", "ppi12.logit", "tail","glucose"), fileNames=files[9:14])
 
-
-
+thr3 <- pval.thresholds(traitNames=c("sc1.t", "sc8.t"), fileNames=files[7:8])
 
 
+thresholds <- pval.thresholds(traitNames=c("act1.t", "act2.t", "act4.t", "act5.t", "act8.t", "cpp.diff", "startle", "wild.binary", "ppi6.logit",
+"ppi12.logit", "tail","glucose"), fileNames=files)
 
 
 
