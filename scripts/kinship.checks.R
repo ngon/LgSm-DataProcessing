@@ -138,71 +138,207 @@ which(grm['54386.1',] > 0.05) # 54385 is definitely a sib. 52197 could be a sib,
 "57801" # flowcell 25 lib 65 - allegedly generation 54 - should be 51801.
 which(grm['57801.1',] > 0.05)
 # kinship from the GRM adds up - if 51801, i'd expect her to be most related to the potential sibi=ling, 51794, and that is the case.
+
 relatives<- c()
 for (i in rownames(grm)){
-    if(length(which(grm[i,] > 0.05)) > 2){
+    #if(length(which(grm[i,] > 0.05)) > 1){
         relatives[[i]] <- which(grm[i,] > 0.05)
-        } }
+       # }
 }
-biglove <- names(relatives)
-biglove <- as.integer(relatives) + 0.1  # list of 1076
-relatives.ids <- info$id[which(info$id %in% biglove)] # 403 from F50-56 may have more than one sibling listed as a relative. the rest are in previous generations and this is expected. obviously there will be many redundant entries.
-ailrel<- relatives[which(names(relatives) %in% relatives.ids)]
-maxl<- lapply(ailrel, length)
-which(maxl ==17) # 48383.1
-# next in line is 46023.1, which has 12 relatives
-# 49482, 50248 have 11
-# 50756 has 8, 50148 has 7
-# lots have 6
+
+r <- names(relatives)
+r <- as.integer(r)   # list of 1076
 
 
+## kinship coeffs
+library(QTLRel)
+ail.ped <- read.table("./pedigree/pedforQTLRel.txt", sep="\t", header=T)[1:5]
+ail.k <- kinship(ped=ail.ped, ids=geno.samples$id)
+save(ail.k, file="./pedigree/kinship.geno.samples.RData")
+
+
+check.kinship <- function(ailrel){
 values <- c()
-for (name in names(ailrel)){
+for (name in seq_along(names(ailrel))){
     len <- length(ailrel[[name]])
-    values[[name]] <- data.frame(idx1=rep(ailrel[[name]][1], times=len),
+    id.tmp <- as.numeric(names(ailrel)[name]) - 0.1
+    id <- ailrel[[name]][[which(names(ailrel[[name]]) == id.tmp)]]
+    values[[name]] <- data.frame(idx1=rep(id, times=len),
                                  idx2=ailrel[[name]])
-    k <- c()
+    k.grm <- c()
+    k.ped <- c()
+    ped.kin <- c()
         for (i in seq_along(values[[name]][['idx2']])){
-           k <- c(k, grm[values[[name]][1,1], values[[name]][i,2] ])
+           k.grm <- c(k.grm, grm[values[[name]][1,1], values[[name]][i,2] ])
+           k.ped <- c(k.ped, ail.k[values[[name]][1,1], values[[name]][i,2] ])
+           ped.kin <-c(ped.kin, paste(names(which(ail.k[values[[name]][i,2],] > 0.48)),
+                            sep="", collapse=" "))
         }
-    values[[name]][["k"]] <- k
     rownames(values[[name]]) <- as.integer(rownames(values[[name]]))+0.1
-    #fam <- info[info$id %in% rownames(values[[name]]), c(2:5)]
+
     values[[name]] <- cbind(values[[name]],
-                            info[info$id %in% rownames(values[[name]]), c(2:5)])
+                            ail.ped[ail.ped$id %in% rownames(values[[name]]), c(2:5)])
+
+    values[[name]][["k.grm"]] <- k.grm
+    values[[name]][["k.ped"]] <- k.ped
+    values[[name]][["ped.kin"]] <- ped.kin
+}
+names(values)<- names(ailrel)
+return(values)
 }
 
-## need all
+## scaled and centered values
+tk <- scale(ail.k)
+t1 <- scale(grm, center=FALSE, scale=apply(grm, 2, sd, na.rm=T))
+ail.k <- tk
+grm <- t1
 
+
+kinCheck.allgenoScaled<- check.kinship(ailrel=relatives)
+save(kinCheck.allgenoScaled, file="kinCheck.allgenoScaled.RData")
+#save(ail.k,file="./pedigree/kinship.geno.samples.RData" )
+#save(grm, file="./dataFiles/grm.geno.samples.RData")
+
+df<-c()
+for(i in kinCheck.allgenoScaled){
+    df <- rbind.data.frame(df,i)
+}
+
+df$dam <- as.factor(df$dam)
+df$generation <- as.factor(df$generation)
+
+
+## unscaled/uncentered values
+# sibMean.grm<- tapply(df$k.grm, df$dam, mean)
+# sibMean.ped<- tapply(df$k.ped, df$dam, mean)
+# sibMed.grm<- tapply(df$k.grm, df$dam, median)
+# sibMed.ped<- tapply(df$k.ped, df$dam, median)
+# sibStats <- cbind(mean(sibMean.grm), mean(sibMean.ped), mean(sibMed.grm),
+#                   mean(sibMed.ped), mean(grm), mean(ail.k),
+#                   median(grm), median(ail.k))
+> grm<- grm_scaled + 1
+> ail.k <- ail.k_scaled +1
+
+grmk <- rowMeans(grm)
+pedk <- rowMeans(ail.k)
+idk <- rownames(grm)
+relAll <- cbind(idk, grmk, pedk, ail.ped[ail.ped$id %in% idk,c(4:5)])
+gMeanAll<- tapply(relAll$grmk, relAll$generation, mean)
+pMeanAll<- tapply(relAll$pedk, relAll$generation, mean)
+allStats <- rbind(gMeanAll, pMeanAll)
+allStats <- data.frame(allStats[,c(34, 36:45, 47:53)])
+allStats$stat <- c("grm.mean", "ped.mean")
+allStats <- melt(allStats, id.vars="stat")
+names(allStats)[2] <- "generation"
+
+sans.pedk <- rowMeans(pedsansRel)
+sans.grmk <- rowMeans(sansRel)
+idsansk <- rownames(sansRel)
+relSansSibs <- cbind(idsansk, sans.grmk, sans.pedk, ail.ped[ail.ped$id %in% idsansk, c(4:5)])
+gMeanSans<- tapply(relSansSibs$sans.grmk, relSansSibs$generation, mean)
+pMeanSans<- tapply(relSansSibs$sans.pedk, relSansSibs$generation, mean)
+sansStats <- rbind(gMeanSans, pMeanSans)
+sansStats <- data.frame(sansStats[,c(34, 36:45, 47:53)])
+sansStats$stat <- c("grm.mean", "ped.mean")
+sansStats <- melt(sansStats, id.vars="stat")
+names(sansStats)[2] <- "generation"
+# cleanup
+rm(gMeanAll, pMeanAll, grmk, pedk, sans.pedk, sans.grmk, idk, idsansk)
+
+
+
+p<-
+    ggplot(data=allStats, aes(x=generation))+
+    geom_bar(data=subset(allStats, stat == 'grm.mean'),
+             aes(y=value),
+             stat='identity') +
+    geom_bar(data=subset(allStats, stat == 'ped.mean'),
+             aes(y= -value),
+             stat='identity') +
+    scale_y_continuous(limits=c(-1.4, 1.2),
+                       breaks=c(seq(-1.4, 1.2, 0.1)))+
+
+
+                       #breaks=c(-35, -25, -24.3, -15,-14.94, -5, 5, 14.66, 15, 25, 30,
+                                #31.2, 35),
+                       #labels=c(35, " ", paste0('self ', 24.3), " ",
+#                                 paste0('sib ',14.9), 5, 5, paste0('sib ',14.6)," ",
+#                                 25, " ", paste0('self ',31.2),35))+
+
+    xlab("Generation")+
+    ylab("Kinship\n Pedigree - Genotypes")+
+    theme_bw() +
+
+    geom_hline(yintercept=0, color='white')
+
+
+    geom_hline(yintercept=31.2, color='dodgerblue', lty=2)+
+    geom_hline(yintercept=-24.3, color='dodgerblue', lty=2)+
+    geom_hline(yintercept=c(14.66, -14.94), color='black', lty=2)+
+
+    scale_fill_gradient2(low="dodgerblue", high="dodgerblue", mid="white",
+                         midpoint=0) +
+    theme(legend.position="none")
+
+
+
+
+
+
+
+write.table(df, "./dataFiles/kinCheck.allgeno.txt", sep=" ", col.names=T,
+            row.names=F, quote=F)
+
+p+
+geom_bar(data=subset(sansStats, stat == 'grm.mean'),
+         aes(y=value, alpha=0.5),
+         stat='identity') +
+    geom_bar(data=subset(sansStats, stat == 'ped.mean'),
+             aes(y= -value, alpha=0.5),
+             stat='identity')
+
+geom_hline(yintercept=0, color='white')+
+scale_fill_gradient2(low="dodgerblue", high="dodgerblue", mid="white",
+                     midpoint=0) +
+    theme(legend.position="none")
 
 
 ### FUNCTION: ALL DUP
 ### allDup finds and keeps all duplicated records.
 allDup <- function (x){duplicated(x) | duplicated(x, fromLast = TRUE)}
 ### list of mice with no siblings
-sibMice <- info[allDup(info$dam),] # 1070
-soloMice <- info[!allDup(info$dam),] # 53
-sansSibs <- info[which(duplicated(info$dam) == FALSE),] # 581
+#sibMice <- ail.ped[allDup(ail.ped$dam),] # 1070
+#soloMice <- ail.ped[!allDup(ail.ped$dam),] # 53
+sansSibs <- ail.ped[which(duplicated(ail.ped$dam) == FALSE),] # 581
 
-sibRows <- which(rownames(grm) %in% sibMice$id) # 1042
-soloRows <- which(rownames(grm) %in% soloMice$id) # 52
-sansRows <- which(rownames(grm) %in% sansSibs$id) # 565
+#sibRows <- which(rownames(grm) %in% sibMice$id)
+#soloRows <- which(rownames(grm) %in% soloMice$id)
+sansRows <- which(rownames(grm) %in% sansSibs$id)
 
-sibRel <- grm[sibRows, sibRows]
-soloRel <- grm[soloRows,soloRows]
+#sibRel <- grm[sibRows, sibRows]
+#soloRel <- grm[soloRows,soloRows]
 sansRel <- grm[sansRows, sansRows]
+pedsansRel <- ail.k[sansRows,sansRows]
 
-library(lattice)
+## unscaled/uncentered values
 
-test<-colorRampPalette(cols, alpha = TRUE)(50)
-cols<- brewer.pal(11, 'PiYG')
+genMean.grm<- tapply(df$k.grm, df$generation, mean)
+genMean.ped<- tapply(df$k.ped, df$generation, mean)
+genMed.grm<- tapply(df$k.grm, df$generation, median)
+genMed.ped<- tapply(df$k.ped, df$generation, median)
 
-levelplot(soloRel, col.regions=test, cuts=49, cex.axis=0.8,
-          scales=list(x=list(rot=45)))
+genStats <- rbind(genMean.grm, genMean.ped, genMed.grm, genMed.ped)
+genStats <- data.frame(genStats[,c(34, 36:45, 47:53)])
+genStats$type <- c("grm.mean", "ped.mean", "grm.median", "ped.median")
 
-levelplot(sibRel[1:20,1:20], col.regions=test, cuts=49, cex.axis=0.8,
-          scales=list(x=list(rot=45)))
 
-levelplot(sansRel[1:20,1:20], col.regions=test, cuts=49, cex.axis=0.8,
-          scales=list(x=list(rot=45)))
+# library(lattice)
+# test<-colorRampPalette(cols, alpha = TRUE)(50)
+# cols<- brewer.pal(11, 'PiYG')
+# levelplot(soloRel, col.regions=test, cuts=49, cex.axis=0.8,
+#           scales=list(x=list(rot=45)))
+# levelplot(sibRel[1:20,1:20], col.regions=test, cuts=49, cex.axis=0.8,
+#           scales=list(x=list(rot=45)))
+# levelplot(sansRel[1:20,1:20], col.regions=test, cuts=49, cex.axis=0.8,
+#           scales=list(x=list(rot=45)))
 
