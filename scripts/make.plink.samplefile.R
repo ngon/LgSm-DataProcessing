@@ -33,21 +33,11 @@ geno.samples <- read.table("./dataFiles/genotyped.samples.txt", sep="\t",
 
 sam1 <- othermice[othermice$id %in% geno.samples$id,] # 715 samples
 sam2 <- ails[ails$id %in% geno.samples$id,] # 1069 individuals
-
 all.not <- geno.samples[!geno.samples$id %in% alldata$id,]
 gen<-c(42,42,42,42, 43, 50,50,50,50,50,50,50,50,50,50,50,50,50,51,51,51,51,51,NA,51, 51, 53,53,52,52, 52,52,53,53,53,53,53,54,54,54)
 sex<- c(1,1,1,1, 2, 1, 2,2,2,1,1,1,1,1,1,2,2,1,2,2,1,1,2, NA, 2,1, 1,2, 2,1,2,2,2,2,1,1,2,1,1,2)
 missingRows <- cbind(as.integer(all.not[1:40]), as.integer(gen), as.integer(sex))
 
-
-49290**
-[41] "54367" "54368" "54371" "54372" # GBS flowcell 27 lib 79, 76, 77, 79
-"54386" # flowcell 28 lib 84 - gen 56
-"57801" # flowcell 25 lib 65 - allegedly generation 54
-
-
-
-test <- merge(geno.samples, alldata, all.x=T)
 
 
 

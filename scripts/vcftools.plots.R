@@ -1,7 +1,7 @@
 
 ### LOAD PLOTTING TOOLS ------------------------------------------------------
 library(ggplot2)
-source("/group/palmer-lab/AIL/LgSm-DataProcessing/cookieTime/multiplot.R")
+source("/group/palmer-lab/AIL/LgSm-DataProcessing/scripts/multiplot.R")
 
 ### GENERATE VCFTOOLS SCRIPTS ------------------------------------------------
 # chromosomes <- 1:19
@@ -22,6 +22,9 @@ for (chr in chromosomes){
   }
 
 # make a list of ggplots for calling multiplot
+pdf(file="/group/palmer-lab/AIL/LgSm-DataProcessing/figures/idepth.points.pdf",
+    width=10, height=14)
+
 plotlist <- list()
 for (chr in seq_along(chromosomes)) {
 plotlist[[chr]] <- ggplot(data=idepth[[chr]], aes(y=idepth[[chr]]$N_SITES,
@@ -30,7 +33,7 @@ plotlist[[chr]] <- ggplot(data=idepth[[chr]], aes(y=idepth[[chr]]$N_SITES,
         geom_point(stat="identity", position="identity", na.rm=T, color="orangered", alpha=0.5)+
         #geom_bar(stat="identity",position=position_dodge(width=0.8), fill="steelblue3") +
         xlab(paste0("Mean read depth per mouse on chr ", chr)) +
-        ylab("Number ofsites covered") +
+        ylab("Number of sites covered") +
         #scale_x_discrete(limits=(0:xmax), breaks=seq(0, xmax, 10)) +
         #scale_y_discrete(limits=(0:400), breaks=seq(0,400, 50))+
         theme_bw() +
@@ -40,7 +43,7 @@ plotlist[[chr]] <- ggplot(data=idepth[[chr]], aes(y=idepth[[chr]]$N_SITES,
               axis.text.y=element_text(size=9))
 }
 
-pdf(file="/group/palmer-lab/AIL/LgSm-DataProcessing/figures/idepth.points.pdf", width=10, height=14)
+
 multiplot(plotlist=plotlist, cols=2)
 dev.off()
 
