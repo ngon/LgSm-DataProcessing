@@ -190,6 +190,9 @@ traits.to.perm <- c("act1.t", "act2.t", "act4.t", "act5.t", "act8.t", "cpp.diff"
                     "sc8.t", "sc1.t", "startle", "wild.binary", "ppi6.logit",
                     "ppi12.logit", "tail","glucose")
 
+
+
+
 get.filePrefixes <- function(trait){
     filePrefixes <- c()
     for (i in seq_along(1:5)){
@@ -210,33 +213,53 @@ get.fileNames <- function(filePrefix){
 test_filePrefixes <- lapply (traits.to.perm, get.filePrefixes)
 test_fileNames <- lapply(test_filePrefixes, get.fileNames)
 # collapse all chromosomes and perms for each trait
-permFiles <- lapply(test_fileNames, unlist)
-names(permFiles)[1:14] <- traits.to.perm
+files <- lapply(test_fileNames, unlist)
+names(files) <- traits.to.perm
 
 
 ### FUNCTION: pval.thresholds --------------------------------------------------
 ### get pval thresholds for each trait across all 5 permutations, and find the
 ### 95th percentile of pvalues; this is the threshold.
 
-pval.thresholds <- function(filenameList){
-    # read only p_lrt columns from selected files and compile them into a df
+pval.thresholds <- function(traitNames, fileNames){
     pvalues <- c()
-    collapsePvals <- c()
     quant <- c()
-    for (file in filenameList){
-        pvalues[[file]] <- read.table(file, sep="\t", header=T)[9]
-        collapsePvals <- do.call(what=rbind.data.frame, args=pvalues)
+
+    for (trait in traitNames){
+        pval.tmp <- c()
+
+        permFiles <- fileNames[[trait]]
+
+        for (file in permFiles){
+            pval.tmp[[file]] <- read.table(file, sep="\t", header=T)[9]
+            #p[[trait]] <- c(pval.tmp, pval.tmp[[file]])
+        }
+        pvalues[[trait]] <- do.call(what=rbind.data.frame, args=pval.tmp)
+
+        quant[[trait]] <- quantile(pvalues[[trait]]$p_lrt, probs=seq(0,.5,0.05))
     }
-    save(collapsePvals, file="permutationPvals.RData")
-    for (i in seq_along(collapsePvals)){
-        collapsePvals[[i]][1] <- sort(collapsePvals[[i]][1])
-        quant[[i]] <- quantile(collapsePvals[[i]][1], probs=seq(0,1, 0.05))
-    }
-    return(quant)
+    list(quant)
 }
 
-thresholds <- lapply(permFiles, pval.thresholds)
-save(thresholds, file="gwas.pvalueThresholds.RData")
+pvalues <- c()
+quant <- c()
+pval.tmp <- c()
+permFiles <- files[['wild.binary']]
+for (file in permFiles){
+    pval.tmp[[file]] <- read.table(file, sep="\t", header=T)[9]
+} # for each trait, produces a list of 95. pvals for each perm/chr.
+pvalues[['wild.binary']] <- do.call(what=rbind.data.frame, args=pval.tmp)
+# produces one data frame of all pvals for each trait.
+quant[['wild.binary']] <- quantile(pvalues[['wild.binary']]$p_lrt, probs=seq(0,0.5,0.05))
+
+
+thr <- pval.thresholds(traitNames=c("act1.t", "act2.t", "act4.t","cpp.diff","startle","ppi12.logit", "tail","glucose"), fileNames=files)
+
+thr2 <- pval.thresholds(traitNames=c("act5.t", "act8.t", "cpp.diff",
+                    "sc8.t", "sc1.t"), fileNames=files)
+
+
+
 
 
 
