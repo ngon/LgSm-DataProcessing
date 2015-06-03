@@ -8,10 +8,12 @@
 #pheno <- read.table("./phenotypes.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 #cov <- read.table("./covariates.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 load("./traitcovs.RData")
-
 allData.out<- read.table("./dataFiles/phenotypes/allData.txt", sep="\t", header=T,
-                         as.is=T)
-traits.to.perm <- c("id","act1.t", "act5.t", "startle", "wild.binary",  "ppi12.logit")
+                         as.is=T)[1]
+allData.out$sex <- as.factor(allData.out$sex)
+levels(allData.out$sex) <- c(1,0)
+traits.to.perm <- c("act1.t", "act5.t", "startle", "wild.binary",  "ppi12.logit"
+, "tail")
 
 # tail is messed up. fixing it.
 tails <- read.table("./dataFiles/phenotypes/tail.pheno.txt", sep="\t", header=T)
@@ -22,8 +24,7 @@ phenew <- phenew[do.call(order, phenew),]
 
 p <- merge(phenew, tails, all.x=T)
 phenew <- p
-
-
+phenew$tail <- as.numeric(as.character(phenew$tail))
 
 # pheno data for traits.to.perm
 # phenew <- which(names(pheno) %in% names(traits.to.perm))
@@ -35,7 +36,7 @@ tnames <- traitcovs[names(traitcovs) %in% traits.to.perm]
 # list of dfs, each with a col for the trait and its covariates
 phco <- list()
 for (trait in traits.to.perm){
-    get.covs <- cov[,which(names(cov) %in% tnames[[trait]])]
+    get.covs <- allData.out[,which(names(allData.out) %in% tnames[[trait]])]
     phco[[trait]] <- data.frame(phenew[[trait]], get.covs)
     names(phco[[trait]])[1] <- trait
 }
@@ -45,21 +46,21 @@ for (trait in traits.to.perm){
 # permute within blocks and within plots.
 
 # outputs row names of NA and DATA entries in separate vectors
-get.blocks <- function(trait){
-    blks <- c()
-    blockNA <- c()
-    blockData <- c()
-    for (col in seq_along(phco[[trait]])){
-        blockNA[[col]] <- which(is.na(phco[[trait]][col]))
-        blockData[[col]] <- which(!is.na(phco[[trait]][col]))
-        blks[[trait]] <- c(blks[[trait]],list(blockNA[[col]], blockData[[col]]))
-    }
-    return(blks)
-}
-# within each trait, odd blocks are NA and even blocks are data
-# access as  > blocks[['startle']][3]
-blocks <- sapply(traits.to.perm, get.blocks)
-names(blocks)[1:14] <- traits.to.perm
+# get.blocks <- function(trait){
+#     blks <- c()
+#     blockNA <- c()
+#     blockData <- c()
+#     for (col in seq_along(phco[[trait]])){
+#         blockNA[[col]] <- which(is.na(phco[[trait]][col]))
+#         blockData[[col]] <- which(!is.na(phco[[trait]][col]))
+#         blks[[trait]] <- c(blks[[trait]],list(blockNA[[col]], blockData[[col]]))
+#     }
+#     return(blks)
+# }
+# # within each trait, odd blocks are NA and even blocks are data
+# # access as  > blocks[['startle']][3]
+# blocks <- sapply(traits.to.perm, get.blocks)
+# names(blocks) <- traits.to.perm
 
 # outputs a numeric logical vector for each column
 get.levels <- function(trait){
@@ -99,7 +100,7 @@ library(permute)
 # FUNCTION: PERMUTE.PHENOS ----------------------------------------------------
 # permute phenotypes, leaving NA entries constant.
 
-permute.phenos <- function(trait, data, levels, nset=5){
+permute.phenos <- function(trait, data, levels, nset=100){
     require(permute)
     thetrait <- phco[[trait]][[1]]
     thecovars <- phco[[trait]][-1]
@@ -129,7 +130,7 @@ permute.phenos <- function(trait, data, levels, nset=5){
 
 ### PERMUTE PHENOS AND SAVE DATA ----------------------------------------------
 permData <- sapply(traits.to.perm, permute.phenos, data=phco,
-                       levels=levs, nset=5 )
+                       levels=levs, nset=100)
 
 # separate phenotypes from covariates
 odds <- which(seq_along(permData) %% 2 !=0)
@@ -141,14 +142,14 @@ phenop <- permData[c(odds)]
 # change pheno list to data frame, rename columns, and save as a text file.
 phenop <- as.data.frame(phenop)
 nms<-c()
-for (i in traits.to.perm){ nms <- c(nms, rep(i, times=5)) }
-pnames <- paste0("perm", 1:5, ".", nms)
+for (i in traits.to.perm){ nms <- c(nms, rep(i, times=100)) }
+pnames <- paste0("perm", 1:100, ".", nms)
 names(phenop) <-pnames
 write.table(phenop, file="./permutedPhenotypes.txt", sep="\t",
             row.names=F, col.names=T, quote=F)
 
 # make a separate file for each set of permuted covariates
-for(j in seq_along(1:5)){
+for(j in seq_along(1:100)){
 for(i in seq_along(covp)){
     cov <- covp[[i]][[1]][[j]]
     write.table(cov, file=paste0("./perm", j, ".", traits.to.perm[i], ".cov.txt"),

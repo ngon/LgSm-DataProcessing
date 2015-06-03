@@ -22,7 +22,7 @@ names(geno.samples) <- c("id")
 pheno <- read.table("./permutedPhenotypes.txt", sep="\t", header=T, as.is=T)
 #covars <- read.table("./covariates.orm.txt", sep="\t", header=T, as.is=T)
 pheno.names <- names(pheno)
-ids<- read.table("./phenotypes.orm.txt", header=F, as.is=T)[1]
+ids<- read.table("./dataFiles/", header=T, as.is=T)[2]
 names(ids)[1] <- "id"
 pheno <- cbind(ids[1], pheno)
 
