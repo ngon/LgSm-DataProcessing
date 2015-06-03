@@ -165,7 +165,7 @@ for(i in seq_along(covp)){
     cov <- covp[[i]][[1]][[j]]
     cov$one <- 1
     write.table(cov, file=paste0("./perm", j, ".", traits.to.perm[i], ".cov.txt"),
-                row.names=F, col.names=T, quote=F)
+                row.names=F, col.names=F, quote=F)
 }
 }
 
