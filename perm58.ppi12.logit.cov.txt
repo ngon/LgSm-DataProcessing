@@ -1,4 +1,3 @@
-one sex ppi.weight is.batch3 is.batch4 is.batch7 is.batch9 is.ppi.box3 is.ppi.box4
 1 NA NA NA NA NA NA NA NA
 1 0 26.7 0 0 0 0 NA NA
 1 NA NA NA NA NA NA NA NA

@@ -1,4 +1,3 @@
-one sex cpp.age is.coatW
 1 1 55 0
 1 NA NA NA
 1 NA NA NA
