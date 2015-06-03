@@ -9,7 +9,7 @@
 #cov <- read.table("./covariates.orm.txt", sep="\t", header=TRUE, as.is=TRUE)
 load("./traitcovs.RData")
 allData.out<- read.table("./dataFiles/phenotypes/allData.txt", sep="\t", header=T,
-                         as.is=T)[1]
+                         as.is=T)
 allData.out$sex <- as.factor(allData.out$sex)
 levels(allData.out$sex) <- c(1,0)
 traits.to.perm <- c("act1.t", "act5.t", "startle", "wild.binary",  "ppi12.logit"
@@ -22,9 +22,14 @@ tails <- tails[do.call(order, tails),]
 phenew <- allData.out[,c(traits.to.perm)]
 phenew <- phenew[do.call(order, phenew),]
 
-p <- merge(phenew, tails, all.x=T)
-phenew <- p
+phenop <- merge(phenew, tails, all.x=T)
+phenew <- phenop; rm(phenop)
 phenew$tail <- as.numeric(as.character(phenew$tail))
+
+outid <- read.table("./covariates.orm.txt", header=T, sep="\t")[2]
+
+allData.out <- allData.out[allData.out$id %in% outid$id,]
+phenew <- phenew[phenew$id %in% outid$id,] # now i have df with outliers removed
 
 # pheno data for traits.to.perm
 # phenew <- which(names(pheno) %in% names(traits.to.perm))
@@ -100,7 +105,7 @@ library(permute)
 # FUNCTION: PERMUTE.PHENOS ----------------------------------------------------
 # permute phenotypes, leaving NA entries constant.
 
-permute.phenos <- function(trait, data, levels, nset=100){
+permute.phenos <- function(trait, data, levels, nset=5){
     require(permute)
     thetrait <- phco[[trait]][[1]]
     thecovars <- phco[[trait]][-1]
