@@ -3,11 +3,15 @@
 ### 6-2-15: Plot cM zooms with permPval thresholds
 load("./dataFiles/permThresholds.RData")
 #load("/group/palmer-lab/AIL/LgSm-DataProcessing/dataFiles/permThresholds.RData")
-p.thr <- c()
-for (name in names(thresholds)){
-    p.thr[[name]] <- thresholds[[name]][2]
-}
+# p.thr <- c()
+# for (name in names(thresholds)){
+#     p.thr[[name]] <- thresholds[[name]][2]
+# }
 
+load("dataFiles/permThresholds.RData")
+str(thresholds)
+thresh <- c(thresholds[[1]][1:8], thresholds[[2]][1:5], thresholds[[3]][1:2])
+pvals <- -log10(unlist(lapply(thresh, min)))
 
 
 

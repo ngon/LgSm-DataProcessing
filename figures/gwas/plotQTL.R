@@ -1,73 +1,66 @@
 ######## Auxillary code to generate plots ###############
 
 ## Working directory on Natalia's computer PalmerLab-Atlas
-setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/figures/manhattan")
+setwd("C:/Users/Administrator/Desktop/Scripts/LgSm-DataProcessing/figures/gwas")
 
 
-## First, read in chrLengths from the mm10 reference. 
+## First, read in chrLengths from the mm10 reference.
 ## In CRI: 'group/palmer-lab/reference_genomes/mouse/chrLengths_mm10_chrnames.txt'
-chrLens    <- read.table("chrLengths_mm10.txt")$V2
+chrLens    <- read.table("./dataFiles/chrLengths_mm10.txt")$V2
 chrLens    <- c(0, cumsum(chrLens*1.0))
 
-labPos     <- read.table("chrLengths_mm10.txt")$V2/2.0
+labPos     <- read.table("./dataFiles/chrLengths_mm10.txt")$V2/2.0
 labPos     <- chrLens[1:19]+labPos
 
 
-traits <- c("cpp.diff", 
-            #"cpp8.1", 
-            #"cpp8.t",
-            "act1.t",
-            "act2.t", 
-            #"act4.t", 
-            #"act5.t",
-            #"act8.t", 
-            #"sens", 
-            #"startle", 
-            #"wild", 
-            #"ppi3", 
-            "ppi6"
-            #"ppi12"
-            #"habituation", 
-            #"glucose"
-            )
+traits <- c("cM.act1.t", "cM.startle", "cM.sc8.t", "cM.sc1.t")
+,"wild.binary", "act5.t")
 
-titles <- c(#"Change in preference for meth paired side", 
-            "Time spent on meth paired side on day 8 (5 min)", 
-            #"Time spent on meth paired side on day 8 (30 min)", 
-            #"Locomotor response to novelty (Day 1 activity)",
-            #"Locomotor response to meth (Day 2 activity)", 
-            "Day 4 activity (1 mg/kg meth)", 
-            "Day 5 activity (saline)",
-            "Day 8 activity (saline)",
-            #"Locomotor sensitization to meth", 
-            #"Acoustic startle reflex", 
-            #"Wildness (number of escapes during CPP)", 
-            #"Prepulse inhibition (73 dB)",
-            #"Prepulse inhibition (76 dB)" 
-           # "Prepulse inhibition (82 dB)",
-            "Habituation to acoustic startle",
-            "Blood glucose levels after a 4h fast"
+
+titles <- c(#"Change in preference for meth paired side",
+            #"Time spent on meth paired side on day 8 (5 min)",
+            #"Time spent on meth paired side on day 8 (30 min)",
+            "Locomotor response to novelty (distance traveled on Day 1)",
+            #"Locomotor response to meth (Day 2 activity)",
+#             "Day 4 activity (1 mg/kg meth)",
+#             "Day 5 activity (saline)",
+#             "Day 8 activity (saline)",
+            #"Locomotor sensitization to meth",
+            "Acoustic startle reflex (120 dB)",
+            "Exploratory activity Day 8 (number of side changes)",
+            "Exploratory activity Day 1 (number of side changes)",
+            "Wildness (number of escapes during CPP test)",
+            "Locomotor activity (distance traveled on Day 5)")
+#             "Prepulse inhibition (73 dB)",
+#             "Prepulse inhibition (76 dB)",
+#             "Prepulse inhibition (82 dB)",
+            #"Habituation to acoustic startle",
+            #"Blood glucose levels after a 4h fast",
+#            "Tail length (cm)"
             )
 
 outfiles <- paste0(traits, ".manhattan.png")
 
-traits<- c("startle", "ppi12")
-titles<- c("Acoustic startle reflex", "Prepulse inhibition (82 dB)")
-outfiles <- paste0(traits, ".manhattan.png")
 
-for (index in 1:6) {
+for (index in 1:4) {
         print(paste("Starting trait", traits[index]))
         plotManhattan(traits[index], outfile=outfiles[index], title=titles[index])
         print(paste("Done with trait", traits[index]))
 }
 
+plotManhattan(trait="wild.binary", outfile="wildbinary.manhattan.png", signifLine=7,
+              title="Wildness (number of escapes during CPP test)")
 
+plotManhattan(trait="act5.t", outfile="act5t.manhattan.png", signifLine=6.25,
+              title="Locomotor activity (distance traveled on Day 5)")
+# colors
+# light grey = #aab0be
+# coral = #ff6040
+# steelblue = #63B8FF
 
-
-
-plotManhattan <- function(trait, outfile=NULL, 
-                          oddcolor="#ff6040", evencolor="#aab0be", 
-                          signifLine=5, signifColor="#000000", title=NULL) {
+plotManhattan <- function(trait, outfile=NULL,
+                          oddcolor="#63B8FF", evencolor="#aab0be",
+                          signifLine=6, signifColor="#000000", title=NULL) {
         if (is.null(outfile)) {
                 outfile <- paste0(trait, ".manhattan.png")
         }
@@ -78,7 +71,7 @@ plotManhattan <- function(trait, outfile=NULL,
         pvals <- c()
         positions <- c()
         cols <- c()
-        
+
         for (chrom in 1:19) {
                 filename <- paste0(trait, ".chr", chrom, ".assoc.txt")
                 print(paste("Starting chromosome", chrom))
@@ -107,39 +100,39 @@ __________________________________________
 # cppdiff.ch4 <- read.table("cpp.diff.chr4.assoc.txt", sep="\t", header=T )
 # test<-cppdiff.ch4[order(cppdiff.ch4$p_lrt),]
 # plotZoom(trait="cpp.diff", chrom=4, start=89803883, end=114867413)
-# 
+#
 # ppi6.ch8 <- read.table("ppi6.chr8.assoc.txt", sep="\t", header=T )
 # test<-ppi6.ch8[order(ppi6.ch8$ps),]
 # plotZoom(trait="ppi6", chrom=8, start=69822096, end=95001306)
-# 
+#
 # ppi12.ch8 <- read.table("ppi12.chr8.assoc.txt", sep="\t", header=T )
 # test<-ppi12.ch8[order(ppi12.ch8$ps),]
 # plotZoom(trait="ppi12", chrom=8, start=69822096, end=95001306)
-# 
+#
 # startle17 <- read.table("startle.chr17.assoc.txt", sep="\t", header=T )
 # test<-startle17[order(startle17$ps),]
 # plotZoom(trait="startle", chrom=17, start=18998527, end=35964216)
-# 
+#
 # startle7 <- read.table("startle.chr7.assoc.txt", sep="\t", header=T )
 # test<-startle7[order(startle7$ps),]
 # plotZoom(trait="startle", chrom=7, start=75001287, end=84997578)
-# 
+#
 # cpp5min.7 <- read.table("cpp8.1.chr7.assoc.txt", sep="\t", header=T )
 # test<-cpp5min.7[order(cpp5min.7$ps),]
 # plotZoom(trait="cpp8.1", chrom=7, start=75001287, end=99997517)
-# 
+#
 # act1t7 <- read.table("act1.t.chr7.assoc.txt", sep="\t", header=T )
 # test<-act1t7[order(act1t7$ps),]
 # plotZoom(trait="act1.t", chrom=7, start=75001287, end=99997517)
-# 
+#
 # act1t17 <- read.table("act1.t.chr17.assoc.txt", sep="\t", header=T )
 # test<-act1t17[order(act1t17$ps),]
 # plotZoom(trait="act1.t", chrom=17, start=, end=)
-# 
+#
 # act2t7 <- read.table("act2.t.chr7.assoc.txt", sep="\t", header=T )
 # test<-act2t7[order(act2t7$ps),]
 # plotZoom(trait="act2.t", chrom=7, start=30000032, end=45847045)
-# 
+#
 # act2t17 <- read.table("act2.t.chr17.assoc.txt", sep="\t", header=T )
 # test<-act2t17[order(act2t17$ps),]
 # plotZoom(trait="act2.t", chrom=17, start=75999608, end= 85035207)
@@ -182,7 +175,7 @@ plotZoom <- function(trait, chrom, start, end, outfile=NULL, dotColor="#aab0be",
     axis(2, cex.axis=1.2)
     axis(1, cex.axis=1.2)
     abline(h=signifLine, col=signifColor, lty=2)
-    dev.off()        
+    dev.off()
 }
 
 
