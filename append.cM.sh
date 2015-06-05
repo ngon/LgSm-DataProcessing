@@ -14,4 +14,4 @@
 
 module load R/3.1.0
 cd /group/palmer-lab/AIL/qtlmapping
-R CMD BATCH /group/palmer-lab/AIL/LgSm-DataProcessing/cookieTime/append.cM.R
+R CMD BATCH /group/palmer-lab/AIL/LgSm-DataProcessing/scripts/oldScripts/append.cM.R
