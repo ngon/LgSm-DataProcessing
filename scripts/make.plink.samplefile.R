@@ -47,34 +47,36 @@ ggplot(test)+
 
 setwd("/group/palmer-lab/AIL/GBS/dosage/")
 
-files <- paste0("./chr", 1:19, ".ld")
+files <- paste0("./chr", 1:19, ".kb10")
 
 ld.data <- function(file){
-    temp <- read.table(file=file, as.is=T, header=T)[c(2,5,7)]
+    temp <- read.table(file=file, as.is=T, header=T) #[c(2,5,7)]
     temp$dist <- with(temp, temp$BP_B-temp$BP_A)/1000
-    ld <- cbind.data.frame(temp$dist, temp$R)
+    ld <- cbind.data.frame(temp$dist, temp$R2)
     return(ld)
 }
 
 ld.info <- lapply(files, ld.data)
-names(ld.info) <- paste0("chr", 1:19)
-for(i in names(ld.info)){
-    names(ld.info[[i]]) <- c("dist", "R")
+#names(ld.info) <- paste0("chr", 1:19)
+for(i in seq_along(ld.info)){
+    names(ld.info[[i]]) <- c("dist", "R2")
 }
 linkageDf <- do.call(rbind.data.frame, ld.info)
 
 
-meanr2 <- with(linkageDf, tapply(linkageDf$R^2, linkageDf$dist,
-                                           FUN=mean, na.rm=T))
-qt95 <- with(linkageDf, tapply(linkageDf$R^2, linkageDf$dist,
+
+meanr2 <- with(linkageDf, tapply(linkageDf$R2, linkageDf$dist,
+                                          FUN=mean, na.rm=T))
+qt95 <- with(linkageDf, tapply(linkageDf$R2, linkageDf$dist,
                                          FUN=quantile, probs=0.95, na.rm=T))
 linkageD <- data.frame(meanr2, qt95)
 linkageD$distbins <- as.numeric(rownames(linkageD))
 
 
 library(ggplot2)
-    pdf("LD_decay5.pdf", height=5, width=5.25)
+    pdf("LD_pairwise200kb.pdf", height=5, width=5.25)
     LDplot<- ggplot(linkageD)+
+        #geom_smooth(aes(x=distbins, y=med2), se=FALSE, color="#ff6040")+
         geom_point(aes(x=distbins, y=meanr2))+
         geom_smooth(aes(x=distbins, y=qt95), se=FALSE)+
         theme_bw()+
@@ -82,21 +84,3 @@ library(ggplot2)
         ylab(expression(paste("Linkage disequilibrium (",r^2,")")))
     LDplot
     dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
