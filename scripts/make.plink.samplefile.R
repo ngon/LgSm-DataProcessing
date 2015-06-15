@@ -47,7 +47,7 @@ ggplot(test)+
 
 setwd("/group/palmer-lab/AIL/GBS/dosage/")
 
-files <- paste0("./chr", 1:19, ".kb10")
+files <- paste0("./chr", 1:19, ".10kb")
 
 ld.data <- function(file){
     temp <- read.table(file=file, as.is=T, header=T) #[c(2,5,7)]
@@ -74,7 +74,7 @@ linkageD$distbins <- as.numeric(rownames(linkageD))
 
 
 library(ggplot2)
-    pdf("LD_pairwise200kb.pdf", height=5, width=5.25)
+    pdf("LD_pairwise10kb.pdf", height=5, width=5.25)
     LDplot<- ggplot(linkageD)+
         #geom_smooth(aes(x=distbins, y=med2), se=FALSE, color="#ff6040")+
         geom_point(aes(x=distbins, y=meanr2))+
@@ -84,3 +84,14 @@ library(ggplot2)
         ylab(expression(paste("Linkage disequilibrium (",r^2,")")))
     LDplot
     dev.off()
+
+
+################################################################
+snps <- read.table("./chrAll.filtered.snpinfo", as.is=T, header=T, sep="\t")[2:3]
+all <- as.matrix(read.table("./chrAll.filtered.dosage", as.is=T, header=F, sep="\t"))
+cor(all)
+
+chromosomes <- paste0("chr", 1:19)
+cmds<-c()
+for (chr in chromosomes){
+    cmds[[chr]]<- paste0("plink --gen
