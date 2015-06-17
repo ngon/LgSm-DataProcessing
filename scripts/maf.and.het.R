@@ -22,7 +22,7 @@ get.empirical.data <- function(file, e=emp.rows, x=maf, y=het.snp){
 }
 
 ### maf and het --------------------------------------------------------------
-maf.and.het <- function(file, upper=1.2, lower=0.8, emp.rows=NULL) {
+maf.and.het <- function(file, upper=1.3, lower=0.7, emp.rows=NULL) {
 
     print("Getting genotype data...")
             geno        <- read.table(file, header=F, as.is=T)[-c(1:3)]
