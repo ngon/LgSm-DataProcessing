@@ -83,7 +83,7 @@ is.lgsm <- function(chromosome){
                          chromosome, ".filtered.dosage")
 
     genotypes <- read.table(dosageFile, header=F, as.is=T)[1]
-    names(genotypes)[1:3] <- c("snp", "ref", "alt")
+    names(genotypes) <- "snp"
     genoClass <- c()
 
     for (mouse in seq_along(genotypes[-c(1:3)])){
