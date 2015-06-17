@@ -91,7 +91,7 @@ is.lgsm <- function(chromosome){
                                   labels=c("R", "LS", "A"), dig.lab=4, right=TRUE,
                                   include.lowest=TRUE)
     }
-    names(genoClass) <- 1:(length(genotypes)-3)
+    names(genoClass) <- 1:1830
     #################################
 
     alt.allele <- legend[legend$snp %in% genotypes$snp,]
