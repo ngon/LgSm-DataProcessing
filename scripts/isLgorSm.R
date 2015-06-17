@@ -15,37 +15,37 @@
 # apply function to each vector in a data frame
 
 ### IMPORT FILES ---------------------------------------------------------------
-
-hap <- read.table("./dataFiles/chr19.hap", header=F, as.is=T)
-names(hap) <- c("LG", "SM")
-
-legend <- read.table("./dataFiles/chr19.txt.legend.txt", header=F)[1]
-names(legend)<- c("snp", "ps", "ref", "alt")
-
-dos <- read.table("./dataFiles/chr19.filtered.dosage", header=F, as.is=T, nrows=200)[4:6]
-dosageFile <- "./dataFiles/chr19.filtered.dosage"
-
-
-### FUNCTION: is.lgsm determines how many copies of the ref/alt alleles each mouse
-# (column) in the filtered.dosage file has at each locus.
-
-is.lgsm <- function(dosageFile){
-
-    genotypes <- read.table(dosageFile, header=F, as.is=T)[-c(1:3)]
-    genoClass <- c()
-
-    for (mouse in seq_along(genotypes)){
-        genoClass[[mouse]] <- cut(genotypes[[mouse]], breaks=c(0, 0.7, 1.3, 2),
-                         labels=c("R", "LS", "A"), dig.lab=4, right=TRUE,
-                         include.lowest=TRUE)
-    }
-    #genoClass <- do.call(what=cbind.data.frame, args=genoClass)
-    names(genoClass) <- 1:1830
-    genoClass <- lapply(genoClass, as.character)
-    return(genoClass)
-}
-
-testRun<- is.lgsm(dosageFile)
+#
+# hap <- read.table("./dataFiles/chr19.hap", header=F, as.is=T)
+# names(hap) <- c("LG", "SM")
+#
+# legend <- read.table("./dataFiles/chr19.txt.legend.txt", header=F)[1]
+# names(legend)<- c("snp", "ps", "ref", "alt")
+#
+# dos <- read.table("./dataFiles/chr19.filtered.dosage", header=F, as.is=T, nrows=200)[4:6]
+# dosageFile <- "./dataFiles/chr19.filtered.dosage"
+#
+#
+# ### FUNCTION: is.lgsm determines how many copies of the ref/alt alleles each mouse
+# # (column) in the filtered.dosage file has at each locus.
+#
+# is.lgsm <- function(dosageFile){
+#
+#     genotypes <- read.table(dosageFile, header=F, as.is=T)[-c(1:3)]
+#     genoClass <- c()
+#
+#     for (mouse in seq_along(genotypes)){
+#         genoClass[[mouse]] <- cut(genotypes[[mouse]], breaks=c(0, 0.7, 1.3, 2),
+#                          labels=c("R", "LS", "A"), dig.lab=4, right=TRUE,
+#                          include.lowest=TRUE)
+#     }
+#     #genoClass <- do.call(what=cbind.data.frame, args=genoClass)
+#     names(genoClass) <- 1:1830
+#     genoClass <- lapply(genoClass, as.character)
+#     return(genoClass)
+# }
+#
+# testRun<- is.lgsm(dosageFile)
 
 
 ###############################################################################
@@ -117,10 +117,6 @@ is.lgsm <- function(chromosome){
 
 
 
-
-
-plot(1:100, rep(15,100), pch='|', col=rainbow(100), ylim=c(10,20), cex=5)
-points(1:100, rep(13,100), pch='|', col=rev(rainbow(100)), cex=5)
 
 
 
