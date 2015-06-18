@@ -118,13 +118,46 @@ is.lgsm <- function(chromosome){
         }
     }
     names(genoClass) <- 1:1830
+    genoClass <- lapply(genoClass, as.factor)
     return(genoClass)
 }
 
-
-
-
-
-
-
-
+chr1.hap <- is.lgsm(chromosome="chr1")
+save(chr1.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr1.hap.RData")
+rm(chr1.hap)
+chr2.hap <- is.lgsm(chromosome="chr2")
+save(chr2.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr2.hap.RData")
+rm(chr2.hap)
+chr3.hap <- is.lgsm(chromosome="chr3")
+save(chr3.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr3.hap.RData")
+rm(chr3.hap)
+chr4.hap <- is.lgsm(chromosome="chr4")
+save(chr4.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr4.hap.RData")
+rm(chr4.hap)
+chr5.hap <- is.lgsm(chromosome="chr5")
+save(chr5.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr5.hap.RData")
+rm(chr5.hap)
+chr6.hap <- is.lgsm(chromosome="chr6")
+save(chr6.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr6.hap.RData")
+rm(chr6.hap)
+chr7.hap <- is.lgsm(chromosome="chr7")
+save(chr7.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr7.hap.RData")
+rm(chr7.hap)
+chr8.hap <- is.lgsm(chromosome="chr8")
+save(chr8.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr8.hap.RData")
+rm(chr8.hap)
+chr9.hap <- is.lgsm(chromosome="chr9")
+save(chr9.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr9.hap.RData")
+rm(chr9.hap)
+chr10.hap <- is.lgsm(chromosome="chr10")
+save(chr10.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr10.hap.RData")
+rm(chr10.hap)
+chr11.hap <- is.lgsm(chromosome="chr11")
+save(chr11.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr11.hap.RData")
+rm(chr11.hap)
+chr12.hap <- is.lgsm(chromosome="chr12")
+save(chr12.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr12.hap.RData")
+rm(chr12.hap)
+chr13.hap <- is.lgsm(chromosome="chr13")
+save(chr13.hap, file="/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/lgsmCrossovers/chr13.hap.RData")
+rm(chr13.hap)
