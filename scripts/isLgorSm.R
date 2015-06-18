@@ -1,6 +1,9 @@
 ### June 15, 2015
 # PURPOSE: Determine whether alternative allele in .filtered.dosage files
 # is LG or SM by linking to info in haplotype files.
+## THIS SCRIPT HAS BEEN TESTED ON CRI. EXECUTE ONE CHROMOSOME AT A TIME USING:
+## > is.lgsm(chromosome="chr19")
+## OR ALL AT ONCE WITH: > haplos <- lapply(chrNameVector, is.lgsm)
 
 ### DESCRIPTION OF DATA --------------------------------------------------------
 # /AIL/knownSNPs/imputeHaplotypes/ contains .hap and .legend files.
@@ -82,19 +85,22 @@ is.lgsm <- function(chromosome){
     dosageFile <- paste0("/group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/",
                          chromosome, ".filtered.dosage")
 
-    genotypes <- read.table(dosageFile, header=F, as.is=T)[1]
-    names(genotypes) <- "snp"
+    genotypes <- read.table(dosageFile, header=F, as.is=T)[-c(1:3)]
+
+    #names(genotypes)[4:1833] <- paste0("V", 1:1830)
     genoClass <- c()
 
-    for (mouse in seq_along(genotypes[-c(1:3)])){
+    for (mouse in seq_along(genotypes)){
         genoClass[[mouse]] <- cut(genotypes[[mouse]], breaks=c(0, 0.7, 1.3, 2),
                                   labels=c("R", "LS", "A"), dig.lab=4, right=TRUE,
                                   include.lowest=TRUE)
     }
+    genoClass <- lapply(genoClass, as.character)
     #names(genoClass) <- 1:1830
     #################################
-
-    alt.allele <- legend[legend$snp %in% genotypes$snp,]
+    snpnames <- read.table(dosageFile, header=F, as.is=T)[1]
+    names(snpnames) <- c("snp")
+    alt.allele <- legend[legend$snp %in% snpnames$snp,]
     ## figure out why these if statements only work in separate loops and not
     ## together under the same loop with 'else if (genoClass...)'
         for (mouse in seq_along(genoClass)) {
@@ -111,6 +117,7 @@ is.lgsm <- function(chromosome){
             }
         }
     }
+    names(genoClass) <- 1:1830
     return(genoClass)
 }
 
