@@ -27,7 +27,7 @@ linkageD$distbins <- as.numeric(rownames(linkageD))
 
 
 library(ggplot2)
-pdf("./group/palmer-lab/AIL/LgSm-DataProcessing/figures/LD.10Mb.filtered.pdf",
+pdf("/group/palmer-lab/AIL/LgSm-DataProcessing/figures/LD.10Mb.filtered.pdf",
     height=4, width=4.25)
 LDplot<- ggplot(linkageD)+
     #geom_smooth(aes(x=distbins, y=med2), se=FALSE, color="#ff6040")+
