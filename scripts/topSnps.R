@@ -9,7 +9,7 @@ topSnps <- function(trait, directory=getwd() ){
     chromosomes <- 1:19
 
     for (i in seq_along(chromosomes)){
-        fileNames[i] <- paste(trait,".chr", chromosomes[i], "pruned.assoc.txt", sep="")
+        fileNames[i] <- paste(trait,".chr", chromosomes[i], ".pruned.assoc.txt", sep="")
     }
     chosenFiles <- lapply(file.path(directory, fileNames), read.table, sep="\t", header=T)
     pValues <- do.call(what=rbind.data.frame, args=chosenFiles)
