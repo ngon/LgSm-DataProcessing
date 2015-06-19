@@ -37,7 +37,7 @@ traits <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", #"habituation",
      "act5.t", #"act5.1", "act5.2", "act5.3", "act5.4", "act5.5", "act5.6",
      "act8.t",# "act8.1", "act8.2", "act8.3", "act8.4", "act8.5", "act8.6",
      "sens", # "sens1", "sens2", "sens3", "sens4", "sens5", "sens6",
-     "wild.binary", #"tail","glucose",
+     "wild.binary") #"tail","glucose",
      #"is.coatA", "is.coatB", "is.coatW")
 
 topPrunedSnps <- lapply(traits, topSnps)
