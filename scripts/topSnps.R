@@ -40,4 +40,5 @@ traits <- c("ppi3.logit", "ppi6.logit", "ppi12.logit", #"habituation",
      "wild.binary", #"tail","glucose",
      #"is.coatA", "is.coatB", "is.coatW")
 
-topSnpList <- lapply(traits, topSnps)
+topPrunedSnps <- lapply(traits, topSnps)
+save(topPrunedSnps, file="topPrunedSnps.RData")
