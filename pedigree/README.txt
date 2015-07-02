@@ -21,6 +21,14 @@
         /kinCheck.allgenoScaled.RData : same as above but with scaled kinship matrices
             - there is also a textfile with this data
 
+      ## new: added 7/2/15 ###
+
+        /genotypedRelatives.RData : two lists. elements in 'fams' are numbered arbitrarily. each
+                    element contains, at the very least, a trio (offspring listed first, sire and
+                    dam are the last 2 entries, respectively). for some families, multiple sibs 
+                    were genotyped. all animals in 'fams' are F39-43 AILs.
+                    elements in 'sibPairs' are genotyped brother-sister pairs from F50-56.  
+ 
         
 
 
