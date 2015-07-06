@@ -67,10 +67,6 @@ genomic.points = function(chr = NULL, loc = NULL) {
 #            chrlen: named numeric vector containing chromosome lengths or "mm10" for the mouse chromosomes.
 #            ...: other arguments to be passed to plot.
 
-#### NATALIA
-colors <- cbind.data.frame(letters=c("L", "LS", "S"), names=c("Lg", "LgSm", "Sm"),
-                           colors=c("blue", "chartreuse3", "goldenrod2"))
-
 plot.genoprobs = function(x, snps, colors = "DO", chrlen = "mm10", ...) {
 
   old.par = par(no.readonly = TRUE)
