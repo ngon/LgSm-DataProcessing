@@ -14,7 +14,7 @@
     # gen is a CHARACTER, e.g. "56". this is if i want to make separate files
         # for each generation. see example at the end.
     # lg.col and sm.col must match the colors used in hap.to.color.R
-    # pdfInches = the figure is a square; this is the dimension in inches.
+    # pdfInches = dimensions in inches - the figure is a square.
     # the rest are file paths - self-explanatory. default is chr 19 because it's
         # the smallest chr.
 
@@ -144,15 +144,16 @@ plot.haplos <- function ( chr = 19, ids = sibPairs[[1]], breaks = hapdata[["brea
     dev.off()
 } # plot.haplos - END OF FUNCTION
 
+###################### EXAMPLES FOR RUNNING PLOT.HAPLOS ########################
 
-### RUN HAP.TO.COLOR
+## RUN HAP.TO.COLOR
 # source("./scripts/hap.to.color.R")
 # load("./dataFiles/chr19.hap.RData")
 # hapdata <- hap.to.color(hap=chr19.hap)
 # names(hapdata) <- c("breaks", "col.breaks")
 # rm(chr19.hap)
 
-### PLOT HAPLOTYPES
+############## GENERATIONS 50 - 56 (SIB PAIR DATA) ############################
 # i want to put the plots into several different PDF files to avoid making them
 # too large to open. here i'm grouping them by generation. here i borrowed code
 # from ./pedigree/genotyped.relatives.R: i load the pedigree and get info for
@@ -160,7 +161,10 @@ plot.haplos <- function ( chr = 19, ids = sibPairs[[1]], breaks = hapdata[["brea
 # sure that the list of dams in info is identical to names(sibPairs). Now I can
 # determine what range of sibPair elements comprises each generation of AILs
 # and plot them in separate PDF files.
+#
 # load("./pedigree/info.phenoSamples.RData")
+# load("./pedigree/genotypedRelatives.RData")
+#
 # info <- info[order(info$gen, info$dam),]
 # ids <- read.table("./genotyped.samples.txt", as.is=T)$V1
 # info$id <- info$id - 0.1
@@ -176,9 +180,57 @@ plot.haplos <- function ( chr = 19, ids = sibPairs[[1]], breaks = hapdata[["brea
 # genrows <- lapply(genrows, as.integer)
 # rm(test, info, ids)
 
-# load("./pedigree/genotypedRelatives.RData")
-#
 # plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["56"]]],
 #               gen = "56",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["56"]]],
+#               gen = "56",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["55"]]],
+#               gen = "55",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["54"]]],
+#               gen = "54",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["53"]]],
+#               gen = "53",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["52"]]],
+#               gen = "52",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["51"]]],
+#               gen = "51",pdfInches = 5)
+# plot.haplos ( chr = 19, ids = sibPairs[seq_along(sibPairs) %in% genrows[["50"]]],
+#               gen = "50",pdfInches = 5)
 
+############## GENERATIONS 39 - 43 (SIB PAIR DATA) ############################
+# This time I'll group the families together by the parents' generation. There
+# will be a separate PDF for parents born in F39 - 42.
 
+# ped<- read.table("./pedigree/pedforQTLRel.txt", header=T)
+
+# the dam is the last entry in each fams vector. get her id, then her gen.
+# mamaMouse <- c()
+# for (family in seq_along(fams)){
+#     mamaMouse <- c(mamaMouse, fams[[family]][length(fams[[family]])])
+# }
+# mamaMouse <- mamaMouse + 0.1
+# mmGen <- ped[ped$id %in% mamaMouse,]
+# mmGen <- mmGen[c(1,5)]
+# identical(mmGen$id, mamaMouse)
+# test <- sort(mamaMouse, decreasing=FALSE)
+# identical(test, mamaMouse) # yes, mamaMouse is in decreasing order
+# mmGen <- mmGen[order(mmGen$id),]
+# identical(mmGen$id, mamaMouse) # now TRUE
+# mmGen$id <- mmGen$id - 0.1
+# names(fams) <- mmGen$id
+    # SAVING FAMS WITH DAMS AS LIST NAMES FOR FUTURE USE
+    # save(fams, sibPairs, file="./pedigree/genotypedRelatives.RData")
+# row.names(mmGen) <- 1:190
+# mmGenSplit <- split(mmGen, mmGen$generation, drop=T)
+# genrows <- lapply(mmGenSplit, row.names)
+# genrows <- lapply(genrows, as.integer)
+# rm(mamaMouse, mmGen, test, mmGenSplit, ped)
+
+# plot.haplos ( chr = 19, ids = fams[seq_along(fams) %in% genrows[["F39"]]],
+#               gen = "39", pdfInches = 7)
+# plot.haplos ( chr = 19, ids = fams[seq_along(fams) %in% genrows[["F40"]]],
+#               gen = "40", pdfInches = 6)
+# plot.haplos ( chr = 19, ids = fams[seq_along(fams) %in% genrows[["F41"]]],
+#               gen = "41", pdfInches = 6)
+# plot.haplos ( chr = 19, ids = fams[seq_along(fams) %in% genrows[["F42"]]],
+#               gen = "42", pdfInches = 6)
