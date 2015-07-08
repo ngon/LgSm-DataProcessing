@@ -1,6 +1,6 @@
 ### PURPOSE: MAKE A LIST OF SIB PAIRS GENOTYPED FROM F50-55, AND MAKE A LIST OF
 ### TRIOS/FAMILIES GENOTYPED FROM F39-43. THESE CAN BE USED FOR ERROR CHECKING
-### FURTHER DOWN THE LINE. 
+### FURTHER DOWN THE LINE.
 
 ### THIS WAS USED TO CREATE /PEDIGREE/GENOTYPEDRELATIVES.R
 
@@ -37,8 +37,8 @@ for (i in seq_along(sibPairs)) {
 ped <- read.table("./pedigree/pedforQTLRel.txt", sep="\t", header=T)[1:5]
 ids <- ids + 0.1
 ped <- ped[ped$id %in% ids,]
-sires <- ped[ped$sire %in% ids,] 
-dams <- ped[ped$dam %in% ids,] 
+sires <- ped[ped$sire %in% ids,]
+dams <- ped[ped$dam %in% ids,]
 
 trios <- dams[dams$id %in% sires$id,]
 trios[c(1,2,3)] <- trios[c(1,2,3)] - 0.1
@@ -60,7 +60,43 @@ for (i in seq_along(dams2)) {
 }
 # list of families with all genotyped members
 for (i in seq_along(fams)) {
-    fams[[i]] <- append(fams[[i]], c(siresOrdered[i], damsOrdered[i])) 
+    fams[[i]] <- append(fams[[i]], c(siresOrdered[i], damsOrdered[i]))
 }
 
 # save(fams, sibPairs, file="./pedigree/genotypedRelatives.RData")
+
+
+######## 7-8-15 ########
+
+# I renamed all of the elements of fams after the dam (last ID in each vector).
+# The code below describes how I did this. The reason I did it is to make
+# running plot.haplotypes.R (plot.haplos) easier in the future. That is what
+# the rest of this code pertains to. To see it in context, look in the comments
+# of plot.haplotypes.R.
+
+# ped<- read.table("./pedigree/pedforQTLRel.txt", header=T)
+# mamaMouse <- c()
+# for (family in seq_along(fams)){
+#     mamaMouse <- c(mamaMouse, fams[[family]][length(fams[[family]])])
+# }
+# mamaMouse <- mamaMouse + 0.1
+# mmGen <- ped[ped$id %in% mamaMouse,]
+# mmGen <- mmGen[c(1,5)]
+# identical(mmGen$id, mamaMouse)
+# test <- sort(mamaMouse, decreasing=FALSE)
+# identical(test, mamaMouse) # yes, mamaMouse is in decreasing order
+# mmGen <- mmGen[order(mmGen$id),]
+# identical(mmGen$id, mamaMouse) # now TRUE
+# mmGen$id <- mmGen$id - 0.1
+# names(fams) <- mmGen$id
+# # SAVING FAMS WITH DAMS AS LIST NAMES FOR FUTURE USE
+# save(fams, sibPairs, file="./pedigree/genotypedRelatives.RData")
+
+
+
+
+
+
+
+
+
