@@ -122,7 +122,7 @@ plot.genoprobs = function(x, snps, colors = "DO", chrlen = "mm10", ...) {
   } # if(length(grep("I", state.cols[,1])) > 0)
   # Plot the chromosome skeletons.
   old.warn = options("warn")$warn
-  options(warn = -1)
+  options(warn = -1) # negative numbers mean warnings are ignored
   chr = sort(as.numeric(unique(snps[,2])), na.last = TRUE)
   options(warn = old.warn)
   chr[20] = "X"
@@ -135,6 +135,7 @@ plot.genoprobs = function(x, snps, colors = "DO", chrlen = "mm10", ...) {
   maxstate = state.cols[apply(x, 1, which.max),1]
   names(maxstate) = rownames(x)
   offset = 0.6
+  
   for(c in 1:length(chrlen)) {
     ss = which(snps[,2] == names(chrlen)[c])
     if(length(ss) > 0) {
@@ -179,6 +180,7 @@ plot.genoprobs = function(x, snps, colors = "DO", chrlen = "mm10", ...) {
       rect(xm, y[all.breaks$breaks[1]], xr, y[all.breaks$breaks[2]],
            col = all.breaks$right[1], density = NA, border =
            all.breaks$right[1])
+           
       # Go through each break and see if the next color should be swapped.
       for(i in 2:nrow(all.breaks)) {
         if(all.breaks$left[i] != all.breaks$right[i]) {
