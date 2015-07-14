@@ -28,8 +28,11 @@ mean(rlens) #3361.686
 quantile(llens, probs=seq(0, 1, 0.1))
 quantile(rlens, probs=seq(0, 1, 0.1))
 
+# possible things to do:
 # get crossover stats for each generation
 # male and female crossover stats by generation
 # compare crossovers within families
+# get distance between recombination events - what is the mean distance between
+# recombinations? look for crossovers that are too close to be believable.
 
 
