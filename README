@@ -1,0 +1,31 @@
+Readme file for LgSm-DataProcessing
+
+Purpose: Exploratory and interim analysis on LG/SM AILs. Goal is to map QTL 
+for a variety of traits in a large sample of outcrossed mice. 
+
+/dataFiles
+
+phenotype data
+snippets of genotype data for writing/testing scripts
+
+/figures
+
+gwas - manhattan, QQ, and associated files
+phenos - summary of phenotypes
+residuals - pheno residuals and QQs
+
+/temp
+
+files that i only need temporary access to
+
+/pedigree
+
+pedigree has its own README file. 
+LineInfoFiles - AIL line info spreadsheets from F2 and beyond. We feed them
+to Riyan Cheng's find.mates.R script to get optimal breeder pairs.
+
+
+/scripts
+
+mainly R scripts used for various purposes
+
