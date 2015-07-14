@@ -4,11 +4,6 @@
 
 ### MAKE COMMAND FILES FOR VCFTOOLS
 # chrom <- paste0("chr", 1:19)
-# ld.cmds <- c()
-# for (c in chr){
-#     ld.cmds <- c(ld.cmds, paste0("vcftools --vcf ail.", c, ".known.vcf --out ./vcf.stats/", c,
-#                                  " --geno-r2 --ld-window-bp 10000000 --min-r2 0"))
-# }
 # cmds <- c()
 # for (c in chrom){
 #     cmds <- c(cmds, paste0("vcftools --vcf ail.", c, ".known.vcf --out ./vcf.stats/", c,
@@ -59,6 +54,7 @@ rm(het, idepth, imiss)
 
 # get true singletons ("S") and private doubletons ("D"). doubletons are SNPs
 # where the minor allele only occurs in 1 mouse, and the mouse is homozygous.
+# there are 66 singletons and 2057 doubletons.
 singletons <- read.table("./dataFiles/chr19.singletons", header=T, sep="\t", as.is=T)
 id <- unlist(strsplit(singletons$INDV, "[.]"))
 id <- id[which(seq_along(id) %% 2 != 0)]
@@ -162,10 +158,57 @@ rm(a1, a2, a3, all3, ALLELE1, ALLELE2, ALLELE3, COUNT1, COUNT2, COUNT3, FREQ1,
    FREQ2, FREQ3, f, freq, frq, frqCount)
 
 # save the organized data frames.
-save(excludedMice, perMouse, singletons, perLocus, file="./dataFiles/vcfStats.RData")
+lapply(perLocus, class)
+convert <- names(perLocus)[c(7:12, 22:30)]
+for (var in seq_along(perLocus)) {
+    if (names(perLocus[var]) %in% convert) {
+        perLocus[[var]] <- as.numeric(as.character(perLocus[[var]]))
+    }
+}
+lapply(singletons, class)
+singletons$SING.DOUB <- as.factor(singletons$SING.DOUB)
 
+save(excludedMice, perMouse, singletons, perLocus, file="./dataFiles/vcfStats.RData")
+load("./dataFiles/vcfStats.RData")
 
 ####### EXPLORATORY ANALYSIS ---------------------------------------------------
+
+### singletons and doubletons
+sing <- merge(singletons, perLocus, by="POS", all.x=T)
+sing$CHROM.y <- NULL
+
+# do the mice in singletons have low coverage overall?
+# all 2123 singletons come from a set of 512 mice.
+sum(!duplicated(singletons$INDV))
+tmp.mice <- unique(singletons$INDV)
+
+# it looks like at least 1 individual was excluded completely (100% quantile
+# should be 3660 - double the sample size for the number of chromosomes).
+mean(sing$N_MISS)
+quantile(sing$N_MISS, probs=seq(0,1,0.1))
+
+# about 777/7997 SNPs (9.7%) were genotyped per mouse on chr 19
+mean(perMouse$N_MISS)
+quantile(perMouse$N_MISS, probs=seq(0,1,0.1))
+
+# 90 mice have most of their genotypes missing (less than 100 SNPs typed)
+sing.mice <- perMouse[perMouse$INDV %in% tmp.mice,]
+length(which(perMouse$N_MISS >= 7900)) # 90
+# mice in singletons have slightly more genotyped SNPs than the full sample
+length(which(sing.mice$N_MISS >= 7900)) # 2
+mean(sing.mice$N_MISS)
+quantile(sing.mice$N_MISS, probs=seq(0,1,.1))
+# depth of coverage in singleton mice vs. entire sample
+mean(sing$MEAN_DEPTH, na.rm=T) # 1.54
+quantile(sing$MEAN_DEPTH, na.rm=T, probs=seq(0,1,0.1))
+mean(perLocus$MEAN_DEPTH, na.rm=T) # 2.81
+quantile(perLocus$MEAN_DEPTH, na.rm=T, probs=seq(0,1,0.1))
+# SNPs in singleton have fewer reads overall.
+quantile(perLocus$SUM_DEPTH, na.rm=T, probs=seq(0,1,0.1))
+quantile(sing$SUM_DEPTH, na.rm=T, probs=seq(0,1,0.1))
+quantile(perLocus$O.HET, na.rm=T, probs=seq(0,1,0.1))
+quantile(sing$O.HET, na.rm=T, probs=seq(0,1,0.1))
+
 
 ### hwe is obv way crazy without filtering on missingness.
 pvals.o <- -log10(sort(perLocus$P, decreasing=F))
@@ -180,8 +223,6 @@ plot(pvals.e,pvals.o,pch=19,cex=0.25,
          ylim=c(0,max(pvals.o)))
 lines(pvals.e,pvals.e,col="red")
 
-
-23^2
 
 ##### NOT USING THESE FILES AT THE MOMENT ##### -------------------------------
 # load kept and removed sites: useless here bc i didn't specify any filters.
