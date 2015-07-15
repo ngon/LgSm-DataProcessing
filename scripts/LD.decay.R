@@ -15,7 +15,7 @@ for(i in seq_along(ld.info)){
 }
 ld.info <- do.call(rbind.data.frame, ld.info)
 
-meanr2 <- with(ld.info, tapply(ld.info$R2, ld.info$dist,FUN=mean, na.rm=T))
+meanr2 <- with(ld.info, tapply(ld.info$R2, ld.info$dist, FUN=mean, na.rm=T))
 qt95 <- with(ld.info, tapply(ld.info$R2, ld.info$dist,FUN=quantile, probs=0.95, na.rm=T))
 linkageD <- data.frame(meanr2, qt95)
 rm(meanr2, qt95)
@@ -39,7 +39,7 @@ LDplot
 dev.off()
 
 
-#
+# test run
 data <- read.table("./dataFiles/chr19.LD.10Mb", sep=" ", as.is=T, header=F)
 names(data) <- c("BP_A", "BP_B", "R2")
 data$dist <- with(data, data$BP_B-data$BP_A)/1000000
