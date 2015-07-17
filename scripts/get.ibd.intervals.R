@@ -69,3 +69,76 @@ sumVariants <- list(sumVariants[[1]], sumVariants[[12]], sumVariants[[13]],
 names(sumVariants) <- paste0("chr", 1:19)
 
 save(ibd.intervals, sumVariants, file="./dataFiles/ibd.intervals.RData")
+
+### get perLocus VCF info -----------------------------------------------------
+load("./dataFiles/vcfStats.RData")
+
+### do singletons fall within IBD regions?
+head(singletons)
+
+chr19.int<-ibd.intervals[[19]]
+s.pos <- round(singletons$POS/1e6, digits=2)
+
+in.ibd <- vector("integer", length=length(s.pos))
+for (p in seq_along(s.pos)) {
+    for (i in 1:nrow(chr19.int)) {
+        if (s.pos[p] >= chr19.int[i,1] & s.pos[p] <= chr19.int[i,2]) {
+            in.ibd <- c(in.ibd, 1)
+        }
+        if (s.pos[p] <= chr19.int[i,1] | s.pos[p] >= chr19.int[i,2]) {
+            in.ibd <- in.ibd
+        }
+    }
+}
+
+### are ibd regions correlated with regions of low coverage
+ibd <- read.table("./dataFiles/LGSM.ibdRegions.hl.txt", sep="\t", header=T, as.is=T)
+#ibd <- ibd.hl[ibd.hl$State == "IBD",]
+ibd <- split(ibd, ibd$Chr)
+ibd <- ibd$chr19
+
+range <- cut(perLocus$POS, breaks=c(ibd$Start, ibd[length(ibd$Stop),3] ), right=FALSE)
+loci <- cbind.data.frame(range, perLocus$SUM_DEPTH,perLocus$QUAL,perLocus$FREQ1)
+names(loci)[2:4] <- c("sumDepth", "qual", "freq1")
+range <- split(loci, loci$range, drop=F )
+names(range) <- 1:1166
+
+binMeanDepth <- c()
+binQual <- c()
+binFreq1 <- c()
+
+for (i in seq_along(range)) {
+    binMeanDepth <- append(binMeanDepth, mean(range[[i]][["sumDepth"]], na.rm=T) )
+    binQual <- append(binQual, median(range[[i]][["qual"]], na.rm=T) )
+    binFreq1 <- append(binFreq1, median(range[[i]][["freq1"]], na.rm=T))
+}
+binSumm <- cbind.data.frame(bin=1:1166, binMeanDepth, binQual, binFreq1)
+
+binSumm <- cbind(binSumm, ibd$State)
+names(binSumm)[5] <- "state"
+rm(binQual, binFreq1, binMeanDepth)
+
+st.ibd <- binSumm[binSumm$state == "IBD",]
+st.poly <- binSumm[binSumm$state == "nonIBD",]
+
+ggplot(data=st.ibd, aes(x=st.ibd$bin, y=st.ibd$binMeanDepth)) +
+    geom_point(stat="identity", fill="#e31ab3", pch=19, color="#e31ab3", alpha=0.75) +
+    geom_point(data=st.poly, aes(x=st.poly$bin, y=st.poly$binMeanDepth),
+               color="#1ab3e3", fill="#1ab3e3", pch=19, alpha=0.75 )
+
+ggplot(data=st.ibd, aes(x=st.ibd$bin, y=st.ibd$binFreq1)) +
+    geom_point(stat="identity", fill="#e31ab3", pch=19, color="#e31ab3", alpha=0.75) +
+    geom_point(data=st.poly, aes(x=st.poly$bin, y=st.poly$binFreq1),
+               color="#1ab3e3", fill="#1ab3e3", pch=19, alpha=0.75 )
+
+ggplot(data=st.ibd, aes(x=st.ibd$bin, y=-log(st.ibd$binQual))) +
+    geom_point(stat="identity", fill="#e31ab3", pch=19, color="#e31ab3", alpha=0.75) +
+    geom_point(data=st.poly, aes(x=st.poly$bin, y=-log(st.poly$binQual)),
+               color="#1ab3e3", fill="#1ab3e3", pch=19, alpha=0.75 )
+
+
+
+
+
+
+
