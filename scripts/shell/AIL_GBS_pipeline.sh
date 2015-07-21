@@ -4,8 +4,8 @@
 # realignment, variant calling, imputation etc. #
 #################################################
 
-## WAIT FOR THE COMMANDS IN EACH SECTION 
-## TO FINISH RUNNING - SUPER IMPORTANT
+## !!! SUPER IMPORTANT !!! ###
+## WAIT FOR THE COMMANDS IN EACH SECTION TO FINISH RUNNING.
 ## you can monitor them using qstat and qstat -u $USER
 
 #########################
@@ -16,7 +16,11 @@ ls /group/palmer-lab/AIL/GBS/fastqs/*fq.gz > /group/palmer-lab/AIL/GBS/fastqs.ai
 ## MANUALLY EDIT THIS FILE to remove founders, F1s and other irrelevant fastqs
 
 ## submit the alignment script using the fastqs.ail.list file
-## Submit it as a task array 
+## Submit it as a task array
+
+## IMPORTANT: CRI doesn't support the syntax 1-n%n for array jobs, but the pps cluster
+## probably does, which is why Shyam wrote it this way. It's a good idea to submit jobs
+## in batches, but I think it has to be done manually on the CRI system. -- NMG
 numfiles=`wc -l /group/palmer-lab/AIL/GBS/fastqs.ail.list | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numfiles}%200 /group/palmer-lab/AIL/code/alignToMM10Mem.sh
 
@@ -64,8 +68,10 @@ qsub -t 1-${numlines}%200 /group/palmer-lab/AIL/code/requal.sh
 #########################
 ## 13 Jul 2015 - Natalia
 ## BAM correction for control samples (LG, SM, F1)
-##
-
+## I didn't have execution permission on the original convertQualScoreBam file so I had to make a copy
+## which I called convertQual_tmp in order to run it. Otherwise I would have had to download the C version
+## of samtools, compile it, and then compile the convertQualScoreBam script again (it needs the bam.h lib
+## from samtools/C, and possibly other packages...)
 module load samtools
 for bamfile in /group/palmer-lab/AIL/GBS/bams/controls/*bam; do 
     n64=`samtools view $i | cut -f11 | head -100000 | grep -c [a-h]` 
@@ -75,7 +81,7 @@ for bamfile in /group/palmer-lab/AIL/GBS/bams/controls/*bam; do
 	if [ $ns64 -ne 0 ]; then 
 	    echo $bamfile Solexa - ignoring file because Solexa is obsolete
 	else 
-	    echo /group/palmer-lab/shared_code/convertQualScoreBam2 $bamfile >> /group/palmer-lab/AIL/code/requal.ctrl.conversion.cmds 
+	    echo /group/palmer-lab/shared_code/convertQual_tmp $bamfile >> /group/palmer-lab/AIL/code/requal.ctrl.conversion.cmds 
 	fi
     else 
 	if [ $n64 -eq 0 ]; then 
@@ -88,8 +94,6 @@ done
 ## Run the conversion scripts
 numfiles=`wc -l /group/palmer-lab/AIL/code/requal.ctrl.conversion.cmds | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numlines} /group/palmer-lab/AIL/code/requal.sh
-
-#
 
 ###########################
 # Indel realignment steps #
@@ -106,6 +110,39 @@ ls /group/palmer-lab/AIL/GBS/bams/*.requaled.bam > /group/palmer-lab/AIL/GBS/bam
 numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numlines}%200 /group/palmerlab/AIL/code/realign.sh
 
+#############################
+## 14 Jul 2015 - Natalia 
+## Indel realignment steps using Lawson data
+
+## RealignerTargetCreator 
+## Obtain list of intervals to perform realignment using Lawson indels as input.
+
+## 1. Convert /AIL/knownSNPs/Lawson/LG.Indels & SM.Indels to LG_SM_Indels.vcf (Thank you April)
+## 	April's script for doing this is in /AIL/LgSm-DataProcessing/scripts/make_indel_vcf.R
+
+## 2. Sort vcf indel file using /shared_code/sortByRef.pl
+##    Remember to restore VCF-style headers to the newly generated file.
+perl /group/palmer-lab/shared_code/sortByRef.pl /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf /group/palmer-lab/reference_genomes/mouse/mm10.fasta.fai > LG_SM_sortedIndels.vcf
+	
+## 3. Run RealignerTargetCreator
+java -Xmx2g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T RealignerTargetCreator -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta -known:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf -o LG_SM.mm10.realign.intervals
+
+## IndelRealigner
+
+
+
+# make sample list from 3 separate directories
+ls /group/palmer-lab/AIL/GBS/bams/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.list
+ls /group/palmer-lab/AIL/GBS/bams/controls/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
+ls /group/palmer-lab/AIL/GBS/bams/reps/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.reps.list
+cat /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list /group/palmer-lab/AIL/GBS/bam.ail.list /group/palmer-lab/AIL/GBS/bam.ail.reps.list > /group/palmer-lab/AIL/GBS/bam.all.requaled.list
+
+## Run realignment. There are 2069 lines in the file. Run ~200 at a time.
+## IMPORTANT - BEFORE RUNNING, REMEMBER TO CHANGE INDEL REALIGNMENT FILE IN realign.sh
+numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.all.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "`
+qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
+
+
 ##############################
 # Merge bams for same sample #
 ##############################
@@ -121,7 +158,7 @@ ls /group/palmer-lab/AIL/GBS/bams/*rep*requaled.realign.bam | cut -f1 -d. | sort
 for sample in `cat /group/palmer-lab/AIL/GBS/ail.repeatsamples.list`; do
   inputfiles=`ls /group/palmer-lab/AIL/GBS/bams/${sample}*bam | xargs -i echo -n "I={} " | sed "s/bams/bams\/reps/g"`
   mv /group/palmer-lab/AIL/GBS/bams/${sample}.rep* /group/palmer-lab/AIL/GBS/bams/reps/ # move the repfiles to the reps directory
-  echo java -Xmx2g -jar /home/sgopalakrishnan/tools/picard-tools-1.126/picard.jar MergeSamFiles $inputfiles O=/group/palmer-lab/AIL/GBS/bams/${sample}.rg.requaled.realign.bam SO=coordinate AS=true CREATE_INDEX=true 
+  echo java -Xmx2g -jar /group/palmer-lab/tools/picard-tools-1.126/picard.jar MergeSamFiles $inputfiles O=/group/palmer-lab/AIL/GBS/bams/${sample}.rg.requaled.realign.bam SO=coordinate AS=true CREATE_INDEX=true 
 done > /group/palmer-lab/AIL/code/merge.repeats.cmds
 ## Run the repeat commands
 numlines=`wc -l /group/palmer-lab/AIL/code/merge.repeats.cmds | sed "s/^\W\+//" | cut -f1 -d " "`
@@ -131,7 +168,7 @@ qsub -t 1-${numlines}%200 merge.ailbams.sh
 ## Each individual file has its own read group
 ## WAIT FOR MERGE TO FINISH BEFORE RUNNING RG CHANGE
 for sample in `cat /group/palmer-lab/AIL/GBS/ail.repeatsamples.list`; do
-  echo java -Xmx2g -jar /home/sgopalakrishnan/tools/picard-tools-1.126/picard.jar AddOrReplaceReadGroups I=/group/palmer-lab/AIL/GBS/bams/${sample}.rg.requaled.realign.bam O=/group/palmer-lab/AIL/GBS/bams/${sample}.rg.requaled.realign.newRG.bam ID=$sample SM=$sample PL=illumina LB=merged PU=unit1 CREATE_INDEX=true
+  echo java -Xmx2g -jar /group/palmer-lab/tools/picard-tools-1.126/picard.jar AddOrReplaceReadGroups I=/group/palmer-lab/AIL/GBS/bams/${sample}.rg.requaled.realign.bam O=/group/palmer-lab/AIL/GBS/bams/${sample}.rg.requaled.realign.newRG.bam ID=$sample SM=$sample PL=illumina LB=merged PU=unit1 CREATE_INDEX=true
 done > /group/palmer-lab/AIL/code/merge.changerg.cmds
 ## Run the RG change commands
 numlines=`wc -l /group/palmer-lab/AIL/code/merge.changerg.cmds | sed "s/^\W\+//" | cut -f1 -d " "`
@@ -245,7 +282,7 @@ for chrom in {1..19} X; do
     if [ $end -gt $length ]; then
       end=$length
     fi
-    echo /home/sgopalakrishnan/bin/impute2 -g /group/palmer-lab/AIL/GBS/preimpute/ail.$chrom.preimpute.geno -m /group/palmer-lab/reference_genomes/mouse/map/$chrom.mm10.impute2.map -l /group/palmer-lab/AIL/knownSNPs/imputeHaplotypes/$chrom.legend -h /group/palmer-lab/AIL/knownSNPs/imputeHaplotypes/$chrom.hap -int $start $end -Ne $popsize -buffer $buffer -allow_large_regions -k $numhaps -pgs_prob -prob_g -o /group/palmer-lab/AIL/GBS/imputed/$chrom.$start
+    echo /group/palmer-lab/tools/impute_v2.3.2_x86_64_static/impute2 -g /group/palmer-lab/AIL/GBS/preimpute/ail.$chrom.preimpute.geno -m /group/palmer-lab/reference_genomes/mouse/map/$chrom.mm10.impute2.map -l /group/palmer-lab/AIL/knownSNPs/imputeHaplotypes/$chrom.legend -h /group/palmer-lab/AIL/knownSNPs/imputeHaplotypes/$chrom.hap -int $start $end -Ne $popsize -buffer $buffer -allow_large_regions -k $numhaps -pgs_prob -prob_g -o /group/palmer-lab/AIL/GBS/imputed/$chrom.$start
     let start=start+window
   done
 done > /group/palmer-lab/AIL/code/ail.impute.cmds
