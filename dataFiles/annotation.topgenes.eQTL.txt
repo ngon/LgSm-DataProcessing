@@ -1,0 +1,15 @@
+chr1	ensembl_havana	gene	193168046	193177832	.	+	.	gene_id	ENSMUSG00000079144	;	gene_version	7	;	gene_name	A130010J15Rik	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr2	ensembl_havana	gene	24974117	24975098	.	-	.	gene_id	ENSMUSG00000036850	;	gene_version	4	;	gene_name	Mrpl41	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr2	ensembl_havana	gene	31026206	31142008	.	-	.	gene_id	ENSMUSG00000075415	;	gene_version	9	;	gene_name	Fnbp1	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr3	ensembl_havana	gene	36552606	36565729	.	+	.	gene_id	ENSMUSG00000027714	;	gene_version	7	;	gene_name	Exosc9	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr4	ensembl_havana	gene	121059237	121098241	.	-	.	gene_id	ENSMUSG00000043207	;	gene_version	6	;	gene_name	Zmpste24	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr4	ensembl_havana	gene	131873617	131901706	.	+	.	gene_id	ENSMUSG00000028911	;	gene_version	12	;	gene_name	Srsf4	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr4	ensembl_havana	gene	133369706	133423702	.	+	.	gene_id	ENSMUSG00000028854	;	gene_version	9	;	gene_name	Slc9a1	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr5	ensembl_havana	gene	139271876	139325622	.	-	.	gene_id	ENSMUSG00000056413	;	gene_version	12	;	gene_name	Adap1	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr7	ensembl_havana	gene	55768178	55778925	.	+	.	gene_id	ENSMUSG00000051504	;	gene_version	14	;	gene_name	Siglech	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr8	ensembl	gene	86723940	86746006	.	-	.	gene_id	ENSMUSG00000036840	;	gene_version	4	;	gene_name	Siah1a	;	gene_source	ensembl	;	gene_biotype	protein_coding	;																								
+chr12	havana	gene	110858565	110858894	.	-	.	gene_id	ENSMUSG00000091498	;	gene_version	4	;	gene_name	Mpc1-ps	;	gene_source	havana	;	gene_biotype	processed_pseudogene	;																								
+chr17	ensembl_havana	gene	29156550	29237797	.	-	.	gene_id	ENSMUSG00000024008	;	gene_version	11	;	gene_name	Cpne5	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr17	ensembl_havana	gene	31494323	31519974	.	-	.	gene_id	ENSMUSG00000024037	;	gene_version	8	;	gene_name	Wdr4	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr17	ensembl_havana	gene	46383731	46420920	.	+	.	gene_id	ENSMUSG00000015597	;	gene_version	12	;	gene_name	Zfp318	;	gene_source	ensembl_havana	;	gene_biotype	protein_coding	;																								
+chr17	ensembl	gene	46890621	46892463	.	+	.	gene_id	ENSMUSG00000036430	;	gene_version	7	;	gene_name	Tbcc	;	gene_source	ensembl	;	gene_biotype	protein_coding	;																								

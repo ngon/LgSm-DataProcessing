@@ -1,0 +1,96 @@
+
+
+
+ENSMUSG00000015597
+hipp chr17: startle,ppi6, ppi12
+pfc  chr17: startle,ppi6, ppi12
+str  chr17: startle,ppi6, ppi12
+
+
+ENSMUSG00000024008 (decent plot)
+hipp chr17: startle,ppi6, ppi12
+pfc  chr17: startle,ppi6, ppi12
+str  chr17: startle,ppi6, ppi12
+
+
+ENSMUSG00000024037
+hipp chr17: startle,ppi6, ppi12
+pfc  chr17: startle,ppi6, ppi12
+str  chr17: startle,ppi6, ppi12
+
+
+ENSMUSG00000027714
+hipp chr3 :sens
+pfc  chr3 :sens (Weak signal)
+str  chr3 :sens
+
+
+ENSMUSG00000028854
+hipp chr4 :cpp8
+pfc chr4 :cpp8
+str  chr3 :cpp8 (almost no signal)
+
+
+ENSMUSG00000028911
+hipp chr4: act2, cpp8
+pfc  chr4: cpp8
+str  chr4: act2, cpp8
+
+
+ENSMUSG00000036430
+hipp chr7: startle,ppi6, ppi12
+pfc  chr7: startle,ppi6, ppi12
+str  chr7: startle,ppi6, ppi12
+
+
+ENSMUSG00000036840
+hipp chr7: startle,ppi6, ppi12
+pfc  chr7: startle,ppi6, ppi12
+str  chr7: startle,ppi6, ppi12
+
+
+
+ENSMUSG00000036850
+hipp chr7: startle,ppi6, ppi12
+pfc  chr7: startle,ppi6, ppi12
+str  chr7: startle,ppi6, ppi12
+
+
+ENSMUSG00000043207
+hipp chr7: startle,ppi6, ppi12
+pfc  chr7: startle,ppi6, ppi12
+str  chr7: startle,ppi6, ppi12
+
+
+ENSMUSG00000051504
+hipp chr11: act4
+pfc  chr11: act4
+str  chr11: act4
+
+
+ENSMUSG00000056413
+hipp chr7 :startle,ppi6, ppi12
+pfc  chr7 :startle,ppi6, ppi12
+str  chr7: startle,ppi6, ppi12
+
+
+
+ENSMUSG00000075415
+hipp chr17: startle,ppi6, ppi12
+pfc  chr17: startle,ppi6, ppi12
+str  chr17: startle,ppi6, ppi12
+
+
+
+ENSMUSG00000079144
+hipp chr10 :sens
+pfc  chr10 :sens
+str  chr10 :sens
+
+
+ENSMUSG00000091498
+hipp chr11 :sens, act4
+pfc  chr11 : sens, act4
+str  chr11 : sens, act4
+
+
