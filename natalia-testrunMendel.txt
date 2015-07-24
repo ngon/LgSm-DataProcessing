@@ -1,0 +1,165 @@
+ngonzales@cri12in02:[brittny]: more plink.log
+PLINK v1.90b3j 64-bit (2 Apr 2015)
+8 arguments: --chr 19 --map chr19.first1000snps.map --ped pedfile.with.alleles.ped --remove mice2exclude.indlist
+Hostname: cri12in02.cri.uchicago.edu
+Working directory: /group/palmer-lab/AIL/GBS/dosage/onlyEmpirical/plink.files/brittny
+Start time: Thu Jul 23 19:33:21 2015
+
+Random number seed: 1437698001
+129031 MB RAM detected; reserving 64515 MB for main workspace.
+Error: Basic file conversions do not support regular filtering operations.
+Rerun your command with --make-bed.
+
+End time: Thu Jul 23 19:33:21 2015
+
+
+Web-based version check ( --noweb to skip )
+Connecting to web...  OK, v1.07 is current
+
++++ PLINK 1.9 is now available! See above website for details +++
+
+Writing this text to log file [ testrun.log ]
+Analysis started: Thu Jul 23 19:36:44 2015
+
+Options in effect:
+        --ped pedfile.with.alleles.ped
+        --map chr19.first1000snps.map
+        --remove mice2exclude.indlist
+        --chr 19
+        --mendel
+        --out testrun
+
+1000 (of 1000) markers to be included from [ chr19.first1000snps.map ]
+Scan region on chromosome 19 from [ ail.snp.3139452 ] to [ ail.snp.18336373 ]
+
+ERROR:
+A problem with line 1 in [ pedfile.with.alleles.ped ]
+Expecting 6 + 2 * 1000 = 2006 columns, but found 1006
+
+Web-based version check ( --noweb to skip )
+Recent cached web-check found... OK, v1.07 is current
+
++++ PLINK 1.9 is now available! See above website for details +++
+
+Writing this text to log file [ testrun.log ]
+Analysis started: Thu Jul 23 19:49:25 2015
+
+Options in effect:
+        --ped pedfile.with.alleles.ped
+        --map chr19.first1000snps.map
+        --remove mice2exclude.indlist
+        --chr 19
+        --mendel
+        --out testrun
+
+1000 (of 1000) markers to be included from [ chr19.first1000snps.map ]
+Scan region on chromosome 19 from [ ail.snp.3139452 ] to [ ail.snp.18336373 ]
+Warning, found 1219 individuals with ambiguous sex codes
+These individuals will be set to missing ( or use --allow-no-sex )
+Writing list of these individuals to [ testrun.nosex ]
+1830 individuals read from [ pedfile.with.alleles.ped ]
+0 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+0 cases, 0 controls and 1830 missing
+303 males, 308 females, and 1219 of unspecified sex
+Reading individuals to remove [ mice2exclude.indlist ] ...
+ERROR: Problem with line:
+26580
+
+Web-based version check ( --noweb to skip )
+Recent cached web-check found... OK, v1.07 is current
+
++++ PLINK 1.9 is now available! See above website for details +++
+
+Writing this text to log file [ testrun.log ]
+Analysis started: Thu Jul 23 19:52:47 2015
+
+Options in effect:
+        --ped pedfile.with.alleles.ped
+        --map chr19.first1000snps.map
+        --chr 19
+        --mendel
+        --out testrun
+
+1000 (of 1000) markers to be included from [ chr19.first1000snps.map ]
+Scan region on chromosome 19 from [ ail.snp.3139452 ] to [ ail.snp.18336373 ]
+Warning, found 1219 individuals with ambiguous sex codes
+These individuals will be set to missing ( or use --allow-no-sex )
+Writing list of these individuals to [ testrun.nosex ]
+1830 individuals read from [ pedfile.with.alleles.ped ]
+0 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+0 cases, 0 controls and 1830 missing
+303 males, 308 females, and 1219 of unspecified sex
+Before frequency and genotyping pruning, there are 1000 SNPs
+Converting data to SNP-major format
+0 founders and 1830 non-founders found
+1000 SNPs with no founder genotypes observed
+Warning, MAF set to 0 for these SNPs (see --nonfounders)
+Writing list of these SNPs to [ testrun.nof ]
+Total genotyping rate in remaining individuals is 1
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+Converting data to Individual-major format
+After frequency and genotyping pruning, there are 1000 SNPs
+After filtering, 0 cases, 0 controls and 1830 missing
+After filtering, 303 males, 308 females, and 1219 of unspecified sex
+
+ERROR: Family 22504 has person with reserved 0 ID
+
+
++++ PLINK 1.9 is now available! See above website for details +++
+
+Writing this text to log file [ testrun.log ]
+Analysis started: Thu Jul 23 19:55:37 2015
+
+Options in effect:
+        --ped newpedfile.ped
+        --map chr19.first1000snps.map
+        --chr 19
+        --mendel
+        --out testrun
+
+1000 (of 1000) markers to be included from [ chr19.first1000snps.map ]
+Scan region on chromosome 19 from [ ail.snp.3139452 ] to [ ail.snp.18336373 ]
+Warning, found 1219 individuals with ambiguous sex codes
+These individuals will be set to missing ( or use --allow-no-sex )
+Writing list of these individuals to [ testrun.nosex ]
+1830 individuals read from [ newpedfile.ped ]
+0 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+0 cases, 0 controls and 1830 missing
+303 males, 308 females, and 1219 of unspecified sex
+Before frequency and genotyping pruning, there are 1000 SNPs
+Converting data to SNP-major format
+0 founders and 1830 non-founders found
+1000 SNPs with no founder genotypes observed
+Warning, MAF set to 0 for these SNPs (see --nonfounders)
+Writing list of these SNPs to [ testrun.nof ]
+Total genotyping rate in remaining individuals is 1
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+Converting data to Individual-major format
+After frequency and genotyping pruning, there are 1000 SNPs
+After filtering, 0 cases, 0 controls and 1830 missing
+After filtering, 303 males, 308 females, and 1219 of unspecified sex
+249 nuclear families, 0 founder singletons found
+0 non-founders with 2 parents in 0 nuclear families
+1830 non-founders without 2 parents in 249 nuclear families
+0 affected offspring trios
+0 phenotypically discordant parent pairs found
+Writing all Mendel errors to [ testrun.mendel ]
+Writing per-offspring Mendel summary to [ testrun.imendel ]
+Writing per-family Mendel summary to [ testrun.fmendel ]
+Writing per-locus Mendel summary to [ testrun.lmendel ]
+0 Mendel errors detected in total
+
+Analysis finished: Thu Jul 23 19:55:37 2015
+
+
+
+
+
