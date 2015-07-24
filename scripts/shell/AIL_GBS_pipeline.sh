@@ -117,30 +117,45 @@ qsub -t 1-${numlines}%200 /group/palmerlab/AIL/code/realign.sh
 ## RealignerTargetCreator 
 ## Obtain list of intervals to perform realignment using Lawson indels as input.
 
-## 1. Convert /AIL/knownSNPs/Lawson/LG.Indels & SM.Indels to LG_SM_Indels.vcf (Thank you April)
-## 	April's script for doing this is in /AIL/LgSm-DataProcessing/scripts/make_indel_vcf.R
+# 1. Convert /AIL/knownSNPs/Lawson/LG.Indels & SM.Indels to LG_SM_Indels.vcf (Thank you April)
+# 	April's script for doing this is in /AIL/LgSm-DataProcessing/scripts/make_indel_vcf.R
 
-## 2. Sort vcf indel file using /shared_code/sortByRef.pl
-##    Remember to restore VCF-style headers to the newly generated file.
+# 2. Sort vcf indel file using /shared_code/sortByRef.pl
+#    Remember to restore VCF-style headers to the newly generated file.
 perl /group/palmer-lab/shared_code/sortByRef.pl /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf /group/palmer-lab/reference_genomes/mouse/mm10.fasta.fai > LG_SM_sortedIndels.vcf
 	
-## 3. Run RealignerTargetCreator
+# 3. Run RealignerTargetCreator
 java -Xmx2g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T RealignerTargetCreator -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta -known:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf -o LG_SM.mm10.realign.intervals
 
 ## IndelRealigner
+## Realign F1, LG and SM controls around known indels
 
+# 1. Make .list file for GATK
+ls /group/palmer-lab/AIL/GBS/bams/controls/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
 
+# 2. Run IndelRealigner
+numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list | sed "s/^\W\+//" | cut -f1 -d " "`
+qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
 
 # make sample list from 3 separate directories
-ls /group/palmer-lab/AIL/GBS/bams/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.list
-ls /group/palmer-lab/AIL/GBS/bams/controls/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
-ls /group/palmer-lab/AIL/GBS/bams/reps/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.reps.list
-cat /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list /group/palmer-lab/AIL/GBS/bam.ail.list /group/palmer-lab/AIL/GBS/bam.ail.reps.list > /group/palmer-lab/AIL/GBS/bam.all.requaled.list
+#ls /group/palmer-lab/AIL/GBS/bams/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.list
+#ls /group/palmer-lab/AIL/GBS/bams/controls/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
+#ls /group/palmer-lab/AIL/GBS/bams/reps/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.reps.list
+#cat /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list /group/palmer-lab/AIL/GBS/bam.ail.list /group/palmer-lab/AIL/GBS/bam.ail.reps.list > /group/palmer-lab/AIL/GBS/bam.all.requaled.list
 
-## Run realignment. There are 2069 lines in the file. Run ~200 at a time.
-## IMPORTANT - BEFORE RUNNING, REMEMBER TO CHANGE INDEL REALIGNMENT FILE IN realign.sh
-numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.all.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "`
-qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
+## CallableLoci
+## What areas of the genome are considered callable in F1, LG and SM controls?
+
+# 1. Make list file after shortening filenames
+ls /group/palmer-lab/AIL/GBS/bams/controls/*rep[0-9].bam /group/palmer-lab/AIL/GBS/bams/controls/*rep[0-9][0-9].bam > /group/palmer-lab/AIL/GBS/bam.realigned.ctrl.list
+
+# 2. Run CallableLoci (default settings)
+numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.realigned.ctrl.list | sed "s/^\W\+//" | cut -f1 -d " "`
+qsub -t 1-${numlines} /group/palmerlab/AIL/code/callable.loci.sh
+
+# 3. CompareCallable Loci
+
+
 
 
 ##############################
@@ -210,6 +225,11 @@ done > /group/palmer-lab/AIL/code/ail.callvars.cmds
 ## Run the variant call command
 numlines=`wc -l /group/palmer-lab/AIL/code/ail.callvars.cmds | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-$numlines /group/palmer-lab/AIL/code/runUG.ail.sh
+
+#### To do for positive controls ####
+# Check genotype concordance for reps
+#java -Xmx2g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T GenotypeConcordance -R /group/palmer-lab/reference_genomes/mouse/mm10.fasta -eval data -truth data -o filename -sites filename 
+
 
 ############################
 # VCF merging for the sets #

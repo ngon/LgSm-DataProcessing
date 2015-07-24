@@ -14,8 +14,8 @@
 #PBS -l walltime=24:00:00
 
 ### Inform the scheduler of the number of CPU cores for your job.
-### This example will allocate 2 cores on a single node.
-#PBS -l nodes=1:ppn=2
+### This example will allocate 1 core on a single node.
+#PBS -l nodes=1:ppn=1
 
 ### Inform the scheduler of the amount of memory you expect to use.
 ### Use units of 'b', 'kb', 'mb', or 'gb'
@@ -30,12 +30,12 @@
 
 # Load the approprite applications
 module load java
-module load gatk/2.7-4
+module load gatk/3.3-0
 
-INFILE=`head -$PBS_ARRAYID /group/palmer-lab/AIL/GBS/bam.ail.requaled.list | tail -1`
+INFILE=`head -$PBS_ARRAYID /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list | tail -1`
 BASE=`basename $INFILE .bam`
 DIR=`dirname $INFILE`
 echo "Running realignment for: $INFILE" 
-java -Xmx2g -jar /apps/software/GenomeAnalysisTK/2.7-4/GenomeAnalysisTK.jar -T IndelRealigner -R /group/palmer-lab/reference_genomes/mouse/mm10.fasta -I $INFILE -targetIntervals /group/palmer-lab/reference_genomes/mouse/WT.realign.intervals -o $DIR/$BASE.realign.bam
+java -Xmx2g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T IndelRealigner -R /group/palmer-lab/reference_genomes/mouse/mm10.fasta -I $INFILE -targetIntervals /group/palmer-lab/reference_genomes/mouse/LG_SM.mm10.realign.intervals -o $DIR/$BASE.realign.bam
 echo "Done running realignment."
 

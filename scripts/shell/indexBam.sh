@@ -15,7 +15,7 @@
 
 ### Inform the scheduler of the number of CPU cores for your job.
 ### This example will allocate 4 cores on a single node.
-#PBS -l nodes=1:ppn=4
+#PBS -l nodes=1:ppn=1
 
 ### Inform the scheduler of the amount of memory you expect to use.
 ### Use units of 'b', 'kb', 'mb', or 'gb'
@@ -28,12 +28,12 @@
 # Job Execution #
 #################
 
-# Load the approprite applications
+# Load the appropriate applications
 module load samtools
 
-INFILE=`head -$PBS_ARRAYID /group/palmer-lab/AIL/GBS/ail.toindex.list | tail -n 1` 
+INFILE=`head -$PBS_ARRAYID /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list | tail -n 1` 
 BASE=`basename $INFILE .bam`
-cd /group/palmer-lab/AIL/GBS/bams
-samtools index $BASE.bam $BASE.bai
+cd /group/palmer-lab/AIL/GBS/bams/controls
+samtools index $BASE.bam 
 echo "Done generating index for $BASE"
 
