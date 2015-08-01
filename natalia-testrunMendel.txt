@@ -115,6 +115,7 @@ ERROR: Family 22504 has person with reserved 0 ID
 Writing this text to log file [ testrun.log ]
 Analysis started: Thu Jul 23 19:55:37 2015
 
+
 Options in effect:
         --ped newpedfile.ped
         --map chr19.first1000snps.map
@@ -158,6 +159,9 @@ Writing per-locus Mendel summary to [ testrun.lmendel ]
 0 Mendel errors detected in total
 
 Analysis finished: Thu Jul 23 19:55:37 2015
+
+
+plink --ped newpedfile_ng.ped --map chr19.first1000snps.map --chr 19 --mendel --no-pheno --out testrun
 
 
 
