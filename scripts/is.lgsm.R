@@ -60,6 +60,7 @@ is.lgsm <- function(chromosome,
 
     genoClass <- c()
 
+    # shyam used a different cutoff for hets 0 - 0.5 - 1.5 - 2
     for (mouse in seq_along(genotypes)){
         genoClass[[mouse]] <- cut(genotypes[[mouse]], breaks=c(0, 0.8, 1.2, 2),
                                   labels=c("R", 1, "A"), dig.lab=4, right=TRUE,
