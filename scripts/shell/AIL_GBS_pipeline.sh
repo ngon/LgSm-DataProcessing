@@ -153,7 +153,19 @@ ls /group/palmer-lab/AIL/GBS/bams/controls/*rep[0-9].bam /group/palmer-lab/AIL/G
 numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.realigned.ctrl.list | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numlines} /group/palmerlab/AIL/code/callable.loci.sh
 
-# 3. CompareCallable Loci
+############# CHANGED READ GROUPS FOR EACH LANE ################
+# 6 AUG 2015 - NATALIA
+
+
+#########################
+###### RUN BQSR #########
+#########################
+
+java -Xmx9g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T BaseRecalibrator -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta -I /group/palmer-lab/AIL/GBS/run152.BQSR.test.list -knownSites:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf --list -o run152.BQSR.test.table
+
+numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "`
+qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
+
 
 
 
