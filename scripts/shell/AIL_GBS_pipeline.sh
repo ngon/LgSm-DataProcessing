@@ -95,55 +95,57 @@ done
 numfiles=`wc -l /group/palmer-lab/AIL/code/requal.ctrl.conversion.cmds | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numlines} /group/palmer-lab/AIL/code/requal.sh
 
-###########################
-# Indel realignment steps #
-###########################
-## In this case, we are using the target list created from the
-## WT indel list. In case and if we ever get a list from HL
-## that target list needs to be created again. 
-## THAT STEP IS NOT INCLUDED HERE - SEE GATK RealignerTargetCreator
-## Using the known indels - from the Wellcome Trust
-## data, we can recalibrate the reads to avoid a lot
-## false positives SNPs in the final data.
-ls /group/palmer-lab/AIL/GBS/bams/*.requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.requaled.list
-## Run the realignment code
-numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "`
-qsub -t 1-${numlines}%200 /group/palmerlab/AIL/code/realign.sh
+#########################################################################################################
+## Indel realignment steps - SHYAM 									#
+#########################################################################################################
+## In this case, we are using the target list created from the						#
+## WT indel list. In case and if we ever get a list from HL						#
+## that target list needs to be created again. 								#
+## THAT STEP IS NOT INCLUDED HERE - SEE GATK RealignerTargetCreator					#
+## Using the known indels - from the Wellcome Trust							#
+## data, we can recalibrate the reads to avoid a lot							#
+## false positives SNPs in the final data.							       	#
+## ls /group/palmer-lab/AIL/GBS/bams/*.requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.requaled.list  	#
+## Run the realignment code  									       	#
+## numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "` 	#
+## qsub -t 1-${numlines}%200 /group/palmerlab/AIL/code/realign.sh                                      	#
+#########################################################################################################
 
-#############################
+
+#####################################################
 ## 14 Jul 2015 - Natalia 
 ## Indel realignment steps using Lawson data
 
-## RealignerTargetCreator 
+#####################################################
+## RealignerTargetCreator - GATK 3.3-0
 ## Obtain list of intervals to perform realignment using Lawson indels as input.
 
 # 1. Convert /AIL/knownSNPs/Lawson/LG.Indels & SM.Indels to LG_SM_Indels.vcf (Thank you April)
 # 	April's script for doing this is in /AIL/LgSm-DataProcessing/scripts/make_indel_vcf.R
 
-# 2. Sort vcf indel file using /shared_code/sortByRef.pl
+# 2. Sort vcf indel and SNP files using /shared_code/sortByRef.pl
 #    Remember to restore VCF-style headers to the newly generated file.
-perl /group/palmer-lab/shared_code/sortByRef.pl /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf /group/palmer-lab/reference_genomes/mouse/mm10.fasta.fai > LG_SM_sortedIndels.vcf
+perl /group/palmer-lab/shared_code/sortByRef.pl /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf /group/palmer-lab/reference_genomes/mouse/mm10.fasta.fai > LG_SM_sortedIndels.vc
+perl /group/palmer-lab/shared_code/sortByRef.pl /group/palmer-lab/AIL/knownSNPs/Lawson/LGSM.mm10.lawson.vcf /group/palmer-lab/reference_genomes/mouse/mm10.fasta.fai > LGSM_mm10.orderedN.vcf
 	
 # 3. Run RealignerTargetCreator
 java -Xmx2g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T RealignerTargetCreator -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta -known:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf -o LG_SM.mm10.realign.intervals
 
-## IndelRealigner
+#####################################################
+## IndelRealigner - GATK 3.3-0
 ## Realign F1, LG and SM controls around known indels
 
-# 1. Make .list file for GATK
-ls /group/palmer-lab/AIL/GBS/bams/controls/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
+# 1. Make .list files for GATK
+## /group/palmer-lab/AIL/GBS/bams/realign.ail.1.list
+## /group/palmer-lab/AIL/GBS/bams/realign.ail.2.list
+## /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
 
 # 2. Run IndelRealigner
 numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
 
-# make sample list from 3 separate directories
-#ls /group/palmer-lab/AIL/GBS/bams/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.list
-#ls /group/palmer-lab/AIL/GBS/bams/controls/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list
-#ls /group/palmer-lab/AIL/GBS/bams/reps/*requaled.bam > /group/palmer-lab/AIL/GBS/bam.ail.reps.list
-#cat /group/palmer-lab/AIL/GBS/bam.ail.ctrl.list /group/palmer-lab/AIL/GBS/bam.ail.list /group/palmer-lab/AIL/GBS/bam.ail.reps.list > /group/palmer-lab/AIL/GBS/bam.all.requaled.list
-
-## CallableLoci
+####################################################
+## CallableLoci - GATK 3.3-0
 ## What areas of the genome are considered callable in F1, LG and SM controls?
 
 # 1. Make list file after shortening filenames
@@ -153,21 +155,93 @@ ls /group/palmer-lab/AIL/GBS/bams/controls/*rep[0-9].bam /group/palmer-lab/AIL/G
 numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.realigned.ctrl.list | sed "s/^\W\+//" | cut -f1 -d " "`
 qsub -t 1-${numlines} /group/palmerlab/AIL/code/callable.loci.sh
 
-############# CHANGED READ GROUPS FOR EACH LANE ################
-# 6 AUG 2015 - NATALIA
+###################################################
+## AddOrReplaceReadGroups (Picard)
+## BQSR is applied per lane; each lane should be a read group. The >@RG line in the bam file headers should 
+## include the MACHINE:RUN:LANE fields from the sequence identifier. This should be identical to the PU field
+## because Platform Unit takes precedence to RG if specified. The following file contains the information
+## required to fill in the appropriate fields in the RG header for each bam file in bams:
+## 		/group/palmer-lab/AIL/GBS/bams/RG_info.RData
+## It contains the RG/PU fields, barcode index, sample ID, and input/output filenames. 
+## I used an on-the-fly R script to make the commands to run Picard-AddOrReplaceReadGroups for each sample.
+## Using the files 
+##		/group/palmer-lab/AIL/code/addRG.sh 
+##		/group/palmer-lab/code/addRepRGall.cmds 
+## I changed the RG fields by running:
+## 		qsub addRG.sh
+## PU and RG are the same. LB = barcode index. SM = sample ID. CN = FGF for 152/154, GILAD for all others.
+## IMPORTANT: I did this on all files with repN in the filename, not on the merged bam files (see Shyam's code
+## below). Some samples were sequenced more than once and have filename 22222.rep0, 22222.rep1... etc. Shyam
+## had merged files belonging to the same sample and kept the originals in the 'reps' folder. Since I want to
+## run BQSR, and since BQSR is applied to each separate ReadGroup rather than each individual sample, I used
+## the original 'rep' files in this application and in the ones that follow. The idea is that rep0 and rep1 for
+## a given sample would have been sequenced in separate lanes and hence would have different RGs - they should
+## not be merged before their RGs are changed to reflect that.
 
+##################################################
+## BaseRecalibrator - GATK 3.3-0
+## BaseRecalibrator spits an error when I try to run more than two flowcells at a time. Since the command is
+## applied to each lane separately, it doesn't really matter if I don't run all flowcells in one batch. It is
+## faster (<24hrs per run) to submit a separate job for each flowcell, but there are multiple scripts involved.
+## I made a bam.list file for each run (located in /bams/run290, e.g.) and fed them to GATK separately using 
+## this command (for example):
 
-#########################
-###### RUN BQSR #########
-#########################
+## GENERATE FIRST PASS RECALIBRATION TABLE
+## java -Xmx9g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar 
+## -T BaseRecalibrator 
+## -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta 
+## -I /group/palmer-lab/AIL/GBS/bqsr152.list 
+## -knownSites:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LGSM.mm10.orderedN.vcf 
+## -knownSites:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf
+## -o bqsr152.table
 
-java -Xmx9g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar -T BaseRecalibrator -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta -I /group/palmer-lab/AIL/GBS/run152.BQSR.test.list -knownSites:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LG_SM_Indels.vcf --list -o run152.BQSR.test.table
+## The files containing these commands are:
+## /group/palmer-lab/AIL/GBS/bams/bqsr152.list		/group/palmer-lab/AIL/code/bqsr152.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr154.list		/group/palmer-lab/AIL/code/bqsr154.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr175.177.list 	/group/palmer-lab/AIL/code/bqsr175.177.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr183.list		/group/palmer-lab/AIL/code/bqsr183.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr195.list		/group/palmer-lab/AIL/code/bqsr195.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr290.list		/group/palmer-lab/AIL/code/bqsr290.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr291.list		/group/palmer-lab/AIL/code/bqsr291.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr381.list		/group/palmer-lab/AIL/code/bqsr381.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr386.list		/group/palmer-lab/AIL/code/bqsr386.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr388.list		/group/palmer-lab/AIL/code/bqsr388.sh
+## /group/palmer-lab/AIL/GBS/bams/bqsr407.list		/group/palmer-lab/AIL/code/bqsr402.sh
 
-numlines=`wc -l /group/palmer-lab/AIL/GBS/bam.ail.requaled.list | sed "s/^\W\+//" | cut -f1 -d " "`
-qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
+## GENERATE SECOND PASS RECALIBRATION TABLE
+## java -Xmx9g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar
+## -T BaseRecalibrator
+## -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta 
+## -I /group/palmer-lab/AIL/GBS/bqsr152.list 
+## -knownSites:VCF /group/palmer-lab/AIL/knownSNPs/Lawson/LGSM.mm10.orderedN.vcf 
+## -knownSites:VCF /group/palmer-lab/AIL/knownSNPs/Lawson.LG_SM_Indels.vcf
+## -BQSR bqsr152.table
+## -o bqsr152b.table
 
+## GENERATE PLOTS AND KEEP A COPY OF THE CSV
+## java -Xmx4g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar
+## -T AnalyzeCovariates
+## -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta 
+## -before bqsr152.table
+## -after bqsr152_b.table
+## -csv result.bqsr152.csv  # optional
+## -plots plot.bqsr152.pdf
 
+#################################################
+## PrintReads and Apply BQSR - GATK 3.3-0
+## Use the BaseRecalibration table data to recalibrate QUAL scores in the input bam. The new QUAL
+## score is the sum of the global difference between reported QUAL scores and the empirical QUAL +
+## the quality bin-specific shift + the cycle*quality and dinucleotide*quality effects.
+## PrintReads takes 1 or more bam files and input and outputs a single processed bam file. 
+## For the combined 175-177 runs above, you can use the option readGroups to omit one of them from
+## the output so that you can have one bam per flow cell. 
 
+## java -Xmx9g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar
+## -T PrintReads
+## -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta 
+## -I /group/palmer-lab/AIL/GBS/bqsr152.list 
+## -BQSR bqsr152.table
+## -o output.bam
 
 
 ##############################

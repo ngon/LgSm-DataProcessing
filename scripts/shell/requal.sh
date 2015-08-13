@@ -35,7 +35,7 @@ module load samtools
 
 # Run the commands
 CMD=`head -$PBS_ARRAYID /group/palmer-lab/AIL/code/requal.ctrl.conversion.cmds | tail -1`
-echo "Running command $cmd"
+echo "Running command $CMD"
 $CMD
 echo "Done running command."
 
