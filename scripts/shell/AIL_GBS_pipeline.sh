@@ -233,8 +233,6 @@ qsub -t 1-${numlines} /group/palmerlab/AIL/code/callable.loci.sh
 ## score is the sum of the global difference between reported QUAL scores and the empirical QUAL +
 ## the quality bin-specific shift + the cycle*quality and dinucleotide*quality effects.
 ## PrintReads takes 1 or more bam files and input and outputs a single processed bam file. 
-## For the combined 175-177 runs above, you can use the option readGroups to omit one of them from
-## the output so that you can have one bam per flow cell. 
 
 ## java -Xmx9g -jar /apps/software/GenomeAnalysisTK/3.3-0/GenomeAnalysisTK.jar
 ## -T PrintReads
