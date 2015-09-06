@@ -23,7 +23,6 @@
 
 ### Inform the scheduler that it is an array job and tell it to limit the
 ### number of simultaneous jobs being run.
-##PBS -t 1-1833%100
 
 ### Merge the output and error streams
 #PBS -j oe
@@ -32,10 +31,10 @@
 # Job Execution #
 #################
 
-# Load the approprite applications
 module load bwa
 
 # Script to align using bwa mem
+# INFILE is a text file containing a list of files to process; one file per line.
 INFILE=`head -$PBS_ARRAYID /group/palmer-lab/AIL/GBS/unmapped.txt | tail -1`
 DIR='/group/palmer-lab/AIL/GBS/fastqs/'
 OUTDIR='/group/palmer-lab/AIL/GBS/bams/'
