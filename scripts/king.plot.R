@@ -32,7 +32,7 @@ king.plot <- function(kingdata, gen) {
     u <- par("usr")
     parcol <- rgb(255,0,0,80, maxColorValue = 255)
     sibcol <- rgb(255,165,0,80, maxColorValue = 255)
-    othercol <- rgb(69,139,0,60,maxColorValue=255)
+    othercol <- rgb(30,144,255,50,maxColorValue=255)
     unrelcol <- rgb(190,190,190,35,maxColorValue=255)
 
     pdf(file=paste0("IBS0_K.",gen, ".pdf"), height=5, width = 5)
@@ -55,7 +55,7 @@ king.plot <- function(kingdata, gen) {
     abline(h = 0.0221, col = "black", lty = 3)
     legend("bottomleft", xjust=1, yjust=1, pch = c(4,6,1,20), bty="n",
            legend=c("Parent-offspring", "Full sibs", "Other", "Unrelated"),
-           col = c("red", "orange", "chartreuse4", "grey"), cex=0.7)
+           col = c("red", "orange", "dodgerblue", "grey"), cex=0.7)
     dev.off()
 
 
@@ -88,7 +88,7 @@ king.plot <- function(kingdata, gen) {
 #   u <- par("usr")
     legend("bottomleft", xjust=1, yjust=1, pch = c(4,6,1,20), bty="n",
            legend=c("Parent-offspring", "Full sibs", "Other", "Unrelated"),
-           col = c("red", "orange", "chartreuse4", "grey"), cex=0.7)
+           col = c("red", "orange", "dodgerblue", "grey"), cex=0.7)
     dev.off()
 
 
@@ -114,10 +114,18 @@ king.plot <- function(kingdata, gen) {
     u <- par("usr")
     legend(u[2], u[4], xjust=1, yjust=1, pch = c(4,6,1,20), bty="n",
            legend=c("Parent-offspring", "Full sibs", "Other", "Unrelated"),
-           col = c("red", "orange", "chartreuse4", "grey"), cex=0.7)
+           col = c("red", "orange", "dodgerblue", "grey"), cex=0.7)
     dev.off()
 
 }
+
+king.plot(gen50, "F50"); king.plot(gen51, "F51"); king.plot(gen52, "F52");
+king.plot(gen53, "F53"); king.plot(gen54, "F54"); king.plot(gen55, "F55");
+king.plot(gen56, "F56")
+
+king.plot(gen39.40, "F39_40"); king.plot(gen40.41, "F40_41"); king.plot(gen41.42, "F41_42")
+king.plot(gen42.43, "F42_43")
+
 
 
 
