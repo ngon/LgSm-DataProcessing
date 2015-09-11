@@ -22,7 +22,7 @@ numfiles=`wc -l /group/palmer-lab/AIL/GBS/fastqs.ail.list | sed "s/^\W\+//" | cu
 qsub -t 1-${numfiles} /group/palmer-lab/AIL/code/alignToMM10Mem.sh
 
 
-## STANDARDIZE PHRED QUALITY SCORES ---------------------------------------------------------------
+## STANDARDIZE PHRED QUALITY SCORES (PL) -----------------------------------------------------------
 ## Input: aligned, coord-sorted .bam files
 ## Requirements: samtools, convertQualScoreBam
 
@@ -222,12 +222,81 @@ OUTDIR="/group/palmer-lab/AIL/GBS/vars/rawAllelesHC/run152"
  --genotyping_mode DISCOVERY
  --minPruning 1
  --minDanglingBranchLength 1
- --max_alternate_alleles 3
+ --max_alternate_alleles 2
  --minReadsPerAlignmentStart 1
  --heterozygosity 0.005
 
-
 ## MERGE gVCFs IN BATCHES OF 200 -------------------------------------------------------------------
+## GENOTYPE CALLING
+## VARIANT ANNOTATION
+## VARIANT FILTERING (VQSR) FOR SNPS AND INDELS
+
+
+## NOTES FROM BROAD INST MAR 15 WORKSHOP -----------------------------------------------------------
+
+## Joint discovery ensures info is available for every site rather than for just vars.
+## Database of likelihoods: prob of a geno being HOM-ALT or HET for each individual
+## Result of GenoCalling is a squared off matrix for analysis. A column for each site, variant, and
+## then the genotype for each sample along with phred-scaled likelihoods given NGS data in
+## hom/het/hom-alt format.
+## If no coverage at a particular site, joint genotyping will ignore it
+##
+## To determine active regions, HC traverses the genome with a sliding window, counting mismatches,
+## indels and soft clips. Once it reaches a threshold (gathers enough evidence for variation in a
+## region), it stops and assembles plausible haplotypes in the active region using De Bruijn-like
+## graph assembly. The reads at each locus are chopped up into smaller sized kmers. When kmers
+## overlap, this defines an edge in the De Bruijn graph. Edges are weighted according to how many
+## reads support the overlap. Haplotypes are assembled by traversing the graph.
+## Min pruning: gets rid of edges that don't have enough reads (weights) supporting overlap.
+## Haplotypes are then realigned to the reference (reassembly).
+##
+## HMM: What is the likelihood of the haplotype given the reads? Empirical gap penalties are derived
+## from BQSR. Base mismatch penalties are derived from base quality scores.
+## Then each sample is genotyped (2 steps). First get likelihoods of alleles given the reads and
+## then apply it to a Bayesian model. Take the highest probability of haplotypes given the reads
+## (result of the HMM) that contain the allele (for each variant position). For example, suppose
+## the variant is either a T or a gap, and there are 4 possible haplotypes. Only Hap 1 and Hap 3
+## contain a gap. HC takes Hap 3, e.g., because given that there are 2 reads,it has the highest
+## probability associated with it.
+## find the probability of each genotype given the reads.
+## bonus perk of haplotype calling: free physical phasing.
+## PID - phase identifier; PID - phase genotype. If phased, you see a pipe | in the gVCF.
+## For multisample analysis, you need likelihoods of all possible genotypes at all sites (Ref conf
+## model) - even nonvariant sites.
+##
+## gVCF files include a <non-ref> allele annotation for potentially non-called alternative alleles.
+## start, end and site level annotations. PL (genotype confidence)
+##
+## VQSR NOTES
+## Main idea is that by building a model of what true genetic variation looks like, one can rank-
+## order variants based on their likelihood of being real.
+##
+## Use truth sites to estimate sensitivity
+## Ti/Tv ratio is used to estimate the proportion of true:false positives in the callset (based on
+## expectation of what the Ti/Tv ratio should be)
+## you want to pick the tranche that has mostly true positives and only a few false positives.
+## The first tranche (from the bottom, with the highest value of truth
+## sensitivity but usually the lowest values of novel Ti/Tv) is exceedingly specific but less
+## sensitive, and each subsequent tranche in turn introduces additional true
+## positive calls along with a growing number of false positive calls.
+## a higher priority than one can dip down into lower tranches. These tranches are applied to the
+## output VCF using the FILTER field. you can choose to use some of the filtered records or only use
+## the PASSing records.
+## VQSR only uses annotations that are available for all of the samples.
+##
+## Math details: uses the variational Bayes EM algorithm to fit a mixture of Gaussians on a training
+## set of annotated variants. each gaussian gets a weight according to the density of points and the
+## parameters are optimized in a bayesian iterative process.
+## MAP probability = maximum a-posteriori probability
+##
+
+
+
+
+
+
+
+
 
 
 

@@ -1,14 +1,15 @@
 ### June 15, 2015
 # PURPOSE: Determine whether alternative allele in .filtered.dosage files
 # is LG or SM by linking to info in haplotype files.
-## THIS SCRIPT HAS BEEN TESTED ON CRI. EXECUTE ONE CHROMOSOME AT A TIME USING:
+## Designed to run 1 chr at at time:
 ## > is.lgsm(chromosome="chr19")
-## OR ALL AT ONCE WITH: > haplos <- lapply(chrNameVector, is.lgsm)
+## or all at once with: > haplos <- lapply(chrNameVector, is.lgsm)
 
 ### DESCRIPTION OF DATA --------------------------------------------------------
 # /AIL/knownSNPs/imputeHaplotypes/ contains .hap and .legend files.
 # .hap files have 2 cols - col 1 is LG and col 2 is SM. values in these cols
 # are either 0 for the reference allele, or 1 for the alternative allele.
+
 # Legend files list the reference and alternative alleles' nucleotide bases.
 # Dosage in .filtered.dosage files corresponds to the number of alternative
 # alleles each individual has at the locus.
