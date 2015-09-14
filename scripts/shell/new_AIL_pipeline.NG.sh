@@ -63,7 +63,7 @@ samtools view {filename} | cut -f 11 | head -10
 
 ## INDEL REALIGNMENT ------------------------------------------------------------------------------
 ## Input: Aligned, coord-sorted, requaled .bams
-## Requirements: GATK 3.3.0, interval list from Heather Lawson's LG/SM WGS data, mm10 dictionary
+## Requirements: GATK v.3, interval list from Heather Lawson's LG/SM WGS data, mm10 dictionary
 
 ## HOW THE REQUIRED FILES WERE GENERATED
 ## April converted text files of LG and SM variants into VCF files for indels and SNPs using
@@ -105,7 +105,7 @@ samtools view -H {filename}
 
 ## BASE RECALIBRATION -----------------------------------------------------------------------------
 ## Input: Input: Aligned, coord-sorted, requaled, realigned, regrouped .bams
-## Requirements: GATK v3.3, samples.list files, R (ggplot2, )
+## Requirements: GATK v.3, samples.list files, R (ggplot2, )
 
 ## Notes
 ## Run each flow cell separately because GATK runs exponentially slower as the number of read groups
@@ -193,7 +193,7 @@ done
 
 ## RE-REALIGN MERGED SAMPLES -------------------------------------------------------------------------
 ## Input: Aligned, coord-sorted, requaled, realigned, regrouped bams that were merged
-## Requirements: GATK 3.3.0, interval list from Heather Lawson's LG/SM WGS data, mm10 dictionary
+## Requirements: GATK v.3, interval list from Heather Lawson's LG/SM WGS data, mm10 dictionary
 
 ## Note: This is optional, but it ensures consistent alignment across all RGs for a sample.
 
@@ -205,7 +205,7 @@ qsub -t 1-${numlines} /group/palmerlab/AIL/code/realign.sh
 
 ## PER-SAMPLE VARIANT CALLING ---------------------------------------------------------------------
 ## Input: Aligned, coord-sorted, requaled, realigned, regrouped bams, 1 file per sample.
-## Requirements: GATK v.3.4-46: HaplotypeCaller
+## Requirements: GATK v.3
 
 INFILE=`head -$PBS_ARRAYID /group/palmer-lab/AIL/GBS/vars/alleleCalls.list | tail -1`
 BASENAME=`basename $INFILE`
@@ -227,7 +227,28 @@ OUTDIR="/group/palmer-lab/AIL/GBS/vars/rawAllelesHC/run152"
  --heterozygosity 0.005
 
 ## MERGE gVCFs IN BATCHES OF 200 -------------------------------------------------------------------
+## Input: Per-sample gVCFs and corresponding .list file
+## Requirements: GATK, bcftools
+
+## GATK: CombineGVCFs
+## /vars/rawAllelesHC/mergeGVCF.sh
+java -Xmx3g -jar /apps/software/GenomeAnalysisTK/3.4-46/GenomeAnalysisTK.jar
+-T CombineGVCFs
+-R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta
+-o allelesValidationCohort.g.vcf
+--variant validationGvcfs.list
+
+## Set variant IDs
+module load bcftools/1.2
+bcftools annotate --set-id +'ail\.%CHROM\.%POS' $INFILE
+
 ## GENOTYPE CALLING
+java -Xmx6g -jar /apps/software/GenomeAnalysisTK/3.4-46/GenomeAnalysisTK.jar
+-T GenotypeGVCFs
+-R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta
+-o genotypesValidationCohort.vcf
+-variant allelesValidationCohort.g.vcf
+
 ## VARIANT ANNOTATION
 ## VARIANT FILTERING (VQSR) FOR SNPS AND INDELS
 

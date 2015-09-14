@@ -18,7 +18,7 @@ Venn Diagrams of sites covered by various resources.
             > Running HaplotypeCaller on LAWSON BAMS to see how its genotype calls match up to
               the ones filtered and considered True by HL. This could be useful as a sanity check
               for recalibrating variants. If the KNOWN set is used as the truth set, most of these
-              calls should pass. HL's paper will have a tally of how many SNPs were filtered out of
+              calls should pass. HLs paper will have a tally of how many SNPs were filtered out of
               the original BAMs, which will be useful. I can use her KNOWN SNPs as the truth set
               for recalibrating bases with BQSR and then run those samples through the same process
               as the GBS BAMs.
@@ -66,7 +66,7 @@ Error analysis
 
 
 
-### PREPARING HEATHER'S BAM FILES FOR GATK PROCESSING ---------------------------------------------
+### PREPARING HEATHERS BAM FILES FOR GATK PROCESSING ---------------------------------------------
 
 # BAM files don't have the proper contig labels (i.e. '1' is listed instead of 'chr1')
 module load samtools
@@ -74,7 +74,7 @@ samtools view -H SM_rmdup_sorted_hl.bam > SM_header
 samtools view -H LG_rmdup_sorted_hl.bam > LG_header
 # vim: %s/SN:/SN:chr/g
 samtools reheader SM_header SM_rmdup_sorted_hl.bam > SM.rehead.bam
-samtools reheader LG_header LG_rmdup_sorted_hl.bam > LG.rehead.bam
+samtools reheader LG_header LG_rmdup_sorted_hl.bam > LG.rehead.bam #####
 
 # create list of unique reads in Lawson bams.
 module load samtools
@@ -131,6 +131,7 @@ java -Xmx6g -jar /apps/software/GenomeAnalysisTK/3.4-46/GenomeAnalysisTK.jar
 -V genotypesValidationCohort.vcf
 -A GCContent -A HardyWeinberg
 # for ped: -A PossibleDeNovo -A InbreedingCoeff
+# # MAKE PED
 -o annotGenotypesValidationCohort.vcf
 
 
