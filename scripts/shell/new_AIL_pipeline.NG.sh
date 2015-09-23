@@ -232,7 +232,7 @@ OUTDIR="/group/palmer-lab/AIL/GBS/vars/rawAllelesHC/run152"
 
 ## GATK: CombineGVCFs
 ## /vars/rawAllelesHC/mergeGVCF.sh
-java -Xmx3g -jar /apps/software/GenomeAnalysisTK/3.4-46/GenomeAnalysisTK.jar
+java -Xmx3g -jar /apps/software/GenomeAnalysisTK/3.4-46/GenomeAnalysisTK.jarqsub
 -T CombineGVCFs
 -R:REFSEQ /group/palmer-lab/reference_genomes/mouse/mm10.fasta
 -o allelesValidationCohort.g.vcf
