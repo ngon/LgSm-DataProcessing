@@ -287,7 +287,8 @@ java -Xmx6g -jar /apps/software/GenomeAnalysisTK/3.4-46/GenomeAnalysisTK.jar
 ##
 ## gVCF files include a <non-ref> allele annotation for potentially non-called alternative alleles.
 ## start, end and site level annotations. PL (genotype confidence)
-##
+
+
 ## VQSR NOTES
 ## Main idea is that by building a model of what true genetic variation looks like, one can rank-
 ## order variants based on their likelihood of being real.
