@@ -1,0 +1,159 @@
+---
+title: "AIL phenotype info"
+author: "Natalia Gonzales"
+date: "Wednesday, August 13, 2014"
+output: html_document
+---
+
+Phenotypes are stored in cols and each row corresponds to a mouse id. 
+
+# Overview
+##I. Phenotypes
+      A. Conditioned place preference (CPP) and activity
+            1. CPP
+            2. Activity
+            3. Wildness
+
+      B. Prepulse inhibition (PPI)
+            1.PPI
+            2.Startle
+            3.Habituation
+
+      C. Physiological phenotypes
+            1.Fasting blood glucose
+            2.Body weight
+            3.Tail length
+
+##II. Covariates 
+      A. Age
+      B. Dates
+      C. Box
+      D. Family
+      E. Batch Info
+      F. Coat
+      G. Sex
+      H. Body Weight
+
+
+# I. Phenotypes 
+
+## A. CPP and Activity
+Data is measured in six 5-min (300 sec) bins over the course of 8 days.  
+No measurements are taken on days 6-7.
+For variables measured on multiple days, the variable name is structured as
+"nameN.n" where 'N' represents the day (1-5 & 8) and 'n' represents the bin. 
+
+
+### 1. CPP
+* cppN.n - time spent on left(meth)-paired side on day 1 or 8 (initial preference)
+* cppN.p - proportion of time spent on left(meth)-paired side on day 1 or 8 (cpp)
+* cppN.t - total sec spend on left(meth)-paired side on day 1 or 8 (cpp)
+* cpp.diff - cpp8.p minus cpp1.p
+* cpp.diff.corrected - cpp.diff with corrected proportions for animals with comerr1 or 8
+
+
+### 2. Activity
+* actN.n - cm traveled on day N, bin n
+* actN.t - cm traveled on day N, total
+* scN.n - number times the mouse switched from L to R side, day 1 or 8, bin n
+* scN.t - number times the mouse switched from L to R side, day 1 or 8, total
+* sens - locomotor sensitization, act4.t minus act2.t
+
+
+### 3. Wildness
+* wild - number of times the mouse escaped its holding cage during the cpp assay
+
+
+
+## B. PPI
+PPI is given as % PPI, given by the formula:
+%PPI = 100 - [100 * (avg. startle for prepulse trials / avg startle for pulse-alone trials in blocks 2 and 3)]
+
+### 1. PPI
+* avg.ppi - average ppi over all 3 prepulse trials
+* ppi3 - average ppi for trials with 73 dB prepulse
+* ppi6 - average ppi for trials with 76 dB prepulse
+* ppi12 - average ppi for trials with 82 dB prepulse
+
+### 2. Startle
+* startle - average startle for blocks 2 and 3
+
+### 3. Habituation
+* habituation - average startle block 4 minus average startle block 1
+
+
+
+## C. Physiological phenotypes
+
+### 1. Fasting blood glucose
+* glucose - blood glucose levels (mg/dL) after a 4-hr fast 
+
+### 2. Body weight
+* dN.weight - weight on day N of the cpp assay
+* ppi.weight - weight on day ppi was measured
+* glu.weight - weight on day glucose levels were taken
+* rip.weight - post mortem weight
+
+### 3. Tail length
+* tail - cm
+
+
+
+# Covariates 
+
+##A. Age (days)
+* cpp.age
+* ppi.age
+* glu.age
+* rip.age - age at death
+* wean.age - age when animal was weaned (should be ~21d)
+
+##B. Dates (POSIXlt "%m/%d/%y")
+Month is also given in character format as cpp.mo, e.g.
+* cpp.date 
+* ppi.date 
+* glu.date
+* rip.date
+* dob - date of birth
+
+##C. Box (number)
+* cpp.box
+* ppi.box
+
+##D. Family
+* fam - family name with structure 'Br''gen of parents'-'nn' (e.g. BrF54-09)
+* dam - mom's 5 digit id
+* sire - dad's 5 digit id
+* cage - mouse's house with structure 'Test''gen'-'nn' (e.g. TestF50-01)
+* mf.ratio - ratio of males to females in litter
+
+##5. Batch info
+* batch - number
+* gen - generation 
+
+##6. Coat 
+* coat - coat color (A, W, B) 
+* cc - coat with with ear tag location (L, R, RL)
+* agouti - A
+* black - B
+* white - W 
+
+##7. Sex
+* sex - M or F 
+
+##8. Body weight
+* see phenotypes. body weight can be used as a covariate for ppi and glucose.
+
+# Check phenotypes
+## 1. Covariates - check which covariates are important. Natalia already has plots for the distribution of these phenotypes conditional on covariates.
+Covariates for behavioral phenos now listed in mapQTL script (stored as list)
+
+## 2. Transformation of the phenotypes based on distribution of the residuals.
+## 3. Check if generation is a confounder after accounting for the relatedness. 
+
+# Get data to fit LMM using GEMMA
+## 1. Make one master file each for phenotypes and covariates in the same order as 
+genotyped mice. If mouse not phenotyped, that is easy to fix - mark phenotype as NA. If Mouse not genotyped, exclude mouse from analysis.
+
+## 2. Estimate kinship matrix for each chromosome (excluding that chromosome).
+## 3. Run GEMMA from R for each chromosome separately.
